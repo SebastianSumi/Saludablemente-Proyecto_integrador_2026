@@ -1,0 +1,189 @@
+<div class="form-cabecera">
+  <div class="modulo-icono">
+    <tui-icon icon="@tui.send" />
+  </div>
+  <div>
+    <h2>Sincronización masiva</h2>
+    <p class="hint">
+      @if (ping(); as p) {
+        Backend {{ p.status }} · latencia visible en consola del coordinador.
+      } @else {
+        Verificando conexión con el backend...
+      }
+    </p>
+  </div>
+</div>
+
+<form [formGroup]="form" (ngSubmit)="enviar()">
+  <section class="card">
+    <h3>Origen del lote</h3>
+    <div class="form-grid">
+      <label tuiLabel class="field">
+        Dispositivo
+        <tui-textfield>
+          <input tuiInput type="text" formControlName="dispositivoId" />
+        </tui-textfield>
+        <tui-error formControlName="dispositivoId" />
+      </label>
+
+      <label tuiLabel class="field">
+        Flujo
+        <tui-textfield tuiChevron>
+          <input tuiComboBox formControlName="tipoFlujo" />
+          <tui-data-list-wrapper *tuiDropdown [items]="flujos | tuiFilterByInput" />
+        </tui-textfield>
+      </label>
+    </div>
+  </section>
+
+  <section class="card">
+    <h3>
+      Registros capturados offline
+      <button tuiButton appearance="outline" size="s" type="button" (click)="agregarFila()">
+        <tui-icon icon="@tui.plus" />
+        Agregar fila
+      </button>
+    </h3>
+
+    @for (f of filas(); track f.idLocal; let i = $index) {
+      <div class="lote-fila">
+        <label tuiLabel class="field">
+          Actividad ID
+          <tui-textfield>
+            <input
+              tuiInput
+              type="number"
+              [value]="f.idActividad"
+              (input)="actualizarFila(i, 'idActividad', $any($event.target).value)"
+            />
+          </tui-textfield>
+        </label>
+
+        <label tuiLabel class="field">
+          Tipo
+          <tui-textfield tuiChevron>
+            <input
+              tuiComboBox
+              [(ngModel)]="filas()[i].tipo"
+              [ngModelOptions]="{ standalone: true }"
+            />
+            <tui-data-list-wrapper *tuiDropdown [items]="tipos | tuiFilterByInput" />
+          </tui-textfield>
+        </label>
+
+        <label tuiLabel class="field">
+          Hora captura
+          <tui-textfield>
+            <input
+              tuiInputDateTime
+              [(ngModel)]="filas()[i].horaCaptura"
+              [ngModelOptions]="{ standalone: true }"
+            />
+            <tui-calendar *tuiDropdown />
+          </tui-textfield>
+        </label>
+
+        <label tuiLabel class="field">
+          Código QR personal
+          <tui-textfield>
+            <input
+              tuiInput
+              type="text"
+              [value]="f.codigo"
+              (input)="actualizarFila(i, 'codigo', $any($event.target).value)"
+              placeholder="Hash personal"
+            />
+          </tui-textfield>
+        </label>
+
+        <label tuiLabel class="field">
+          QR actividad <span class="required">*</span>
+          <tui-textfield>
+            <input
+              tuiInput
+              type="text"
+              [value]="f.codigoActividad"
+              (input)="actualizarFila(i, 'codigoActividad', $any($event.target).value)"
+              placeholder="UPeU-ASIS-A:…"
+            />
+          </tui-textfield>
+        </label>
+
+        <button
+          tuiButton
+          appearance="flat"
+          size="s"
+          type="button"
+          title="Quitar fila"
+          [disabled]="filas().length <= 1"
+          (click)="quitarFila(i)"
+        >
+          <tui-icon icon="@tui.x" />
+          Quitar
+        </button>
+      </div>
+    }
+  </section>
+
+  @if (error()) {
+    <p class="error">{{ error() }}</p>
+  }
+
+  <div class="form-actions form-acciones">
+    <button tuiButton appearance="primary" size="m" type="submit" [loading]="enviando()">
+      <tui-icon icon="@tui.send" />
+      Enviar lote ({{ filas().length }})
+    </button>
+  </div>
+</form>
+
+@if (resultado(); as r) {
+  <section class="card">
+    <h3>Reporte del lote</h3>
+    <dl class="detail-grid">
+      <dt>Procesados</dt>
+      <dd>{{ r.procesados }}</dd>
+      <dt>Sincronizados</dt>
+      <dd>{{ r.synced }}</dd>
+      <dt>A cuarentena</dt>
+      <dd>{{ r.cuarentena }}</dd>
+      <dt>Fallidos</dt>
+      <dd>{{ r.failed }}</dd>
+    </dl>
+
+    <div class="table-wrapper">
+      <table tuiTable>
+        <thead>
+          <tr>
+            <th tuiTh>ID local</th>
+            <th tuiTh>Resultado</th>
+            <th tuiTh>Motivo</th>
+            <th tuiTh>IDs</th>
+          </tr>
+        </thead>
+        <tbody tuiTbody>
+          @for (x of r.resultados; track x.idLocal) {
+            <tr>
+              <td tuiTd>{{ x.idLocal }}</td>
+              <td tuiTd>
+                <span tuiBadge [appearance]="aparienciaResultado(x.resultado)" size="s">
+                  {{ x.resultado }}
+                </span>
+              </td>
+              <td tuiTd>{{ x.motivo ?? '—' }}</td>
+              <td tuiTd>
+                @if (x.idAsistencia) {
+                  Asistencia #{{ x.idAsistencia }}
+                } @else if (x.idCuarentena) {
+                  Cuarentena #{{ x.idCuarentena }}
+                } @else {
+                  —
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+}

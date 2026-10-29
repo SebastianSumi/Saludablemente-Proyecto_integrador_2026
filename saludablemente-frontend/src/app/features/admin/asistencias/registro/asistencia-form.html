@@ -1,0 +1,337 @@
+<!-- ══════════════════════════════════════
+     CABECERA + PASO 1: ACTIVIDAD Y GPS
+     ══════════════════════════════════════ -->
+<div class="form-cabecera">
+  <div class="tile tile-rounded tile-soft-primary modulo-icono">
+    <tui-icon icon="@tui.clipboard-check" />
+  </div>
+  <div>
+    <h2 class="card-title">Marcar Asistencia</h2>
+    <p class="card-subtitle">Selecciona la actividad en curso y marca a los inscritos</p>
+  </div>
+</div>
+
+@if (loading()) {
+  <div class="card estado-caja">
+    <p class="sal-subtitulo">Cargando actividades...</p>
+  </div>
+}
+
+@if (error()) {
+  <div class="card error-caja">
+    <tui-icon icon="@tui.triangle-alert" class="icono-alerta" />
+    <p class="error-msg">{{ error() }}</p>
+  </div>
+}
+
+@if (exito()) {
+  <div class="card exito-caja">
+    <tui-icon icon="@tui.circle-check" class="icono-exito" />
+    <p class="exito-msg">{{ exito() }}</p>
+  </div>
+}
+
+<section class="card">
+  <div class="seccion-titulo">
+    <span class="tile tile-rounded tile-soft-primary seccion-icono">
+      <tui-icon icon="@tui.calendar-check" />
+    </span>
+    <div>
+      <h3 class="seccion-nombre">Paso 1 — Actividad y ubicación</h3>
+      <p class="seccion-desc">Solo actividades en curso · GPS obligatorio</p>
+    </div>
+  </div>
+
+  <div class="form-grid" [formGroup]="form">
+    <label tuiLabel class="field">
+      <span class="field-label">Actividad en curso <span class="required">*</span></span>
+      <tui-textfield tuiChevron>
+        <input tuiComboBox formControlName="actividad" [strict]="true" placeholder="— Selecciona la actividad —" />
+        <tui-data-list-wrapper *tuiDropdown [items]="actividadesMarcables() | tuiFilterByInput" [itemContent]="actTpl" />
+      </tui-textfield>
+      <tui-error formControlName="actividad" />
+    </label>
+
+    <label tuiLabel class="field">
+      <span class="field-label">Tipo de asistencia</span>
+      <tui-textfield tuiChevron>
+        <input tuiComboBox formControlName="tipoAsistencia" />
+        <tui-data-list-wrapper *tuiDropdown [items]="tipos | tuiFilterByInput" />
+      </tui-textfield>
+    </label>
+  </div>
+
+  @if (actividadesMarcables().length === 0 && !loading()) {
+    <p class="seccion-desc">No hay actividades en curso. Inicia una desde la agenda.</p>
+  }
+
+  <div
+    class="gps-panel"
+    [class.gps-panel--ok]="gpsListo()"
+    [class.gps-panel--error]="geo.estado() === 'error'"
+  >
+    <span class="gps-panel-icono">
+      <tui-icon icon="@tui.locate-fixed" />
+    </span>
+    <div class="gps-panel-cuerpo">
+      @if (gpsListo()) {
+        <span class="gps-panel-titulo">GPS listo</span>
+        <p class="gps-panel-detalle">
+          <strong class="font-mono">{{ geo.ubicacion()?.latitud }}, {{ geo.ubicacion()?.longitud }}</strong>
+          @if (geo.ubicacion()?.precisionM != null) { (±{{ geo.ubicacion()?.precisionM }} m) }
+        </p>
+      } @else {
+        <span class="gps-panel-titulo">GPS obligatorio</span>
+        <p class="gps-panel-detalle">{{ geo.error() ?? 'Otorga permiso para marcar.' }}</p>
+      }
+    </div>
+    <div class="gps-panel-acciones">
+      <button tuiButton appearance="outline" size="s" type="button" [loading]="geo.estado() === 'detectando'" (click)="detectarUbicacion()">
+        <tui-icon icon="@tui.locate-fixed" />
+        Detectar
+      </button>
+      @if (enlaceMiUbicacion(); as url) {
+        <a tuiButton appearance="outline" size="s" [href]="url" target="_blank" rel="noopener">
+          <tui-icon icon="@tui.map" />
+          Maps
+        </a>
+      }
+    </div>
+  </div>
+</section>
+
+<ng-template #actTpl let-item>
+  <span class="opcion-actividad">
+    <strong class="opcion-actividad-nombre">{{ item.nombre }}</strong>
+    <span class="opcion-actividad-meta text-soft">{{ item.fechaActividad ?? '' }} · {{ item.lugar ?? '' }}</span>
+  </span>
+</ng-template>
+
+<!-- ══════════════════════════════════════
+     PASO 2: MODOS
+     ══════════════════════════════════════ -->
+@if (form.controls.actividad.value; as act) {
+  <!-- Stepper del wizard -->
+  <ol class="stepper">
+    <li class="stepper-paso stepper-paso--ok">
+      <span class="stepper-num">1</span>
+      <span class="stepper-txt">Actividad</span>
+    </li>
+    <li class="stepper-linea" aria-hidden="true"></li>
+    <li
+      class="stepper-paso"
+      [class.stepper-paso--ok]="resumen().pendientes === 0 && resumen().esperados > 0"
+      [class.stepper-paso--actual]="resumen().pendientes > 0 || resumen().esperados === 0"
+    >
+      <span class="stepper-num">2</span>
+      <span class="stepper-txt">Marcas</span>
+    </li>
+    <li class="stepper-linea" aria-hidden="true"></li>
+    <li class="stepper-paso" [class.stepper-paso--actual]="resumen().sinGuardar > 0">
+      <span class="stepper-num">3</span>
+      <span class="stepper-txt">Guardar</span>
+    </li>
+  </ol>
+
+  <div class="tabs-wrap">
+    <tui-tabs [activeItemIndex]="tabActivo()" (activeItemIndexChange)="tabActivo.set($event)">
+      <button tuiTab>
+        <tui-icon icon="@tui.pencil" />
+        Manual
+      </button>
+      <button tuiTab>
+        <tui-icon icon="@tui.qr-code" />
+        Escanear QR
+      </button>
+      <button tuiTab>
+        <tui-icon icon="@tui.projector" />
+        Mostrar QR
+      </button>
+    </tui-tabs>
+  </div>
+
+  <!-- MODO MANUAL (principal, borrador local) -->
+  @if (tabActivo() === 0) {
+    <section class="card">
+      <div class="seccion-titulo">
+        <div>
+          <h3 class="seccion-nombre">{{ act.nombre }}</h3>
+          <p class="seccion-desc">
+            {{ resumen().presentes }} presentes · {{ resumen().tardes }} tarde · {{ resumen().faltas }} falta · {{ resumen().pendientes }} pendiente(s)
+            @if (resumen().sinGuardar > 0) {
+              · <strong class="text-warning">{{ resumen().sinGuardar }} sin guardar</strong>
+            }
+            @if (borradorRestaurado()) {
+              · <span class="pill pill-soft-primary">Borrador restaurado</span>
+            }
+          </p>
+        </div>
+        <button
+          tuiButton
+          appearance="primary"
+          size="m"
+          type="button"
+          [disabled]="resumen().pendientes === 0"
+          title="Marca a todos en el borrador (se guarda con Guardar)"
+          (click)="marcarTodos()"
+        >
+          <tui-icon icon="@tui.check-check" />
+          Marcar asistencia ({{ resumen().pendientes }})
+        </button>
+      </div>
+
+      <!-- Selector de vista -->
+      <div class="vista-selector" role="group" aria-label="Vista de marcación">
+        @for (v of vistas; track v.id) {
+          <button
+            tuiButton
+            [appearance]="vista() === v.id ? 'primary' : 'outline'"
+            size="s"
+            type="button"
+            [attr.aria-pressed]="vista() === v.id"
+            (click)="cambiarVista(v.id)"
+          >
+            <tui-icon [icon]="v.icono" />
+            {{ v.etiqueta }}
+          </button>
+        }
+      </div>
+
+      @if (cargandoListas()) {
+        <div class="skeleton-lista" aria-hidden="true">
+          <div class="skeleton-fila"></div>
+          <div class="skeleton-fila"></div>
+          <div class="skeleton-fila"></div>
+        </div>
+      } @else if (filas().length === 0) {
+        <div class="empty">
+          <tui-icon icon="@tui.users" class="empty-icono" />
+          <strong>Sin inscritos para esta actividad</strong>
+          <span class="text-soft">Inscribe participantes desde el detalle de la actividad.</span>
+        </div>
+      } @else if (vista() === 'compacta') {
+        <app-compacta-list [filas]="filas()" (ciclar)="alCiclar($event)" />
+      } @else if (vista() === 'tarjetas') {
+        <app-tarjeta-list [filas]="filas()" (marcarA)="alMarcarA($event)" />
+      } @else {
+        <app-kanban-board
+          [filas]="filas()"
+          (ciclar)="alCiclar($event)"
+          (marcarA)="alMarcarA($event)"
+        />
+      }
+    </section>
+
+    <!-- Pie sticky: Descartar | Guardar -->
+    <div class="wizard-footer">
+      <div class="wizard-footer-info">
+        @if (resumen().sinGuardar > 0) {
+          <strong>{{ resumen().sinGuardar }} cambio(s) sin guardar</strong>
+          <span class="text-soft">· el GPS se captura al guardar</span>
+        } @else {
+          <span class="text-soft">Sin cambios pendientes</span>
+        }
+      </div>
+      <div class="wizard-footer-acciones">
+        <button
+          tuiButton
+          appearance="outline"
+          size="m"
+          type="button"
+          [disabled]="resumen().sinGuardar === 0"
+          (click)="descartarBorrador()"
+        >
+          Descartar
+        </button>
+        <button
+          tuiButton
+          appearance="primary"
+          size="m"
+          type="button"
+          [loading]="guardandoGps()"
+          [disabled]="resumen().sinGuardar === 0"
+          (click)="guardarBorrador()"
+        >
+          <tui-icon icon="@tui.circle-check" />
+          Guardar ({{ resumen().sinGuardar }})
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- MODO ESCANEAR QR -->
+  @if (tabActivo() === 1) {
+    <section class="card" [formGroup]="form">
+      <div class="seccion-titulo">
+        <div>
+          <h3 class="seccion-nombre">Escanear QR personal</h3>
+          <p class="seccion-desc">Se exige también el QR de actividad vigente</p>
+        </div>
+      </div>
+      <div class="form-grid">
+        <label tuiLabel class="field campo-full">
+          <span class="field-label">Código QR personal <span class="required">*</span></span>
+          <tui-textfield>
+            <input tuiInput type="text" formControlName="codigoQrPersonal" placeholder="Escanea el QR del participante" />
+          </tui-textfield>
+        </label>
+        <label tuiLabel class="field campo-full">
+          <span class="field-label">Código QR de actividad <span class="required">*</span></span>
+          <tui-textfield>
+            <input tuiInput type="text" formControlName="codigoQrActividad" placeholder="El código proyectado (UPeU-ASIS-A:…)" />
+          </tui-textfield>
+        </label>
+      </div>
+      <div class="form-acciones">
+        <button tuiButton appearance="primary" size="m" type="button" [disabled]="!gpsListo()" (click)="registrarPorQr()">
+          <tui-icon icon="@tui.qr-code" />
+          Registrar por QR
+        </button>
+      </div>
+    </section>
+  }
+
+  <!-- MODO MOSTRAR QR -->
+  @if (tabActivo() === 2) {
+    <section class="card">
+      <div class="seccion-titulo">
+        <div>
+          <h3 class="seccion-nombre">QR de {{ act.nombre }}</h3>
+          <p class="seccion-desc">Proyecta este código · rota automáticamente</p>
+        </div>
+        <div class="form-acciones">
+          <button tuiButton appearance="outline" size="m" type="button" [loading]="qrCargando()" (click)="cargarQr()">
+            <tui-icon icon="@tui.refresh-cw" />
+            Cargar
+          </button>
+          <button tuiButton appearance="primary" size="m" type="button" [loading]="qrRotando()" (click)="rotarQr()">
+            <tui-icon icon="@tui.refresh-cw" />
+            Rotar QR
+          </button>
+        </div>
+      </div>
+      @if (qrActual(); as q) {
+        <div class="qr-codigo font-mono">{{ q.codigoQr }}</div>
+        <p class="seccion-desc">
+          <span tuiBadge appearance="primary" size="s">v{{ q.version }}</span>
+          @if (qrVivo()) {
+            <span tuiBadge appearance="positive" size="s">En vivo</span>
+          }
+          Expira en {{ formatoRestante() }}
+        </p>
+      } @else if (!qrCargando()) {
+        <p class="text-soft">Pulsa Cargar para mostrar el QR vigente.</p>
+      }
+      @if (qrFinalizado()) {
+        <p class="hint">La actividad finalizó. Stream cerrado.</p>
+      }
+    </section>
+  }
+}
+
+<div class="form-acciones">
+  <button tuiButton appearance="outline" size="m" type="button" (click)="volver()">
+    Volver al registro
+  </button>
+  <a tuiButton appearance="flat" size="m" routerLink="/asistencias/registro">Ver estadísticas</a>
+</div>

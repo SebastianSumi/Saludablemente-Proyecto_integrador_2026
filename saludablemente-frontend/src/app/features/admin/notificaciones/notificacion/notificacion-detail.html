@@ -1,0 +1,101 @@
+<div class="detail-shell">
+  <nav class="detail-nav">
+    <a tuiButton appearance="flat" size="s" routerLink="/notificaciones">
+      <tui-icon icon="@tui.arrow-left" />
+      Volver al listado
+    </a>
+  </nav>
+
+  @if (loading()) {
+    <div class="card estado-caja">
+      <p class="hint">Cargando notificación...</p>
+    </div>
+  } @else if (error() && !item()) {
+    <div class="card error-caja">
+      <tui-icon icon="@tui.triangle-alert" class="icono-alerta" />
+      <p class="error-msg">{{ error() }}</p>
+    </div>
+  } @else if (item(); as n) {
+    <div class="page-banner card">
+      <div class="page-banner-body">
+        <div class="page-banner-icon tile tile-rounded tile-soft-primary">
+          <tui-icon icon="@tui.bell" />
+        </div>
+        <div>
+          <h2 class="card-title">{{ n.titulo }}</h2>
+          <p class="card-subtitle">Notificación #{{ n.idNotificacion }} · {{ n.canal ?? '—' }}</p>
+        </div>
+      </div>
+      <div class="row-actions">
+        @if (n.estadoLectura !== 'LEIDO') {
+          <button tuiButton appearance="primary" size="m" type="button" (click)="marcarLeida()">
+            <tui-icon icon="@tui.check" />
+            Marcar leída
+          </button>
+        }
+        <button tuiButton appearance="outline" size="m" type="button" (click)="archivar()">
+          <tui-icon icon="@tui.archive" />
+          Archivar
+        </button>
+        @if (rutaOrigen(); as destino) {
+          <a tuiButton appearance="outline" size="m" [routerLink]="destino">
+            <tui-icon icon="@tui.arrow-right" />
+            Ir al origen
+          </a>
+        }
+      </div>
+    </div>
+
+    @if (error()) {
+      <div class="card error-caja">
+        <tui-icon icon="@tui.triangle-alert" class="icono-alerta" />
+        <p class="error-msg">{{ error() }}</p>
+      </div>
+    }
+
+    <div class="card">
+      <div class="seccion-titulo">
+        <span class="tile tile-rounded tile-soft-primary seccion-icono">
+          <tui-icon icon="@tui.info" />
+        </span>
+        <div>
+          <h3 class="seccion-nombre">Detalle de la notificación</h3>
+          <p class="seccion-desc">Estado de lectura, envío y referencia de origen.</p>
+        </div>
+      </div>
+      <dl class="detail-grid">
+        <dt>Estado de lectura</dt>
+        <dd>
+          @if (n.estadoLectura === 'LEIDO') {
+            <span class="pill pill-soft-success">Leído</span>
+          } @else {
+            <span class="pill pill-soft-warning">No leído</span>
+          }
+        </dd>
+        <dt>Estado de envío</dt>
+        <dd>{{ n.estadoDelivery ?? '—' }}</dd>
+        <dt>Módulo origen</dt>
+        <dd>{{ n.origenModulo ?? '—' }}</dd>
+        <dt>Referencia origen</dt>
+        <dd>{{ n.idOrigenReferencia ?? '—' }}</dd>
+        <dt>Persona destino</dt>
+        <dd>{{ n.idPersona }}</dd>
+        <dt>Fecha de envío</dt>
+        <dd>{{ n.fechaEnvio ? (n.fechaEnvio | date: 'dd/MM/yyyy HH:mm') : '—' }}</dd>
+      </dl>
+    </div>
+
+    <div class="card">
+      <div class="seccion-titulo">
+        <span class="tile tile-rounded tile-soft-primary seccion-icono">
+          <tui-icon icon="@tui.mail" />
+        </span>
+        <div>
+          <h3 class="seccion-nombre">Mensaje</h3>
+          <p class="seccion-desc">Contenido enviado al destinatario.</p>
+        </div>
+      </div>
+      <p class="mensaje-texto">{{ n.mensaje }}</p>
+    </div>
+  }
+</div>

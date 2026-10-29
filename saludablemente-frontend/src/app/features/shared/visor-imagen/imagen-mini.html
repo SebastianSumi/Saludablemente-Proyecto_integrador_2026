@@ -1,0 +1,22 @@
+@if (src(); as s) {
+  @if (!conError()) {
+    <button
+      type="button"
+      class="mini-btn forma-{{ forma() }}"
+      [style.height.px]="forma() === 'ancha' ? altoPx() : null"
+      (click)="abrir()"
+      [attr.aria-label]="'Ampliar ' + (titulo() ?? 'imagen')"
+      title="Clic para ampliar"
+    >
+      <img [src]="s" [alt]="titulo() ?? 'Imagen'" loading="lazy" (error)="alError()" />
+      @if (conLupa()) {
+        <span class="mini-lupa"><tui-icon icon="@tui.zoom-in" /></span>
+      }
+    </button>
+  } @else {
+    <div class="mini-respaldo forma-{{ forma() }}" [style.height.px]="forma() === 'ancha' ? altoPx() : null">
+      <tui-icon icon="@tui.image-off" />
+      <span>No se pudo cargar la imagen</span>
+    </div>
+  }
+}

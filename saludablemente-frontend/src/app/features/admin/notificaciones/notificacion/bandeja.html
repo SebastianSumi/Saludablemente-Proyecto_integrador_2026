@@ -1,0 +1,83 @@
+<div class="page-banner card">
+  <div class="page-banner-body">
+    <div class="page-banner-icon tile tile-rounded tile-soft-primary">
+      <tui-icon icon="@tui.inbox" />
+    </div>
+    <div>
+      <h2 class="card-title">Mi bandeja</h2>
+      <p class="card-subtitle">
+        @if (loading()) {
+          Cargando...
+        } @else {
+          {{ noLeidas() }} sin leer · {{ items().length }} en bandeja
+        }
+      </p>
+    </div>
+  </div>
+  <button tuiButton appearance="outline" size="m" type="button" (click)="cargar()">
+    <tui-icon icon="@tui.refresh-cw" />
+    Recargar
+  </button>
+</div>
+
+@if (error()) {
+  <div class="card error-caja">
+    <tui-icon icon="@tui.triangle-alert" class="icono-alerta" />
+    <p class="error-msg">{{ error() }}</p>
+  </div>
+}
+
+<div class="card tabla-card flush">
+  <div class="table-wrapper flush">
+    <table tuiTable>
+      <thead>
+        <tr>
+          <th tuiTh>Título</th>
+          <th tuiTh>Origen</th>
+          <th tuiTh>Estado</th>
+          <th tuiTh>Envío</th>
+          <th tuiTh class="th-acciones"><span class="sr-only">Acciones</span></th>
+        </tr>
+      </thead>
+      <tbody tuiTbody>
+        @for (n of items(); track n.idNotificacion) {
+          <tr>
+            <td tuiTd>
+              <div class="fila-notif">
+                <span class="fila-nombre">{{ n.titulo }}</span>
+                <p class="text-soft notif-mensaje">{{ n.mensaje }}</p>
+              </div>
+            </td>
+            <td tuiTd class="text-soft">{{ n.origenModulo ?? '—' }}</td>
+            <td tuiTd>
+              @if (n.leido) {
+                <span class="pill pill-soft-neutral">Leída</span>
+              } @else {
+                <span class="pill pill-soft-warning">Sin leer</span>
+              }
+            </td>
+            <td tuiTd class="text-soft font-mono">{{ n.fechaEnvio ?? '—' }}</td>
+            <td tuiTd class="td-acciones">
+              <div class="row-actions">
+                @if (!n.leido) {
+                  <button tuiButton appearance="flat" size="s" type="button" (click)="marcarLeida(n)">
+                    Marcar leída
+                  </button>
+                }
+                <button tuiButton appearance="outline" size="s" type="button" (click)="archivar(n)">
+                  Archivar
+                </button>
+              </div>
+            </td>
+          </tr>
+        } @empty {
+          @if (!loading() && !error()) {
+            <tr>
+              <td tuiTd colspan="5" class="empty">Sin alertas pendientes. Estás al día.</td>
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

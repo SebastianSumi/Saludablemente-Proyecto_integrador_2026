@@ -1,0 +1,55 @@
+<div class="tarjeta-grid">
+  @for (f of filas(); track f.idPersona) {
+    <article class="tarjeta" [class.tarjeta--modificada]="f.modificado">
+      <header class="tarjeta-head">
+        <span tuiAvatar size="m" [round]="true">{{ f.nombre.slice(0, 2).toUpperCase() }}</span>
+        <span class="tarjeta-texto">
+          <strong>{{ f.nombre }}</strong>
+          <span class="tarjeta-sub font-mono">#{{ f.idPersona }}</span>
+        </span>
+        @if (f.modificado) {
+          <span class="dot-sin-guardar" title="Sin guardar"></span>
+        }
+      </header>
+      <div class="tarjeta-segmento" role="group" [attr.aria-label]="'Marca de ' + f.nombre">
+        <button
+          tuiButton
+          [appearance]="esMarca(f, 'PRESENTE') ? 'primary' : 'outline'"
+          size="s"
+          type="button"
+          [disabled]="deshabilitado()"
+          (click)="elegir(f, 'PRESENTE')"
+        >
+          <tui-icon icon="@tui.user-check" />
+          Presente
+        </button>
+        <button
+          tuiButton
+          [appearance]="esMarca(f, 'TARDE') ? 'primary' : 'outline'"
+          size="s"
+          type="button"
+          class="seg-tarde"
+          [class.seg-tarde--activo]="esMarca(f, 'TARDE')"
+          [disabled]="deshabilitado()"
+          (click)="elegir(f, 'TARDE')"
+        >
+          <tui-icon icon="@tui.clock" />
+          Tarde
+        </button>
+        <button
+          tuiButton
+          [appearance]="esMarca(f, 'FALTA') ? 'destructive' : 'outline'"
+          size="s"
+          type="button"
+          [disabled]="deshabilitado()"
+          (click)="elegir(f, 'FALTA')"
+        >
+          <tui-icon icon="@tui.user-x" />
+          Falta
+        </button>
+      </div>
+    </article>
+  } @empty {
+    <p class="tarjeta-vacio">Sin personas para mostrar.</p>
+  }
+</div>

@@ -1,0 +1,418 @@
+<!-- La barra de progreso/scroll es global (app-loading-bar en el shell) -->
+
+<!-- ══════════════════════════════════════
+     HERO BIENVENIDA (se conserva)
+     ══════════════════════════════════════ -->
+<section class="card inicio-hero" appScrollLinked>
+  <div class="hero-banner" aria-hidden="true">
+    <span class="hero-orb hero-orb-a" [appParallax]="0.12"></span>
+    <span class="hero-orb hero-orb-b" [appParallax]="0.2"></span>
+  </div>
+  <div class="hero-body">
+    <div class="hero-main">
+      <span tuiBadge appearance="primary" size="s">Saludablemente ERP</span>
+      <h2>Bienvenido{{ auth.obtenerNombre() ? ', ' + auth.obtenerNombre() : '' }}</h2>
+      <p class="hero-sub">{{ fechaHoy() | titlecase }} · Este es tu resumen del día.</p>
+      <div class="hero-chips">
+        @for (r of auth.obtenerRolesNormalizados(); track r) {
+          <span class="pill pill-primary">{{ r }}</span>
+        }
+      </div>
+      <div class="form-actions">
+        <button tuiButton appearance="primary" size="m" type="button" (click)="irAPanelSegunRol()">
+          <tui-icon icon="@tui.arrow-right" />
+          Ir a mi panel
+        </button>
+        @if (esAdmin()) {
+          <a tuiButton appearance="outline" size="m" routerLink="/admin">
+            <tui-icon icon="@tui.shield" />
+            Centro de administración
+          </a>
+        }
+        <a tuiButton appearance="flat" size="m" routerLink="/mi-perfil">
+          <tui-icon icon="@tui.user" />
+          Mi perfil
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+@if (loading()) {
+  <div class="detail-skeleton" aria-busy="true" aria-label="Cargando resumen">
+    <div class="kpi-grid">
+      <div class="card"><div class="sk sk-line sk-line-lg"></div><div class="sk sk-line"></div></div>
+      <div class="card"><div class="sk sk-line sk-line-lg"></div><div class="sk sk-line"></div></div>
+      <div class="card"><div class="sk sk-line sk-line-lg"></div><div class="sk sk-line"></div></div>
+      <div class="card"><div class="sk sk-line sk-line-lg"></div><div class="sk sk-line"></div></div>
+    </div>
+  </div>
+}
+
+<!-- ══════════════════════════════════════
+     FILA KPI — GESTIÓN
+     ══════════════════════════════════════ -->
+@if (esGestion() && hayKpisGestion()) {
+  <div class="kpi-grid">
+    @if (personal(); as r) {
+      <a class="card kpi-card" routerLink="/personal/reportes" [appReveal]="0">
+        <div class="kpi-top">
+          <span class="tile tile-circle tile-soft-success kpi-icon">
+            <tui-icon icon="@tui.users" />
+          </span>
+          <span class="pill pill-success">En nómina</span>
+        </div>
+        <div class="kpi-body">
+          <strong class="kpi-value">{{ r.totalActivos }} <span class="val-sub">/ {{ r.totalPersonal }}</span></strong>
+          <span class="kpi-label">Personal activo</span>
+        </div>
+      </a>
+    }
+    @if (actividadesHoy() !== null) {
+      <a class="card kpi-card" routerLink="/actividades" [appReveal]="1">
+        <div class="kpi-top">
+          <span class="tile tile-circle tile-soft-primary kpi-icon">
+            <tui-icon icon="@tui.calendar" />
+          </span>
+          <span class="pill pill-primary">Hoy</span>
+        </div>
+        <div class="kpi-body">
+          <strong class="kpi-value">{{ actividadesHoy()?.length ?? 0 }}</strong>
+          <span class="kpi-label">Actividades de hoy</span>
+        </div>
+      </a>
+    }
+    @if (cuarentenaPendiente() !== null) {
+      <a class="card kpi-card" routerLink="/asistencias/cuarentena" [appReveal]="2">
+        <div class="kpi-top">
+          <span class="tile tile-circle tile-soft-warning kpi-icon">
+            <tui-icon icon="@tui.hourglass" />
+          </span>
+          <span class="pill pill-warning">En revisión</span>
+        </div>
+        <div class="kpi-body">
+          <strong class="kpi-value">{{ cuarentenaPendiente() }}</strong>
+          <span class="kpi-label">Cuarentena pendiente</span>
+        </div>
+      </a>
+    }
+    @if (alertasAgregado(); as a) {
+      <a class="card kpi-card" routerLink="/alertaclinica/alertas" [appReveal]="3">
+        <div class="kpi-top">
+          <span class="tile tile-circle tile-soft-error kpi-icon">
+            <tui-icon icon="@tui.heart-pulse" />
+          </span>
+          <span class="pill pill-error">{{ a.totalCriticas }} críticas</span>
+        </div>
+        <div class="kpi-body">
+          <strong class="kpi-value">{{ a.totalAlertas }}</strong>
+          <span class="kpi-label">Alertas clínicas</span>
+        </div>
+      </a>
+    }
+  </div>
+}
+
+<!-- ══════════════════════════════════════
+     FILA KPI — COLABORADOR
+     ══════════════════════════════════════ -->
+@if (esColaborador() && hayKpisColaborador()) {
+  <div class="kpi-grid">
+    @if (misAlertasPendientes() !== null) {
+      <a class="card kpi-card" routerLink="/colaborador/mis-alertas" [appReveal]="0">
+        <div class="kpi-top">
+          <span class="tile tile-circle tile-soft-error kpi-icon">
+            <tui-icon icon="@tui.heart-pulse" />
+          </span>
+          <span class="pill pill-error">Salud</span>
+        </div>
+        <div class="kpi-body">
+          <strong class="kpi-value">{{ misAlertasPendientes() }}</strong>
+          <span class="kpi-label">Mis alertas pendientes</span>
+        </div>
+      </a>
+    }
+    @if (notiNoLeidas() !== null) {
+      <a class="card kpi-card" routerLink="/colaborador/mis-notificaciones" [appReveal]="1">
+        <div class="kpi-top">
+          <span class="tile tile-circle tile-soft-warning kpi-icon">
+            <tui-icon icon="@tui.bell" />
+          </span>
+          <span class="pill pill-warning">Bandeja</span>
+        </div>
+        <div class="kpi-body">
+          <strong class="kpi-value">{{ notiNoLeidas() }}</strong>
+          <span class="kpi-label">Notificaciones sin leer</span>
+        </div>
+      </a>
+    }
+    @if (misMetasActivas() !== null) {
+      <a class="card kpi-card" routerLink="/colaborador/mis-metas" [appReveal]="2">
+        <div class="kpi-top">
+          <span class="tile tile-circle tile-soft-primary kpi-icon">
+            <tui-icon icon="@tui.target" />
+          </span>
+          <span class="pill pill-primary">En curso</span>
+        </div>
+        <div class="kpi-body">
+          <strong class="kpi-value">{{ misMetasActivas() }}</strong>
+          <span class="kpi-label">Mis metas activas</span>
+        </div>
+      </a>
+    }
+    @if (actividadesHoy() !== null) {
+      <a class="card kpi-card" routerLink="/colaborador/mis-asistencias" [appReveal]="3">
+        <div class="kpi-top">
+          <span class="tile tile-circle tile-soft-secondary kpi-icon">
+            <tui-icon icon="@tui.calendar" />
+          </span>
+          <span class="pill pill-secondary">Hoy</span>
+        </div>
+        <div class="kpi-body">
+          <strong class="kpi-value">{{ actividadesHoy()?.length ?? 0 }}</strong>
+          <span class="kpi-label">Actividades de hoy</span>
+        </div>
+      </a>
+    }
+  </div>
+}
+
+<!-- ══════════════════════════════════════
+     GRID 2 COLUMNAS
+     ══════════════════════════════════════ -->
+<div class="inicio-layout">
+  <!-- ── Columna principal ── -->
+  <div class="inicio-main">
+    <!-- Actividades de hoy -->
+    <section class="card detail-card" appReveal>
+      <div class="section-title">
+        <div class="section-title-left">
+          <span class="tile tile-rounded tile-soft-primary seccion-icono">
+            <tui-icon icon="@tui.calendar" />
+          </span>
+          <div>
+            <h3>Actividades de hoy</h3>
+            <p class="seccion-desc">{{ fechaHoy() | titlecase }}</p>
+          </div>
+        </div>
+        @if (esGestion()) {
+          <a tuiButton appearance="outline" size="s" routerLink="/actividades">
+            Ver agenda
+            <tui-icon icon="@tui.chevron-right" />
+          </a>
+        }
+      </div>
+
+      @if (actividadesHoy() === null) {
+        @if (!loading()) {
+          <div class="empty-state empty-state-compact">
+            <span class="tile tile-rounded tile-soft-neutral empty-state-icon">
+              <tui-icon icon="@tui.calendar-off" />
+            </span>
+            <p class="empty-state-title">Sin datos de agenda</p>
+            <p class="text-soft empty-state-desc">No se pudo cargar la agenda de hoy.</p>
+          </div>
+        }
+      } @else if ((actividadesHoy()?.length ?? 0) === 0) {
+        <div class="empty-state empty-state-compact">
+          <span class="tile tile-rounded tile-soft-success empty-state-icon">
+            <tui-icon icon="@tui.circle-check" />
+          </span>
+          <p class="empty-state-title">Día despejado</p>
+          <p class="text-soft empty-state-desc">No hay actividades programadas para hoy.</p>
+        </div>
+      } @else {
+        <ol class="timeline">
+          @for (act of actividadesHoy(); track act.idActividad; let i = $index) {
+            <li class="timeline-item" [appReveal]="i">
+              <div class="timeline-hora">
+                <strong>{{ act.horaInicio ?? '--:--' }}</strong>
+                @if (act.horaFin) {
+                  <span class="text-soft">{{ act.horaFin }}</span>
+                }
+              </div>
+              <span class="timeline-dot" aria-hidden="true"></span>
+              <div class="timeline-body">
+                <div class="timeline-title-row">
+                  <strong class="timeline-nombre">{{ act.nombre }}</strong>
+                  @if (act.estado) {
+                    <span class="pill pill-neutral">{{ act.estado }}</span>
+                  }
+                </div>
+                @if (act.lugar) {
+                  <p class="timeline-lugar">
+                    <tui-icon icon="@tui.map-pin" />
+                    {{ act.lugar }}
+                  </p>
+                }
+                <div class="timeline-actions">
+                  <a tuiButton appearance="flat" size="s" [routerLink]="['/actividades', act.idActividad]">
+                    <tui-icon icon="@tui.eye" />
+                    Ver
+                  </a>
+                  @if (esGestion()) {
+                    <a tuiButton appearance="flat" size="s" [routerLink]="['/asistencias/qr', act.idActividad]">
+                      <tui-icon icon="@tui.qr-code" />
+                      QR
+                    </a>
+                  }
+                </div>
+              </div>
+            </li>
+          }
+        </ol>
+      }
+    </section>
+
+    <!-- Últimas noticias -->
+    <section class="card detail-card" appReveal>
+      <div class="section-title">
+        <div class="section-title-left">
+          <span class="tile tile-rounded tile-soft-secondary seccion-icono">
+            <tui-icon icon="@tui.newspaper" />
+          </span>
+          <div>
+            <h3>Últimas noticias</h3>
+            <p class="seccion-desc">Comunicados institucionales</p>
+          </div>
+        </div>
+        <a tuiButton appearance="outline" size="s" routerLink="/noticias">
+          Ver todas
+          <tui-icon icon="@tui.chevron-right" />
+        </a>
+      </div>
+
+      @if (noticias() === null) {
+        @if (!loading()) {
+          <p class="text-soft">No se pudieron cargar las noticias.</p>
+        }
+      } @else if ((noticias()?.length ?? 0) === 0) {
+        <div class="empty-state empty-state-compact">
+          <span class="tile tile-rounded tile-soft-secondary empty-state-icon">
+            <tui-icon icon="@tui.newspaper" />
+          </span>
+          <p class="empty-state-title">Sin noticias recientes</p>
+          <p class="text-soft empty-state-desc">Aún no hay comunicados publicados.</p>
+        </div>
+      } @else {
+        <div class="noticias-list">
+          @for (n of noticias(); track n.id; let i = $index) {
+            <a class="noticia-card" [routerLink]="['/noticias', n.id]" [appReveal]="i">
+              <div class="noticia-body">
+                <strong class="noticia-titulo">{{ n.titulo }}</strong>
+                @if (n.subtitulo) {
+                  <p class="noticia-sub">{{ n.subtitulo }}</p>
+                }
+                <div class="noticia-meta">
+                  @if (n.nombreCategoria) {
+                    <span class="pill pill-secondary">{{ n.nombreCategoria }}</span>
+                  }
+                  @if (n.fechaPublicacion) {
+                    <span class="text-soft font-mono noticia-fecha">{{ n.fechaPublicacion | date: 'dd/MM/yyyy' }}</span>
+                  }
+                </div>
+              </div>
+              <tui-icon icon="@tui.chevron-right" class="noticia-flecha" />
+            </a>
+          }
+        </div>
+      }
+    </section>
+  </div>
+
+  <!-- ── Columna lateral ── -->
+  <aside class="inicio-side">
+    <!-- Pendientes de acción (gestión) -->
+    @if (esGestion()) {
+      <section class="card detail-card" appReveal>
+        <div class="section-title section-title-compact">
+          <div class="section-title-left">
+            <span class="tile tile-rounded tile-soft-warning seccion-icono seccion-icono-sm">
+              <tui-icon icon="@tui.triangle-alert" />
+            </span>
+            <div>
+              <h3>Pendientes de acción</h3>
+            </div>
+          </div>
+        </div>
+
+        @if (hayPendientes()) {
+          <div class="pendientes-list">
+            @if ((cuarentenaPendiente() ?? 0) > 0) {
+              <a class="pendiente-card" routerLink="/asistencias/cuarentena" [appReveal]="0">
+                <span class="tile tile-rounded tile-soft-warning pendiente-icono">
+                  <tui-icon icon="@tui.hourglass" />
+                </span>
+                <span class="pendiente-body">
+                  <strong>{{ cuarentenaPendiente() }} en cuarentena</strong>
+                  <span class="text-soft">Marcaciones por resolver</span>
+                </span>
+                <tui-icon icon="@tui.chevron-right" class="noticia-flecha" />
+              </a>
+            }
+            @if (alertasPendientes() > 0) {
+              <a class="pendiente-card" routerLink="/alertaclinica/alertas" [appReveal]="1">
+                <span class="tile tile-rounded tile-soft-error pendiente-icono">
+                  <tui-icon icon="@tui.heart-pulse" />
+                </span>
+                <span class="pendiente-body">
+                  <strong>{{ alertasPendientes() }} alertas sin atender</strong>
+                  <span class="text-soft">Requieren seguimiento clínico</span>
+                </span>
+                <tui-icon icon="@tui.chevron-right" class="noticia-flecha" />
+              </a>
+            }
+            @if ((ausentismo()?.total ?? 0) > 0) {
+              <a class="pendiente-card" routerLink="/asistencias/dashboard" [appReveal]="2">
+                <span class="tile tile-rounded tile-soft-violet pendiente-icono">
+                  <tui-icon icon="@tui.user-x" />
+                </span>
+                <span class="pendiente-body">
+                  <strong>{{ ausentismo()?.total }} con ausentismo</strong>
+                  <span class="text-soft">Racha ≥ {{ ausentismo()?.minRacha }} inasistencias</span>
+                </span>
+                <tui-icon icon="@tui.chevron-right" class="noticia-flecha" />
+              </a>
+            }
+          </div>
+        } @else {
+          <div class="empty-state empty-state-compact">
+            <span class="tile tile-rounded tile-soft-success empty-state-icon">
+              <tui-icon icon="@tui.circle-check" />
+            </span>
+            <p class="empty-state-title">Todo al día</p>
+            <p class="text-soft empty-state-desc">No hay pendientes que requieran tu acción.</p>
+          </div>
+        }
+      </section>
+    }
+
+    <!-- Accesos directos -->
+    <section class="card detail-card" appReveal>
+      <div class="section-title section-title-compact">
+        <div class="section-title-left">
+          <span class="tile tile-rounded tile-soft-success seccion-icono seccion-icono-sm">
+            <tui-icon icon="@tui.grid" />
+          </span>
+          <div>
+            <h3>Accesos directos</h3>
+          </div>
+        </div>
+      </div>
+      <nav class="accesos-list" aria-label="Accesos directos">
+        @for (a of accesosVisibles(); track a.ruta; let i = $index) {
+          <a class="acceso-row" [routerLink]="a.ruta" [appReveal]="i">
+            <span class="tile tile-rounded tile-soft-primary acceso-icono">
+              <tui-icon [icon]="a.icono" />
+            </span>
+            <span class="acceso-body">
+              <strong>{{ a.titulo }}</strong>
+              <span class="text-soft">{{ a.descripcion }}</span>
+            </span>
+            <tui-icon icon="@tui.chevron-right" class="noticia-flecha" />
+          </a>
+        }
+      </nav>
+    </section>
+  </aside>
+</div>

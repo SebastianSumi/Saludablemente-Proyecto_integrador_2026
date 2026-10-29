@@ -1,0 +1,204 @@
+<!-- ══════════════════════════════════════
+     CABECERA DE PÁGINA
+     ══════════════════════════════════════ -->
+<div class="page-banner card">
+  <div class="page-banner-body">
+    <div class="page-banner-icon tile tile-rounded tile-soft-primary">
+      <tui-icon icon="@tui.activity" />
+    </div>
+    <div>
+      <h2 class="card-title">Evaluaciones de Aptitud Física</h2>
+      <p class="card-subtitle">
+        @if (loading()) {
+          Cargando evaluaciones…
+        } @else {
+          {{ total() }} evaluación(es) registrada(s)
+        }
+      </p>
+    </div>
+  </div>
+  <div class="page-banner-actions">
+    <a tuiButton appearance="outline" size="m" routerLink="/aptitud/dashboard">
+      <tui-icon icon="@tui.layout-dashboard" />
+      Dashboard
+    </a>
+    <a tuiButton appearance="primary" size="m" routerLink="/aptitud/nueva">
+      <tui-icon icon="@tui.plus" />
+      Nueva evaluación
+    </a>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     FILTROS EN LÍNEA
+     ══════════════════════════════════════ -->
+<div class="filtros-card">
+  <div class="filtros-linea">
+    <!-- Periodo -->
+    <div class="filtro-item">
+      <label class="filtro-etiqueta">Periodo</label>
+      <tui-textfield tuiChevron>
+        <input tuiComboBox [formControl]="periodoCtrl" [strict]="true" placeholder="— Todos los periodos —" />
+        <tui-data-list-wrapper *tuiDropdown [items]="periodos() | tuiFilterByInput" [itemContent]="tplOpcion" />
+      </tui-textfield>
+    </div>
+
+    <!-- Estado -->
+    <div class="filtro-item">
+      <label class="filtro-etiqueta">Estado</label>
+      <tui-textfield tuiChevron>
+        <input tuiComboBox [formControl]="estadoCtrl" [strict]="true" placeholder="— Todos los estados —" />
+        <tui-data-list-wrapper *tuiDropdown [items]="estadoOpts | tuiFilterByInput" [itemContent]="tplOpcion" />
+      </tui-textfield>
+    </div>
+
+    <!-- Búsqueda -->
+    <div class="filtro-item filtro-busqueda">
+      <label class="filtro-etiqueta">Buscar por nombre o documento</label>
+      <tui-textfield>
+        <input tuiInput type="text" [formControl]="textoCtrl" placeholder="Escribe y presiona Enter" (keydown.enter)="aplicarTexto()" />
+      </tui-textfield>
+    </div>
+
+    <!-- Limpiar -->
+    <button
+      tuiButton
+      appearance="outline"
+      size="m"
+      type="button"
+      (click)="limpiarFiltros()"
+      class="btn-limpiar"
+    >
+      <tui-icon icon="@tui.filter-x" />
+      Limpiar
+    </button>
+  </div>
+</div>
+
+<ng-template #tplOpcion let-item>{{ item.label }}</ng-template>
+
+@if (error()) {
+  <div class="card error-caja">
+    <tui-icon icon="@tui.triangle-alert" class="icono-alerta" />
+    <p class="error-msg">{{ error() }}</p>
+  </div>
+}
+
+<!-- ══════════════════════════════════════
+     TABLA DE EVALUACIONES
+     ══════════════════════════════════════ -->
+<div class="card tabla-card flush">
+  <div class="table-wrapper flush">
+    <table tuiTable>
+      <thead>
+        <tr>
+          <th tuiTh>Persona Evaluada</th>
+          <th tuiTh>Documento</th>
+          <th tuiTh>Área</th>
+          <th tuiTh>Fecha</th>
+          <th tuiTh>Score Fitness</th>
+          <th tuiTh>Dictamen Global</th>
+          <th tuiTh>Estado</th>
+          <th tuiTh class="th-acciones"><span class="sr-only">Acciones</span></th>
+        </tr>
+      </thead>
+      <tbody tuiTbody>
+        @for (e of items(); track e.id) {
+          <tr>
+            <td tuiTd>
+              <div class="fila-persona">
+                <span [tuiAvatar]="iniciales(e.nombresCompletosAlMomento)" size="s" [round]="true"></span>
+                <a class="fila-nombre" [routerLink]="['/aptitud', e.id]">
+                  {{ e.nombresCompletosAlMomento ?? '—' }}
+                </a>
+              </div>
+            </td>
+            <td tuiTd class="text-soft font-mono">{{ e.documentoIdentidadAlMomento ?? '—' }}</td>
+            <td tuiTd>
+              @if (e.areaTrabajoAlMomento) {
+                <span class="pill pill-soft-primary">{{ e.areaTrabajoAlMomento }}</span>
+              } @else {
+                <span class="text-soft">—</span>
+              }
+            </td>
+            <td tuiTd class="text-soft">{{ e.fechaEvaluacion }}</td>
+            <td tuiTd>
+              @if (e.fitnessScore !== undefined && e.fitnessScore !== null) {
+                <div style="display: inline-flex; align-items: center; gap: 6px;">
+                  <span class="font-mono fw-bold">{{ e.fitnessScore }} pts</span>
+                  <span class="pill" [class]="clasificacionFitness(e.fitnessScore).clase">
+                    {{ clasificacionFitness(e.fitnessScore).label }}
+                  </span>
+                </div>
+              } @else {
+                <span class="text-soft">—</span>
+              }
+            </td>
+            <td tuiTd>
+              @if (e.dictamenGlobal === 'APTO') {
+                <span class="pill pill-soft-success">Apto</span>
+              } @else if (e.dictamenGlobal === 'APTO_CON_RESTRICCIONES') {
+                <span class="pill pill-soft-warning">Con Restricciones</span>
+              } @else if (e.dictamenGlobal === 'NO_APTO') {
+                <span class="pill pill-soft-error">No Apto</span>
+              } @else if (e.dictamenGlobal) {
+                <span class="pill pill-soft-neutral">{{ e.dictamenGlobal }}</span>
+              } @else {
+                <span class="text-soft">—</span>
+              }
+            </td>
+            <td tuiTd>
+              @if (e.estadoEvaluacion === 'COMPLETA') {
+                <span class="pill pill-soft-success">Completa</span>
+              } @else if (e.estadoEvaluacion === 'PENDIENTE') {
+                <span class="pill pill-soft-warning">Pendiente</span>
+              } @else if (e.estadoEvaluacion === 'ANULADA') {
+                <span class="pill pill-soft-error">Anulada</span>
+              } @else {
+                <span class="pill pill-soft-neutral">{{ e.estadoEvaluacion }}</span>
+              }
+            </td>
+            <td tuiTd class="td-acciones">
+              <div class="row-actions">
+                <a tuiButton appearance="flat" size="s" [routerLink]="['/aptitud', e.id]" title="Ver detalle">
+                  <tui-icon icon="@tui.eye" />
+                  Ver
+                </a>
+                @if (e.estadoEvaluacion !== 'ANULADA') {
+                  <button tuiButton appearance="outline" size="s" type="button" (click)="anular(e)" title="Anular evaluación">
+                    Anular
+                  </button>
+                }
+              </div>
+            </td>
+          </tr>
+        } @empty {
+          @if (!loading() && !error()) {
+            <tr>
+              <td tuiTd colspan="8" class="empty">Sin evaluaciones con los filtros seleccionados.</td>
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     PAGINACIÓN
+     ══════════════════════════════════════ -->
+<div class="card paginacion-card">
+  <button tuiButton appearance="outline" size="s" type="button" [disabled]="page() === 0" (click)="paginaAnterior()">
+    <tui-icon icon="@tui.chevron-left" />
+    Anterior
+  </button>
+  <span class="paginacion-info">Página {{ page() + 1 }} de {{ totalPages() || 1 }}</span>
+  <button
+    tuiButton appearance="outline" size="s" type="button"
+    [disabled]="page() + 1 >= totalPages()"
+    (click)="paginaSiguiente()"
+  >
+    Siguiente
+    <tui-icon icon="@tui.chevron-right" />
+  </button>
+</div>

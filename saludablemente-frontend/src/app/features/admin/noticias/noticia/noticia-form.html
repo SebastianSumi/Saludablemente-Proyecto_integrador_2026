@@ -1,0 +1,120 @@
+<div class="form-cabecera">
+  <div class="tile tile-rounded tile-soft-primary modulo-icono">
+    <tui-icon icon="@tui.newspaper" />
+  </div>
+  <div>
+    <h2 class="card-title">{{ id() ? 'Editar noticia' : 'Nueva noticia' }}</h2>
+    <p class="card-subtitle">Se guardará como borrador. Podrás publicarla o programarla desde el detalle.</p>
+  </div>
+</div>
+
+<form [formGroup]="form" (ngSubmit)="guardar()" class="form-contenedor">
+  @if (loading()) {
+    <div class="card estado-caja">
+      <p class="hint">Cargando datos de la noticia...</p>
+    </div>
+  }
+
+  <section class="card">
+    <div class="seccion-titulo">
+      <span class="tile tile-rounded tile-soft-primary seccion-icono">
+        <tui-icon icon="@tui.file-text" />
+      </span>
+      <div>
+        <h3 class="seccion-nombre">Contenido principal</h3>
+        <p class="seccion-desc">Título, subtítulo, categorización y cuerpo de la noticia.</p>
+      </div>
+    </div>
+
+    <div class="form-grid">
+      <label tuiLabel class="field campo-full">
+        <span class="field-label">Título de la noticia <span class="required">*</span></span>
+        <tui-textfield>
+          <input tuiInput type="text" formControlName="titulo" maxlength="150" placeholder="Ej. Jornada de Salud Integral 2026" />
+        </tui-textfield>
+        <tui-error formControlName="titulo" />
+      </label>
+
+      <label tuiLabel class="field campo-full">
+        <span class="field-label">Subtítulo o resumen (opcional)</span>
+        <tui-textfield>
+          <input tuiInput type="text" formControlName="subtitulo" maxlength="200" placeholder="Breve resumen de la noticia..." />
+        </tui-textfield>
+      </label>
+
+      <label tuiLabel class="field">
+        <span class="field-label">Categoría <span class="required">*</span></span>
+        <tui-textfield tuiChevron>
+          <input tuiComboBox formControlName="categoria" placeholder="Seleccione categoría" />
+          <tui-data-list-wrapper *tuiDropdown [items]="categorias() | tuiFilterByInput" [itemContent]="cat" />
+        </tui-textfield>
+        <tui-error formControlName="categoria" />
+      </label>
+
+      <label tuiLabel class="field">
+        <span class="field-label">Área destinataria (opcional)</span>
+        <tui-textfield tuiChevron>
+          <input tuiComboBox formControlName="area" placeholder="Todas las áreas" />
+          <tui-data-list-wrapper *tuiDropdown [items]="areas() | tuiFilterByInput" [itemContent]="cat" />
+        </tui-textfield>
+      </label>
+
+      <label tuiLabel class="field campo-full">
+        <span class="field-label">Cuerpo de la noticia <span class="required">*</span></span>
+        <tui-textfield>
+          <textarea tuiTextarea formControlName="contenido" rows="9" placeholder="Escribe aquí el contenido completo..."></textarea>
+        </tui-textfield>
+        <tui-error formControlName="contenido" />
+      </label>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="seccion-titulo">
+      <span class="tile tile-rounded tile-soft-primary seccion-icono">
+        <tui-icon icon="@tui.users" />
+      </span>
+      <div>
+        <h3 class="seccion-nombre">Equipos destinatarios (opcional)</h3>
+        <p class="seccion-desc">Si seleccionas equipos, la noticia será visible prioritariamente para ellos.</p>
+      </div>
+    </div>
+
+    @if (equipos().length === 0) {
+      <p class="hint">No hay equipos registrados en el sistema.</p>
+    }
+    <div class="teams-grid">
+      @for (e of equipos(); track e.id) {
+        <label class="team-card" [class.team-seleccionado]="teamsElegidos().includes(e.id)">
+          <input
+            tuiCheckbox
+            type="checkbox"
+            [ngModel]="teamsElegidos().includes(e.id)"
+            (ngModelChange)="toggleTeam(e.id, $event)"
+            [ngModelOptions]="{ standalone: true }"
+          />
+          <span class="team-nombre">{{ e.nombre }}</span>
+        </label>
+      }
+    </div>
+  </section>
+
+  @if (error()) {
+    <div class="card error-caja">
+      <tui-icon icon="@tui.triangle-alert" class="icono-alerta" />
+      <p class="error-msg">{{ error() }}</p>
+    </div>
+  }
+
+  <div class="form-acciones">
+    <button tuiButton appearance="primary" size="m" type="submit" [loading]="guardando()" [disabled]="loading() || errorCarga()">
+      <tui-icon icon="@tui.check" />
+      Guardar noticia
+    </button>
+    <button tuiButton appearance="outline" size="m" type="button" (click)="cancelar()">
+      Cancelar
+    </button>
+  </div>
+</form>
+
+<ng-template #cat let-item>{{ item.nombre }}</ng-template>

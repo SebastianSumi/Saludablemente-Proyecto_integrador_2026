@@ -1,0 +1,93 @@
+<div class="page-banner card">
+  <div class="page-banner-body">
+    <div class="page-banner-icon tile tile-rounded tile-soft-primary">
+      <tui-icon icon="@tui.bell" />
+    </div>
+    <div>
+      <h2 class="card-title">Notificaciones del sistema</h2>
+      <p class="card-subtitle">
+        @if (loading()) {
+          Cargando notificaciones...
+        } @else {
+          {{ items().length }} notificación(es) recibida(s)
+        }
+      </p>
+    </div>
+  </div>
+  <button tuiButton appearance="primary" size="m" type="button" (click)="cargar()">
+    <tui-icon icon="@tui.refresh-cw" />
+    Actualizar
+  </button>
+</div>
+
+@if (error()) {
+  <div class="card error-caja">
+    <tui-icon icon="@tui.triangle-alert" class="icono-alerta" />
+    <p class="error-msg">{{ error() }}</p>
+  </div>
+}
+
+<div class="card tabla-card flush">
+  <div class="table-wrapper flush">
+    <table tuiTable>
+      <thead>
+        <tr>
+          <th tuiTh>Notificación / Mensaje</th>
+          <th tuiTh>Canal</th>
+          <th tuiTh>Módulo origen</th>
+          <th tuiTh>Estado de lectura</th>
+          <th tuiTh>Fecha de envío</th>
+          <th tuiTh class="th-acciones"><span class="sr-only">Acciones</span></th>
+        </tr>
+      </thead>
+      <tbody tuiTbody>
+        @for (n of items(); track n.idNotificacion) {
+          <tr>
+            <td tuiTd>
+              <div class="fila-notif">
+                <span class="fila-nombre">{{ n.titulo }}</span>
+                <p class="text-soft notif-mensaje">{{ n.mensaje }}</p>
+              </div>
+            </td>
+            <td tuiTd>
+              <span class="pill pill-soft-primary">{{ n.canal ?? '—' }}</span>
+            </td>
+            <td tuiTd class="text-soft">{{ n.origenModulo ?? '—' }}</td>
+            <td tuiTd>
+              @if (n.estadoLectura === 'LEIDO') {
+                <span class="pill pill-soft-success">Leído</span>
+              } @else {
+                <span class="pill pill-soft-warning">No leído</span>
+              }
+            </td>
+            <td tuiTd class="text-soft font-mono">{{ n.fechaEnvio ?? '—' }}</td>
+            <td tuiTd class="td-acciones">
+              <div class="row-actions">
+                <a tuiButton appearance="flat" size="s" [routerLink]="['/notificaciones', n.idNotificacion]" title="Ver detalle">
+                  <tui-icon icon="@tui.eye" />
+                  Ver
+                </a>
+                @if (n.estadoLectura !== 'LEIDO') {
+                  <button tuiButton appearance="flat" size="s" type="button" (click)="marcarLeida(n)" title="Marcar como leída">
+                    <tui-icon icon="@tui.check" />
+                    Leída
+                  </button>
+                }
+                <button tuiButton appearance="outline" size="s" type="button" (click)="archivar(n)" title="Archivar notificación">
+                  <tui-icon icon="@tui.archive" />
+                  Archivar
+                </button>
+              </div>
+            </td>
+          </tr>
+        } @empty {
+          @if (!loading() && !error()) {
+            <tr>
+              <td tuiTd colspan="6" class="empty">No tienes notificaciones pendientes.</td>
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

@@ -1,0 +1,533 @@
+@if (loading()) {
+  <div class="detail-skeleton" aria-busy="true" aria-label="Cargando detalles">
+    <div class="card skeleton-hero">
+      <div class="sk sk-avatar"></div>
+      <div class="sk-col">
+        <div class="sk sk-line sk-line-lg"></div>
+        <div class="sk sk-line"></div>
+        <div class="sk sk-line sk-line-sm"></div>
+      </div>
+    </div>
+    <div class="detail-layout">
+      <div class="sk-col">
+        <div class="card"><div class="sk sk-line sk-line-lg"></div><div class="sk sk-line"></div><div class="sk sk-line"></div></div>
+      </div>
+      <div class="sk-col">
+        <div class="card"><div class="sk sk-qr"></div><div class="sk sk-line"></div></div>
+      </div>
+    </div>
+  </div>
+}
+
+@if (error()) {
+  <div class="card error-caja" role="alert">
+    <span class="tile tile-rounded tile-soft-error">
+      <tui-icon icon="@tui.triangle-alert" class="icono-alerta" />
+    </span>
+    <div class="error-body">
+      <p class="error-title">No se pudo cargar el detalle</p>
+      <p class="error-msg">{{ error() }}</p>
+    </div>
+    <div class="error-actions">
+      <button tuiButton appearance="primary" size="s" type="button" (click)="reintentar()">
+        <tui-icon icon="@tui.refresh-cw" />
+        Reintentar
+      </button>
+      <a tuiButton appearance="outline" size="s" routerLink="/personal/personas">
+        <tui-icon icon="@tui.arrow-left" />
+        Volver
+      </a>
+    </div>
+  </div>
+}
+
+@if (persona(); as p) {
+  <!-- ══════════════════════════════════════
+       BREADCRUMB + ACCIONES
+       ══════════════════════════════════════ -->
+  <nav class="breadcrumb" aria-label="Miga de pan">
+    <a routerLink="/personal/personas" class="crumb-link">Personas</a>
+    <tui-icon icon="@tui.chevron-right" class="crumb-sep" />
+    <span class="crumb-actual">{{ nombreCompleto(p) }}</span>
+    <span class="crumb-spacer"></span>
+    <span class="crumb-actions">
+      <a tuiButton appearance="outline" size="s" routerLink="/personal/personas">
+        <tui-icon icon="@tui.arrow-left" />
+        Volver
+      </a>
+      <a tuiButton appearance="primary" size="s" [routerLink]="['/personal/personas', p.id, 'editar']">
+        <tui-icon icon="@tui.pencil" />
+        Editar
+      </a>
+    </span>
+  </nav>
+
+  <!-- ══════════════════════════════════════
+       HERO
+       ══════════════════════════════════════ -->
+  <div class="card hero-card">
+    <div class="hero-banner" aria-hidden="true">
+      <span class="hero-orb hero-orb-a"></span>
+      <span class="hero-orb hero-orb-b"></span>
+    </div>
+    <div class="hero-body">
+      <div class="hero-avatar-wrap">
+        <app-avatar
+          [foto]="fotoUrl()"
+          [iniciales]="iniciales(p)"
+          size="xl"
+          class="hero-avatar"
+        />
+        <span
+          class="hero-estado-dot"
+          [class.hero-estado-dot-inactivo]="!p.activo"
+          [title]="p.activo ? 'Activo' : 'Inactivo'"
+        ></span>
+      </div>
+      <div class="hero-info">
+        <div class="hero-title-row">
+          <h2 class="hero-nombre">{{ nombreCompleto(p) }}</h2>
+          @if (p.activo) {
+            <span class="pill pill-success"><span class="dot"></span>Activo</span>
+          } @else {
+            <span class="pill pill-neutral"><span class="dot"></span>Inactivo</span>
+          }
+        </div>
+        <div class="hero-chips">
+          <span class="meta-chip">
+            <tui-icon icon="@tui.id-card" />
+            DNI {{ p.documentoIdentidad }}
+          </span>
+          <span class="meta-chip">
+            <tui-icon icon="@tui.cake" />
+            {{ p.edad }} años
+          </span>
+          <span class="meta-chip">
+            <tui-icon [icon]="p.sexo === 'M' ? '@tui.mars' : '@tui.venus'" />
+            {{ p.sexo === 'M' ? 'Masculino' : 'Femenino' }}
+          </span>
+          <span class="meta-chip meta-chip-soft">
+            <tui-icon icon="@tui.calendar" />
+            {{ fechaFormateada(p.fechaNacimiento) }}
+          </span>
+        </div>
+        <div class="hero-badges">
+          @if (p.areaTrabajo) {
+            <span class="pill pill-primary">
+              <tui-icon icon="@tui.briefcase" class="pill-icono" />
+              {{ p.areaTrabajo.nombre }}
+            </span>
+          }
+          @if (p.equipo) {
+            <span class="pill pill-secondary">
+              <tui-icon icon="@tui.users" class="pill-icono" />
+              {{ p.equipo.nombre }}
+            </span>
+          }
+          @if (!p.areaTrabajo && !p.equipo) {
+            <span class="text-soft hero-sin-asignacion">Sin área ni equipo asignados</span>
+          }
+        </div>
+        <div class="hero-quick">
+          <a tuiButton appearance="outline" size="s" [href]="celularTelLink(p)">
+            <tui-icon icon="@tui.phone" />
+            Llamar
+          </a>
+          <button tuiButton appearance="outline" size="s" type="button" (click)="copiar(p.celular, 'celular')">
+            <tui-icon icon="@tui.copy" />
+            {{ copiado() === 'celular' ? '¡Copiado!' : 'Copiar celular' }}
+          </button>
+          <button tuiButton appearance="outline" size="s" type="button" (click)="copiar(p.documentoIdentidad, 'dni')">
+            <tui-icon icon="@tui.copy" />
+            {{ copiado() === 'dni' ? '¡Copiado!' : 'Copiar DNI' }}
+          </button>
+          <label tuiButton appearance="outline" size="s" class="btn-foto">
+            <tui-icon icon="@tui.pencil" />
+            Cambiar foto
+            <input type="file" accept="image/*" class="sr-only" (change)="cambiarFoto($event)" />
+          </label>
+          @if (fotoUrl()) {
+            <button tuiButton appearance="flat" size="s" type="button" (click)="quitarFoto()">
+              Quitar foto
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       LAYOUT 2 COLUMNAS
+       ══════════════════════════════════════ -->
+  <div class="detail-layout">
+    <!-- ── Columna principal ── -->
+    <div class="detail-main">
+      <!-- Datos personales -->
+      <section class="card detail-card">
+        <div class="section-title">
+          <div class="section-title-left">
+            <span class="tile tile-rounded tile-soft-primary seccion-icono">
+              <tui-icon icon="@tui.id-card" />
+            </span>
+            <div>
+              <h3>Datos personales</h3>
+              <p class="seccion-desc">Identidad y perfil demográfico</p>
+            </div>
+          </div>
+        </div>
+        <div class="info-tiles">
+          <div class="info-tile">
+            <span class="tile tile-rounded tile-soft-primary info-tile-icon"><tui-icon icon="@tui.id-card" /></span>
+            <div class="info-tile-body">
+              <span class="info-tile-label">Documento</span>
+              <strong class="info-tile-value font-mono">{{ p.documentoIdentidad }}</strong>
+            </div>
+          </div>
+          <div class="info-tile">
+            <span class="tile tile-rounded tile-soft-secondary info-tile-icon"><tui-icon icon="@tui.cake" /></span>
+            <div class="info-tile-body">
+              <span class="info-tile-label">Nacimiento · Edad</span>
+              <strong class="info-tile-value">{{ fechaFormateada(p.fechaNacimiento) }} · {{ p.edad }} años</strong>
+            </div>
+          </div>
+          <div class="info-tile">
+            <span class="tile tile-rounded tile-soft-violet info-tile-icon">
+              <tui-icon [icon]="p.sexo === 'M' ? '@tui.mars' : '@tui.venus'" />
+            </span>
+            <div class="info-tile-body">
+              <span class="info-tile-label">Sexo</span>
+              <strong class="info-tile-value">{{ p.sexo === 'M' ? 'Masculino' : 'Femenino' }}</strong>
+            </div>
+          </div>
+          <div class="info-tile">
+            <span class="tile tile-rounded tile-soft-warning info-tile-icon"><tui-icon icon="@tui.heart" /></span>
+            <div class="info-tile-body">
+              <span class="info-tile-label">Estado civil</span>
+              <strong class="info-tile-value">{{ p.estadoCivil || '—' }}</strong>
+            </div>
+          </div>
+          <div class="info-tile">
+            <span class="tile tile-rounded tile-soft-success info-tile-icon"><tui-icon icon="@tui.graduation-cap" /></span>
+            <div class="info-tile-body">
+              <span class="info-tile-label">Nivel educativo</span>
+              <strong class="info-tile-value">{{ p.nivelEducativo || '—' }}</strong>
+            </div>
+          </div>
+          <div class="info-tile">
+            <span class="tile tile-rounded tile-soft-primary info-tile-icon"><tui-icon icon="@tui.shirt" /></span>
+            <div class="info-tile-body">
+              <span class="info-tile-label">Talla de polo</span>
+              <strong class="info-tile-value">{{ p.tallaPolo || '—' }}</strong>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Contacto y laboral -->
+      <section class="card detail-card">
+        <div class="section-title">
+          <div class="section-title-left">
+            <span class="tile tile-rounded tile-soft-secondary seccion-icono">
+              <tui-icon icon="@tui.phone" />
+            </span>
+            <div>
+              <h3>Contacto y datos laborales</h3>
+              <p class="seccion-desc">Canales de contacto y asignación institucional</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="celular-destacado">
+          <span class="tile tile-rounded tile-soft-success celular-icono">
+            <tui-icon icon="@tui.smartphone" />
+          </span>
+          <div class="celular-body">
+            <span class="info-tile-label">Celular principal</span>
+            @if (!editandoCelular()) {
+              <strong class="celular-numero">{{ p.celular }}</strong>
+            } @else {
+              <form [formGroup]="celularForm" (ngSubmit)="guardarCelular()" class="celular-form">
+                <label tuiLabel class="field">
+                  Celular
+                  <tui-textfield>
+                    <input tuiInput type="text" formControlName="celular" />
+                  </tui-textfield>
+                </label>
+                @if (celularForm.controls.celular.touched && celularForm.controls.celular.invalid) {
+                  <p class="error-inline">Formato inválido. Ej: 951357327 o +51951357327</p>
+                }
+                <div class="form-actions">
+                  <button tuiButton appearance="primary" size="s" type="submit" [loading]="guardando()">
+                    <tui-icon icon="@tui.circle-check" />
+                    Guardar
+                  </button>
+                  <button tuiButton appearance="outline" size="s" type="button" (click)="cancelarEdicionCelular()">
+                    Cancelar
+                  </button>
+                </div>
+              </form>
+            }
+          </div>
+          @if (!editandoCelular()) {
+            <button tuiButton appearance="outline" size="s" type="button" (click)="iniciarEdicionCelular()" class="celular-editar">
+              <tui-icon icon="@tui.pencil" />
+              Editar
+            </button>
+          }
+        </div>
+
+        <div class="info-tiles info-tiles-2">
+          <div class="info-tile">
+            <span class="tile tile-rounded tile-soft-primary info-tile-icon"><tui-icon icon="@tui.briefcase" /></span>
+            <div class="info-tile-body">
+              <span class="info-tile-label">Área de trabajo</span>
+              @if (p.areaTrabajo) {
+                <span class="pill pill-primary">{{ p.areaTrabajo.nombre }}</span>
+              } @else {
+                <span class="text-soft">Sin área</span>
+              }
+            </div>
+          </div>
+          <div class="info-tile">
+            <span class="tile tile-rounded tile-soft-secondary info-tile-icon"><tui-icon icon="@tui.users" /></span>
+            <div class="info-tile-body">
+              <span class="info-tile-label">Equipo</span>
+              @if (p.equipo) {
+                <span class="pill pill-secondary">{{ p.equipo.nombre }}</span>
+              } @else {
+                <span class="text-soft">Sin equipo</span>
+              }
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Preferencias -->
+      <section class="card detail-card">
+        <div class="section-title">
+          <div class="section-title-left">
+            <span class="tile tile-rounded tile-soft-warning seccion-icono">
+              <tui-icon icon="@tui.bell" />
+            </span>
+            <div>
+              <h3>Preferencias de comunicación</h3>
+              <p class="seccion-desc">Disponibilidad para notificaciones y alertas de salud</p>
+            </div>
+          </div>
+          <button tuiButton appearance="outline" size="s" type="button" (click)="configurarPreferencias()">
+            <tui-icon icon="@tui.pencil" />
+            {{ preferencias() ? 'Editar' : 'Configurar' }}
+          </button>
+        </div>
+
+        @if (preferencias(); as pref) {
+          <div class="pref-stats">
+            <div class="pref-stat">
+              <span class="tile tile-rounded tile-soft-secondary pref-stat-icon"><tui-icon icon="@tui.message-circle" /></span>
+              <span class="info-tile-label">Canal preferido</span>
+              <span class="pill pill-secondary">{{ pref.canalPreferido }}</span>
+            </div>
+            <div class="pref-stat">
+              <span class="tile tile-rounded tile-soft-primary pref-stat-icon"><tui-icon icon="@tui.clock" /></span>
+              <span class="info-tile-label">Horario de contacto</span>
+              <strong class="info-tile-value">{{ pref.horarioContactoInicio }} – {{ pref.horarioContactoFin }}</strong>
+            </div>
+            <div class="pref-stat">
+              <span class="tile tile-rounded tile-soft-success pref-stat-icon"><tui-icon icon="@tui.bell" /></span>
+              <span class="info-tile-label">Recordatorios</span>
+              <span [class]="pref.aceptaRecordatorios ? 'pill pill-success' : 'pill pill-neutral'">
+                {{ pref.aceptaRecordatorios ? 'Acepta' : 'No acepta' }}
+              </span>
+            </div>
+          </div>
+        } @else {
+          <div class="empty-state">
+            <span class="tile tile-rounded tile-soft-warning empty-state-icon">
+              <tui-icon icon="@tui.bell-off" />
+            </span>
+            <p class="empty-state-title">Sin preferencias configuradas</p>
+            <p class="text-soft empty-state-desc">Define el canal y horario ideal para contactar a esta persona.</p>
+            <button tuiButton appearance="primary" size="s" type="button" (click)="configurarPreferencias()">
+              <tui-icon icon="@tui.plus" />
+              Configurar ahora
+            </button>
+          </div>
+        }
+      </section>
+    </div>
+
+    <!-- ── Columna lateral ── -->
+    <aside class="detail-side">
+      <!-- Credencial QR -->
+      <section class="card detail-card qr-card">
+        <div class="section-title">
+          <div class="section-title-left">
+            <span class="tile tile-rounded tile-soft-violet seccion-icono">
+              <tui-icon icon="@tui.qr-code" />
+            </span>
+            <div>
+              <h3>Credencial QR</h3>
+              <p class="seccion-desc">Identificación institucional</p>
+            </div>
+          </div>
+        </div>
+
+        @if (credencial(); as c) {
+          <div class="qr-hero">
+            @if (c.qrBase64) {
+              <span class="qr-frame">
+                <img
+                  [src]="'data:image/png;base64,' + c.qrBase64"
+                  [alt]="'Código QR de ' + nombreCompleto(p)"
+                  class="qr-image"
+                />
+              </span>
+            }
+            <span [class]="c.estado === 'ACTIVA' ? 'pill pill-success' : 'pill pill-neutral'">
+              <span class="dot"></span>{{ c.estado }}
+            </span>
+          </div>
+          <dl class="qr-meta">
+            <div class="qr-meta-row">
+              <dt>Emitida</dt>
+              <dd>{{ fechaHoraFormateada(c.fechaEmision) }}</dd>
+            </div>
+            <div class="qr-meta-row">
+              <dt>Hash</dt>
+              <dd class="qr-hash-row">
+                <code class="font-mono">{{ c.codigoQrHash.substring(0, 16) }}…</code>
+                <button tuiButton appearance="flat" size="s" type="button" title="Copiar hash" (click)="copiar(c.codigoQrHash, 'qr')">
+                  <tui-icon icon="@tui.copy" />
+                  {{ copiado() === 'qr' ? '¡Copiado!' : 'Copiar' }}
+                </button>
+              </dd>
+            </div>
+          </dl>
+          <div class="qr-actions">
+            <button
+              tuiButton appearance="outline" size="s" type="button"
+              (click)="generarCredencial()"
+              [loading]="guardando()"
+              [disabled]="guardando()"
+            >
+              <tui-icon icon="@tui.refresh-cw" />
+              Rotar credencial
+            </button>
+            @if (c.qrBase64) {
+              <button tuiButton appearance="flat" size="s" type="button" (click)="descargarQR()">
+                <tui-icon icon="@tui.download" />
+                Descargar PNG
+              </button>
+            }
+          </div>
+        } @else {
+          <div class="empty-state empty-state-compact">
+            <span class="tile tile-rounded tile-soft-violet empty-state-icon">
+              <tui-icon icon="@tui.qr-code" />
+            </span>
+            <p class="empty-state-title">Sin credencial activa</p>
+            <p class="text-soft empty-state-desc">Genera el QR para asistencia y puntos de control.</p>
+            <button
+              tuiButton appearance="primary" size="s" type="button"
+              (click)="generarCredencial()"
+              [loading]="guardando()"
+              [disabled]="guardando()"
+            >
+              <tui-icon icon="@tui.qr-code" />
+              Generar credencial QR
+            </button>
+          </div>
+        }
+      </section>
+
+      <!-- Resumen -->
+      <section class="card detail-card resumen-card">
+        <div class="section-title section-title-compact">
+          <div class="section-title-left">
+            <span class="tile tile-rounded tile-soft-success seccion-icono seccion-icono-sm">
+              <tui-icon icon="@tui.clipboard-list" />
+            </span>
+            <div>
+              <h3>Resumen</h3>
+            </div>
+          </div>
+        </div>
+        <dl class="resumen-list">
+          <div class="resumen-row"><dt>Estado</dt><dd>
+            @if (p.activo) { <span class="pill pill-success">Activo</span> }
+            @else { <span class="pill pill-neutral">Inactivo</span> }
+          </dd></div>
+          <div class="resumen-row"><dt>Edad</dt><dd>{{ p.edad }} años</dd></div>
+          <div class="resumen-row"><dt>Celular</dt><dd class="font-mono">{{ p.celular }}</dd></div>
+          <div class="resumen-row"><dt>Área</dt><dd>{{ p.areaTrabajo?.nombre ?? '—' }}</dd></div>
+          <div class="resumen-row"><dt>Equipo</dt><dd>{{ p.equipo?.nombre ?? '—' }}</dd></div>
+        </dl>
+      </section>
+
+      <!-- Zona sensible -->
+      @if (p.activo) {
+        <section class="card detail-card danger-zone">
+          <div class="section-title section-title-compact">
+            <div class="section-title-left">
+              <span class="tile tile-rounded tile-soft-error seccion-icono seccion-icono-sm">
+                <tui-icon icon="@tui.triangle-alert" />
+              </span>
+              <div>
+                <h3>Zona sensible</h3>
+                <p class="seccion-desc">Inactivación del registro</p>
+              </div>
+            </div>
+          </div>
+          <p class="danger-zone-desc">
+            Inactivar ocultará el registro del listado y anulará su credencial QR.
+          </p>
+          <button
+            tuiButton appearance="negative" size="s" type="button"
+            (click)="inactivar()"
+            [disabled]="guardando()"
+            class="danger-btn"
+          >
+            <tui-icon icon="@tui.user-x" />
+            Inactivar persona
+          </button>
+        </section>
+      } @else {
+        <section class="card detail-card">
+          <div class="section-title section-title-compact">
+            <div class="section-title-left">
+              <span class="tile tile-rounded tile-soft-success seccion-icono seccion-icono-sm">
+                <tui-icon icon="@tui.user-check" />
+              </span>
+              <div>
+                <h3>Reactivación del registro</h3>
+                <p class="seccion-desc">Volverá al listado y recibirá una nueva credencial QR</p>
+              </div>
+            </div>
+          </div>
+          <button
+            tuiButton appearance="primary" size="s" type="button"
+            (click)="reactivar()"
+            [disabled]="guardando()"
+          >
+            <tui-icon icon="@tui.user-check" />
+            Reactivar persona
+          </button>
+        </section>
+      }
+    </aside>
+  </div>
+} @else {
+  @if (!loading()) {
+    <div class="card empty-card">
+      <span class="tile tile-rounded tile-soft-primary empty-state-icon">
+        <tui-icon icon="@tui.user-x" />
+      </span>
+      <p class="empty-state-title">No se encontró la persona</p>
+      <p class="text-soft">Es posible que haya sido eliminada o el enlace sea incorrecto.</p>
+      <a tuiButton appearance="outline" size="s" routerLink="/personal/personas">
+        <tui-icon icon="@tui.arrow-left" />
+        Volver al listado
+      </a>
+    </div>
+  }
+}

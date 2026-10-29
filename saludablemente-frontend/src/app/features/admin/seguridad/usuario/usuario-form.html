@@ -1,0 +1,123 @@
+<!-- ======================================
+     CABECERA DEL FORMULARIO
+     ====================================== -->
+<header class="form-cabecera">
+  <div class="tile tile-rounded tile-soft-primary modulo-icono">
+    <tui-icon icon="@tui.shield" />
+  </div>
+  <div>
+    <h2 class="card-title">Nuevo Usuario del Sistema</h2>
+    <p class="card-subtitle">Cuenta de acceso vinculada al personal de RRHH con roles asignados.</p>
+  </div>
+</header>
+
+@if (loading()) {
+  <div class="card cargando-caja">
+    <p class="hint">Cargando catálogos de personas y roles…</p>
+  </div>
+}
+
+<form [formGroup]="form" (ngSubmit)="guardar()" class="form-contenedor">
+  <section class="card">
+    <div class="seccion-titulo">
+      <span class="tile tile-rounded tile-soft-primary seccion-icono">
+        <tui-icon icon="@tui.lock" />
+      </span>
+      <div>
+        <h3 class="seccion-nombre">Credenciales de la Cuenta</h3>
+        <p class="seccion-desc">Correo corporativo y clave de acceso (mínimo 8 caracteres).</p>
+      </div>
+    </div>
+
+    <div class="form-grid">
+      <label tuiLabel class="field span-2">
+        Persona de RRHH vinculada (escribe para buscar)
+        <tui-textfield tuiChevron>
+          <input tuiComboBox formControlName="persona" [strict]="true" placeholder="— Seleccione una persona —" />
+          <tui-data-list-wrapper *tuiDropdown [items]="personas() | tuiFilterByInput" [itemContent]="per" />
+        </tui-textfield>
+        <tui-error formControlName="persona" />
+      </label>
+
+      <label tuiLabel class="field span-2">
+        Correo electrónico corporativo
+        <tui-textfield>
+          <input tuiInput type="email" formControlName="email" maxlength="120" placeholder="usuario@upeu.edu.pe" />
+        </tui-textfield>
+        <tui-error formControlName="email" />
+      </label>
+
+      <label tuiLabel class="field">
+        Contraseña (mínimo 8 caracteres)
+        <tui-textfield>
+          <input tuiInput type="password" formControlName="password" maxlength="80" placeholder="••••••••" />
+        </tui-textfield>
+        <tui-error formControlName="password" />
+      </label>
+
+      <label tuiLabel class="field">
+        Confirmar contraseña
+        <tui-textfield>
+          <input tuiInput type="password" formControlName="confirmarPassword" maxlength="80" placeholder="••••••••" />
+        </tui-textfield>
+      </label>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="seccion-titulo">
+      <span class="tile tile-rounded tile-soft-primary seccion-icono">
+        <tui-icon icon="@tui.shield" />
+      </span>
+      <div>
+        <h3 class="seccion-nombre">Roles y Permisos de Acceso</h3>
+        <p class="seccion-desc">Selecciona al menos un rol para habilitar los permisos del usuario.</p>
+      </div>
+    </div>
+
+    @if (roles().length === 0) {
+      <p class="hint">Cargando catálogo de roles…</p>
+    }
+    <div class="roles-grid">
+      @for (r of roles(); track r.id) {
+        <label class="rol-card" [class.rol-seleccionado]="rolesElegidos().includes(r.id)" [title]="r.descripcion ?? r.nombre">
+          <input
+            tuiCheckbox
+            type="checkbox"
+            [ngModel]="rolesElegidos().includes(r.id)"
+            (ngModelChange)="toggleRol(r.id, $event)"
+            [ngModelOptions]="{ standalone: true }"
+          />
+          <div class="rol-info">
+            <span class="rol-nombre">{{ r.nombre }}</span>
+            @if (r.descripcion) {
+              <span class="rol-desc">{{ r.descripcion }}</span>
+            }
+          </div>
+        </label>
+      }
+    </div>
+  </section>
+
+  @if (error()) {
+    <div class="card error-caja">
+      <tui-icon icon="@tui.triangle-alert" class="icono-alerta" />
+      <p class="error-msg">{{ error() }}</p>
+    </div>
+  }
+
+  <!-- ======================================
+       ACCIONES DEL FORMULARIO
+       ====================================== -->
+  <div class="form-acciones">
+    <button tuiButton appearance="primary" size="m" type="submit" [loading]="guardando()" [disabled]="loading()">
+      <tui-icon icon="@tui.check" />
+      Crear usuario
+    </button>
+    <button tuiButton appearance="outline" size="m" type="button" (click)="cancelar()">
+      Cancelar
+    </button>
+  </div>
+</form>
+
+<ng-template #per let-item>{{ nombrePersona(item) }}</ng-template>

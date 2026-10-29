@@ -1,0 +1,155 @@
+<!-- ══════════════════════════════════════
+     CABECERA DE PÁGINA
+     ══════════════════════════════════════ -->
+<div class="page-banner card">
+  <div class="page-banner-body">
+    <div class="page-banner-icon tile tile-rounded tile-soft-primary">
+      <tui-icon icon="@tui.newspaper" />
+    </div>
+    <div>
+      <h2 class="card-title">Gestión de Noticias</h2>
+      <p class="card-subtitle">
+        @if (loading()) {
+          Cargando publicaciones…
+        } @else {
+          {{ total() }} noticia(s) en total
+        }
+      </p>
+    </div>
+  </div>
+  <div class="acciones-cabecera">
+    <a tuiButton appearance="outline" size="m" routerLink="/noticias/categorias">
+      <tui-icon icon="@tui.grid" />
+      Categorías
+    </a>
+    <a tuiButton appearance="primary" size="m" routerLink="/noticias/admin/nueva">
+      <tui-icon icon="@tui.plus" />
+      Nueva noticia
+    </a>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     FILTROS EN LÍNEA
+     ══════════════════════════════════════ -->
+<div class="filtros-card">
+  <div class="filtros-linea">
+    <!-- Estado -->
+    <label class="filtro-item">
+      <span class="filtro-etiqueta">Estado</span>
+      <tui-textfield tuiChevron>
+        <input tuiComboBox [formControl]="estadoCtrl" placeholder="— Todos los estados —" />
+        <tui-data-list-wrapper *tuiDropdown [items]="estadoOpts | tuiFilterByInput" [itemContent]="filtro" />
+      </tui-textfield>
+    </label>
+
+    <!-- Categoría -->
+    <label class="filtro-item filtro-categoria">
+      <span class="filtro-etiqueta">Categoría</span>
+      <tui-textfield tuiChevron>
+        <input tuiComboBox [formControl]="categoriaCtrl" placeholder="— Todas las categorías —" />
+        <tui-data-list-wrapper *tuiDropdown [items]="categorias() | tuiFilterByInput" [itemContent]="cat" />
+      </tui-textfield>
+    </label>
+  </div>
+</div>
+
+<ng-template #filtro let-item>{{ item.label }}</ng-template>
+<ng-template #cat let-item>{{ item.nombre }}</ng-template>
+
+@if (error()) {
+  <div class="card error-caja">
+    <tui-icon icon="@tui.triangle-alert" class="icono-alerta" />
+    <p class="error-msg">{{ error() }}</p>
+  </div>
+}
+
+<!-- ══════════════════════════════════════
+     TABLA DE NOTICIAS
+     ══════════════════════════════════════ -->
+<div class="card tabla-card flush">
+  <div class="table-wrapper flush">
+    <table tuiTable>
+      <thead>
+        <tr>
+          <th tuiTh>Título de la Noticia</th>
+          <th tuiTh>Categoría</th>
+          <th tuiTh>Estado</th>
+          <th tuiTh>Fecha Publicación</th>
+          <th tuiTh class="th-acciones"><span class="sr-only">Acciones</span></th>
+        </tr>
+      </thead>
+      <tbody tuiTbody>
+        @for (n of items(); track n.id) {
+          <tr>
+            <td tuiTd>
+              <a class="fila-nombre" [routerLink]="['/noticias/admin', n.id]">{{ n.titulo }}</a>
+              @if (n.subtitulo) {
+                <div class="text-soft line-clamp-1">{{ n.subtitulo }}</div>
+              }
+            </td>
+            <td tuiTd>
+              @if (n.categoria?.nombre) {
+                <span class="pill pill-soft-primary">{{ n.categoria?.nombre }}</span>
+              } @else {
+                <span class="text-soft">—</span>
+              }
+            </td>
+            <td tuiTd>
+              @if (n.estado === 'PUBLICADO') {
+                <span class="pill pill-soft-success">Publicado</span>
+              } @else if (n.estado === 'BORRADOR') {
+                <span class="pill pill-soft-warning">Borrador</span>
+              } @else if (n.estado === 'ARCHIVADO') {
+                <span class="pill pill-soft-neutral">Archivado</span>
+              } @else {
+                <span class="pill pill-soft-neutral">{{ n.estado }}</span>
+              }
+            </td>
+            <td tuiTd class="text-soft font-mono">{{ n.fechaPublicacion ?? '—' }}</td>
+            <td tuiTd class="td-acciones">
+              <div class="row-actions">
+                <a tuiButton appearance="flat" size="s" [routerLink]="['/noticias/admin', n.id]" title="Ver noticia">
+                  <tui-icon icon="@tui.eye" />
+                  Ver
+                </a>
+                <a tuiButton appearance="flat" size="s" [routerLink]="['/noticias/admin', n.id, 'editar']" title="Editar noticia">
+                  <tui-icon icon="@tui.pencil" />
+                  Editar
+                </a>
+              </div>
+            </td>
+          </tr>
+        } @empty {
+          @if (!loading() && !error()) {
+            <tr>
+              <td tuiTd colspan="5" class="empty">No se encontraron noticias con los filtros actuales.</td>
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     PAGINACIÓN
+     ══════════════════════════════════════ -->
+<div class="card paginacion-card">
+  <button tuiButton appearance="outline" size="s" type="button" [disabled]="page() === 0" (click)="paginaAnterior()">
+    <tui-icon icon="@tui.chevron-left" />
+    Anterior
+  </button>
+  <span class="paginacion-info">Página {{ page() + 1 }} de {{ totalPages() || 1 }}</span>
+  <button
+    tuiButton
+    appearance="outline"
+    size="s"
+    type="button"
+    [disabled]="page() + 1 >= totalPages()"
+    (click)="paginaSiguiente()"
+  >
+    Siguiente
+    <tui-icon icon="@tui.chevron-right" />
+  </button>
+</div>

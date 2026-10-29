@@ -1,0 +1,184 @@
+<!-- ══════════════════════════════════════
+     CABECERA DE PÁGINA
+     ══════════════════════════════════════ -->
+<div class="page-banner card">
+  <div class="page-banner-body">
+    <div class="page-banner-icon tile tile-rounded tile-soft-success">
+      <tui-icon icon="@tui.apple" />
+    </div>
+    <div>
+      <h2 class="card-title">Evaluaciones Nutricionales</h2>
+      <p class="card-subtitle">
+        @if (loading()) {
+          Cargando registros…
+        } @else if (page(); as p) {
+          {{ p.totalElements }} evaluación(es) en total
+        } @else {
+          Registro y consolidado de evaluaciones nutricionales
+        }
+      </p>
+    </div>
+  </div>
+  <div class="page-banner-actions">
+    <button tuiButton appearance="outline" size="m" type="button" (click)="exportarConsolidado()">
+      <tui-icon icon="@tui.download" />
+      Exportar consolidado
+    </button>
+    <a tuiButton appearance="primary" size="m" routerLink="/nutricional/evaluaciones/nueva">
+      <tui-icon icon="@tui.plus" />
+      Nueva evaluación
+    </a>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     FILTROS EN LÍNEA
+     ══════════════════════════════════════ -->
+<div class="filtros-card">
+  <div class="filtros-linea">
+    <!-- Estado -->
+    <div class="filtro-item">
+      <label class="filtro-etiqueta">Estado</label>
+      <tui-textfield tuiChevron>
+        <input tuiComboBox [formControl]="estadoCtrl" [strict]="true" placeholder="— Todos —" />
+        <tui-data-list-wrapper *tuiDropdown [items]="estadoOpts | tuiFilterByInput" [itemContent]="opt" />
+      </tui-textfield>
+    </div>
+
+    <!-- Periodo -->
+    <div class="filtro-item">
+      <label class="filtro-etiqueta">Periodo académico / laboral</label>
+      <tui-textfield>
+        <input
+          tuiInput
+          type="text"
+          [(ngModel)]="filtroPeriodo"
+          placeholder="Ej. 2026-1"
+          (change)="aplicarFiltros()" />
+      </tui-textfield>
+    </div>
+
+    <!-- Botón Limpiar / Aplicar -->
+    <button
+      tuiButton
+      appearance="outline"
+      size="m"
+      type="button"
+      (click)="filtroPeriodo = ''; estadoCtrl.setValue(estadoOpts[0]); aplicarFiltros()"
+      class="btn-limpiar"
+    >
+      <tui-icon icon="@tui.filter-x" />
+      Limpiar
+    </button>
+  </div>
+</div>
+
+<ng-template #opt let-item>{{ item.label }}</ng-template>
+
+@if (error()) {
+  <div class="card error-caja">
+    <tui-icon icon="@tui.triangle-alert" class="icono-alerta" />
+    <p class="error-msg">{{ error() }}</p>
+  </div>
+}
+
+<!-- ══════════════════════════════════════
+     TABLA DE EVALUACIONES
+     ══════════════════════════════════════ -->
+@if (page(); as p) {
+  <div class="card tabla-card flush">
+    <div class="table-wrapper flush">
+      <table tuiTable>
+        <thead>
+          <tr>
+            <th tuiTh scope="col">DNI</th>
+            <th tuiTh scope="col">Colaborador / Estudiante</th>
+            <th tuiTh scope="col">Área</th>
+            <th tuiTh scope="col">Periodo</th>
+            <th tuiTh scope="col">Fecha</th>
+            <th tuiTh scope="col">Estado</th>
+            <th tuiTh scope="col" class="th-acciones"><span class="sr-only">Acciones</span></th>
+          </tr>
+        </thead>
+        <tbody tuiTbody>
+          @for (e of p.content; track e.idEvaluacion) {
+            <tr>
+              <td tuiTd class="text-soft font-mono">{{ e.documentoIdentidad }}</td>
+              <td tuiTd class="fw-bold">{{ e.nombresCompletos }}</td>
+              <td tuiTd>
+                @if (e.areaTrabajoAlMomento) {
+                  <span class="pill pill-soft-primary">{{ e.areaTrabajoAlMomento }}</span>
+                } @else {
+                  <span class="text-soft">—</span>
+                }
+              </td>
+              <td tuiTd class="text-soft font-mono">{{ e.idPeriodo }}</td>
+              <td tuiTd class="text-soft">{{ e.fechaEvaluacion }}</td>
+              <td tuiTd>
+                @if (e.estadoEvaluacion === 'COMPLETA') {
+                  <span class="pill pill-soft-success">Completa</span>
+                } @else if (e.estadoEvaluacion === 'ANULADA') {
+                  <span class="pill pill-soft-neutral">Anulada</span>
+                } @else {
+                  <span class="pill pill-soft-warning">Pendiente</span>
+                }
+              </td>
+              <td tuiTd class="td-acciones">
+                <div class="row-actions">
+                  <a tuiButton appearance="flat" size="s" [routerLink]="['/nutricional/evaluaciones', e.idEvaluacion]">
+                    <tui-icon icon="@tui.eye" />
+                    Ver
+                  </a>
+                  <button tuiButton appearance="outline" size="s" type="button" (click)="descargarPdf(e.idEvaluacion)">
+                    <tui-icon icon="@tui.file-text" />
+                    PDF
+                  </button>
+                  @if (e.estadoEvaluacion !== 'ANULADA') {
+                    <button tuiButton appearance="destructive" size="s" type="button" (click)="anular(e.idEvaluacion)">
+                      <tui-icon icon="@tui.ban" />
+                      Anular
+                    </button>
+                  }
+                </div>
+              </td>
+            </tr>
+          } @empty {
+            @if (!loading() && !error()) {
+              <tr>
+                <td tuiTd colspan="7" class="empty">No hay evaluaciones registradas con los filtros seleccionados.</td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+
+    @if (p.totalPages > 1) {
+      <div class="paginacion-bar">
+        <button
+          tuiButton
+          appearance="outline"
+          size="s"
+          type="button"
+          (click)="irAPagina(p.number - 1)"
+          [disabled]="p.number === 0"
+        >
+          <tui-icon icon="@tui.chevron-left" />
+          Anterior
+        </button>
+        <span class="paginacion-info">Página {{ p.number + 1 }} de {{ p.totalPages }}</span>
+        <button
+          tuiButton
+          appearance="outline"
+          size="s"
+          type="button"
+          (click)="irAPagina(p.number + 1)"
+          [disabled]="p.number + 1 >= p.totalPages"
+        >
+          Siguiente
+          <tui-icon icon="@tui.chevron-right" />
+        </button>
+      </div>
+    }
+  </div>
+}

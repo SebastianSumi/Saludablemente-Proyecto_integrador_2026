@@ -1,0 +1,52 @@
+<div class="col-stack">
+  <div appearance="floating" tuiCardLarge>
+    <header tuiHeader>
+      <h1 tuiTitle>
+        Mis metas
+        <span tuiSubtitle>
+          @if (loading()) { Cargando tus metas... }
+          @else { {{ items().length }} meta(s) propias }
+        </span>
+      </h1>
+      <aside tuiAccessories><div appearance="positive" tuiAvatar="@tui.target"></div></aside>
+    </header>
+    <div class="banner-actions">
+      <a tuiButton appearance="primary" size="m" routerLink="/colaborador/mis-metas/nueva">
+        <tui-icon icon="@tui.plus" />Nueva meta personal
+      </a>
+    </div>
+  </div>
+
+  @if (error()) {
+    <div appearance="floating" tuiCardLarge>
+      <header tuiHeader><h2 tuiTitle>No se pudo cargar tus metas<span tuiSubtitle>{{ error() }}</span></h2></header>
+    </div>
+  }
+
+  <div appearance="floating" tuiCardLarge class="tabla-card">
+    <div class="table-scroll">
+      <table tuiTable>
+        <thead><tr><th tuiTh>Meta</th><th tuiTh>Pilar</th><th tuiTh>Avance</th><th tuiTh>Estado</th><th tuiTh>Cierre</th><th tuiTh class="th-acciones"><span class="sr-only">Acciones</span></th></tr></thead>
+        <tbody tuiTbody>
+          @for (m of items(); track m.id) {
+            <tr>
+              <td tuiTd>
+                <div tuiTitle>{{ m.descripcion }}<div tuiSubtitle>{{ m.indicador }} · {{ m.valorActual }}/{{ m.valorObjetivo }} {{ m.unidad ?? '' }}</div></div>
+              </td>
+              <td tuiTd><span tuiBadge appearance="neutral" size="s">{{ m.pilar }}</span></td>
+              <td tuiTd><progress tuiProgressBar [max]="m.valorObjetivo" [value]="m.valorActual"></progress></td>
+              <td tuiTd><span tuiBadge [appearance]="estadoBadge(m.estado)" size="s">{{ m.estado }}</span></td>
+              <td tuiTd>{{ m.fechaObjetivo | date:'dd/MM/yyyy' }}</td>
+              <td tuiTd class="td-acciones">
+                <a tuiButton appearance="flat" size="s" [routerLink]="['/colaborador/mis-metas', m.id]"><tui-icon icon="@tui.eye" />Ver progreso</a>
+              </td>
+            </tr>
+          } @empty {
+            @if (!loading() && !error()) { <tr><td tuiTd colspan="6" class="empty">Aún no tienes metas. <a routerLink="/colaborador/mis-metas/nueva">Crear mi primera meta</a>.</td></tr> }
+          }
+        </tbody>
+      </table>
+    </div>
+    <footer><a tuiButton appearance="flat" size="s" routerLink="/colaborador">Volver a mi panel</a></footer>
+  </div>
+</div>

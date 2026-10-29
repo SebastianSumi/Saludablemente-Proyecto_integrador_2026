@@ -1,0 +1,147 @@
+<!-- ══════════════════════════════════════
+     CABECERA DEL FORMULARIO
+     ══════════════════════════════════════ -->
+<div class="form-cabecera">
+  <div class="tile tile-rounded tile-soft-error modulo-icono">
+    <tui-icon icon="@tui.flask-conical" />
+  </div>
+  <div>
+    <h2 class="card-title">{{ modoEdicion() ? 'Editar resultados bioquímicos' : 'Registrar resultados bioquímicos' }}</h2>
+    @if (evaluacion(); as e) {
+      <p class="card-subtitle">
+        Evaluación #{{ e.idEvaluacion }} — <strong class="text-ink">{{ e.nombresCompletos }}</strong> (DNI {{ e.documentoIdentidad }})
+      </p>
+    } @else {
+      <p class="card-subtitle">Ingreso manual de parámetros bioquímicos y presión arterial</p>
+    }
+  </div>
+</div>
+
+<form [formGroup]="form" (ngSubmit)="guardar()" class="form-contenedor">
+  @if (loading()) {
+    <div class="card estado-caja">
+      <p class="sal-subtitulo">Cargando datos bioquímicos...</p>
+    </div>
+  }
+
+  @if (error()) {
+    <div class="card error-caja">
+      <tui-icon icon="@tui.triangle-alert" class="icono-alerta" />
+      <p class="error-msg">{{ error() }}</p>
+    </div>
+  }
+
+  <!-- ══════════════════════════════════════
+       PARÁMETROS SANGUÍNEOS
+       ══════════════════════════════════════ -->
+  <section class="card">
+    <div class="seccion-titulo">
+      <span class="tile tile-rounded tile-soft-error seccion-icono">
+        <tui-icon icon="@tui.droplet" />
+      </span>
+      <div>
+        <h3 class="seccion-nombre">Parámetros sanguíneos (mg/dL)</h3>
+        <p class="seccion-desc">Valores obtenidos del análisis de laboratorio clínico</p>
+      </div>
+    </div>
+
+    <div class="form-grid">
+      <!-- Glucosa -->
+      <label tuiLabel class="field">
+        <span class="field-label">Glucosa en ayunas (mg/dL)</span>
+        <tui-textfield>
+          <input tuiInput type="number" step="0.1" formControlName="glucosa" placeholder="Ej. 95.0" />
+        </tui-textfield>
+        @if (mensajeValidacion('glucosa'); as mensaje) {
+          <p class="error-campo">{{ mensaje }}</p>
+        }
+      </label>
+
+      <!-- Colesterol -->
+      <label tuiLabel class="field">
+        <span class="field-label">Colesterol total (mg/dL)</span>
+        <tui-textfield>
+          <input tuiInput type="number" step="0.1" formControlName="colesterol" placeholder="Ej. 180.0" />
+        </tui-textfield>
+        @if (mensajeValidacion('colesterol'); as mensaje) {
+          <p class="error-campo">{{ mensaje }}</p>
+        }
+      </label>
+
+      <!-- Triglicéridos -->
+      <label tuiLabel class="field campo-full">
+        <span class="field-label">Triglicéridos (mg/dL)</span>
+        <tui-textfield>
+          <input tuiInput type="number" step="0.1" formControlName="trigliceridos" placeholder="Ej. 140.0" />
+        </tui-textfield>
+        @if (mensajeValidacion('trigliceridos'); as mensaje) {
+          <p class="error-campo">{{ mensaje }}</p>
+        }
+      </label>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════
+       PRESIÓN ARTERIAL
+       ══════════════════════════════════════ -->
+  <section class="card">
+    <div class="seccion-titulo">
+      <span class="tile tile-rounded tile-soft-primary seccion-icono">
+        <tui-icon icon="@tui.heart-pulse" />
+      </span>
+      <div>
+        <h3 class="seccion-nombre">Presión arterial (mmHg)</h3>
+        <p class="seccion-desc">Medición sistólica y diastólica en reposo</p>
+      </div>
+    </div>
+
+    <div class="form-grid">
+      <!-- Sistólica -->
+      <label tuiLabel class="field">
+        <span class="field-label">Presión sistólica (mmHg)</span>
+        <tui-textfield>
+          <input tuiInput type="number" formControlName="presionSistolica" placeholder="Ej. 120" />
+        </tui-textfield>
+        @if (mensajeValidacion('presionSistolica'); as mensaje) {
+          <p class="error-campo">{{ mensaje }}</p>
+        }
+      </label>
+
+      <!-- Diastólica -->
+      <label tuiLabel class="field">
+        <span class="field-label">Presión diastólica (mmHg)</span>
+        <tui-textfield>
+          <input tuiInput type="number" formControlName="presionDiastolica" placeholder="Ej. 80" />
+        </tui-textfield>
+        @if (mensajeValidacion('presionDiastolica'); as mensaje) {
+          <p class="error-campo">{{ mensaje }}</p>
+        }
+      </label>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════
+       BOTONES DE ACCIÓN
+       ══════════════════════════════════════ -->
+  <div class="form-acciones">
+    <button
+      tuiButton
+      appearance="primary"
+      size="m"
+      type="submit"
+      [disabled]="loading() || errorCarga()"
+    >
+      <tui-icon icon="@tui.circle-check" />
+      {{ modoEdicion() ? 'Actualizar resultados' : 'Registrar resultados' }}
+    </button>
+    <button
+      tuiButton
+      appearance="outline"
+      size="m"
+      type="button"
+      (click)="cancelar()"
+    >
+      Cancelar
+    </button>
+  </div>
+</form>

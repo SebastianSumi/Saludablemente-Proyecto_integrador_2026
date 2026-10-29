@@ -1,0 +1,173 @@
+<!-- ══════════════════════════════════════
+     CABECERA DEL FORMULARIO
+     ══════════════════════════════════════ -->
+<div class="form-cabecera">
+  <div class="tile tile-rounded tile-soft-warning modulo-icono">
+    <tui-icon icon="@tui.test-tube" />
+  </div>
+  <div>
+    <h2 class="card-title">{{ id() ? 'Editar regla clínica' : 'Nueva regla clínica' }}</h2>
+    <p class="card-subtitle">Parámetros de evaluación bioquímica de triglicéridos en sangre</p>
+  </div>
+</div>
+
+<form [formGroup]="form" (ngSubmit)="guardar()" class="form-contenedor">
+  @if (loading()) {
+    <div class="card estado-caja">
+      <p class="sal-subtitulo">Cargando datos de la regla...</p>
+    </div>
+  }
+
+  @if (error()) {
+    <div class="card error-caja">
+      <tui-icon icon="@tui.triangle-alert" class="icono-alerta" />
+      <p class="error-msg">{{ error() }}</p>
+    </div>
+  }
+
+  <!-- ══════════════════════════════════════
+       SECCIÓN 1: SEGMENTACIÓN DEMOGRÁFICA
+       ══════════════════════════════════════ -->
+  <section class="card">
+    <div class="seccion-titulo">
+      <span class="tile tile-rounded tile-soft-primary seccion-icono">
+        <tui-icon icon="@tui.users" />
+      </span>
+      <div>
+        <h3 class="seccion-nombre">Segmentación Demográfica</h3>
+        <p class="seccion-desc">Población a la que se aplicará este umbral clínico</p>
+      </div>
+    </div>
+
+    <div class="form-grid">
+      <!-- Sexo Biológico con ComboBox Taiga UI e iconos -->
+      <label tuiLabel class="field">
+        <span class="field-label">Sexo Biológico <span class="required">*</span></span>
+        <tui-textfield tuiChevron>
+          <input tuiComboBox formControlName="sexo" placeholder="— Seleccione sexo —" />
+          <tui-data-list-wrapper
+            *tuiDropdown
+            [items]="sexos | tuiFilterByInput"
+            [itemContent]="comboSexo"
+          />
+        </tui-textfield>
+        <tui-error formControlName="sexo" />
+      </label>
+
+      <!-- Clasificación Clínica con ComboBox Taiga UI -->
+      <label tuiLabel class="field">
+        <span class="field-label">Clasificación Clínica <span class="required">*</span></span>
+        <tui-textfield tuiChevron>
+          <input tuiComboBox formControlName="clasificacion" placeholder="— Seleccione clasificación —" />
+          <tui-data-list-wrapper
+            *tuiDropdown
+            [items]="clasificaciones | tuiFilterByInput"
+            [itemContent]="comboOpcion"
+          />
+        </tui-textfield>
+        <tui-error formControlName="clasificacion" />
+      </label>
+
+      <!-- Edad Mínima -->
+      <label tuiLabel class="field">
+        <span class="field-label">Edad Mínima (años) <span class="required">*</span></span>
+        <tui-textfield>
+          <input tuiInput type="number" formControlName="edadMin" placeholder="Ej. 18" />
+        </tui-textfield>
+        <tui-error formControlName="edadMin" />
+      </label>
+
+      <!-- Edad Máxima -->
+      <label tuiLabel class="field">
+        <span class="field-label">Edad Máxima (años) <span class="required">*</span></span>
+        <tui-textfield>
+          <input tuiInput type="number" formControlName="edadMax" placeholder="Ej. 65" />
+        </tui-textfield>
+        <tui-error formControlName="edadMax" />
+      </label>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════
+       SECCIÓN 2: RANGO DE TRIGLICÉRIDOS Y SCORE
+       ══════════════════════════════════════ -->
+  <section class="card">
+    <div class="seccion-titulo">
+      <span class="tile tile-rounded tile-soft-warning seccion-icono">
+        <tui-icon icon="@tui.activity" />
+      </span>
+      <div>
+        <h3 class="seccion-nombre">Rango Bioquímico y Puntuación</h3>
+        <p class="seccion-desc">Valores en mg/dL y ponderación en la matriz de riesgo metabólico</p>
+      </div>
+    </div>
+
+    <div class="form-grid">
+      <!-- Mínimo mg/dL -->
+      <label tuiLabel class="field">
+        <span class="field-label">Triglicéridos Mínimo (mg/dL) <span class="required">*</span></span>
+        <tui-textfield>
+          <input tuiInput type="number" step="0.01" formControlName="trigliceridosMgDlMin" placeholder="Ej. 0" />
+        </tui-textfield>
+        <tui-error formControlName="trigliceridosMgDlMin" />
+      </label>
+
+      <!-- Máximo mg/dL -->
+      <label tuiLabel class="field">
+        <span class="field-label">Triglicéridos Máximo (mg/dL) <span class="required">*</span></span>
+        <tui-textfield>
+          <input tuiInput type="number" step="0.01" formControlName="trigliceridosMgDlMax" placeholder="Ej. 149.99" />
+        </tui-textfield>
+        <tui-error formControlName="trigliceridosMgDlMax" />
+      </label>
+
+      <!-- Puntos de Riesgo -->
+      <label tuiLabel class="field campo-full">
+        <span class="field-label">Puntos de Riesgo Clínico <span class="required">*</span></span>
+        <tui-textfield>
+          <input tuiInput type="number" formControlName="puntosRiesgo" placeholder="0 = normal, 1-3 = riesgo medio, ≥4 = riesgo crítico" />
+        </tui-textfield>
+        <p class="field-ayuda">Puntos que suma esta condición al score total de alerta clínica.</p>
+        <tui-error formControlName="puntosRiesgo" />
+      </label>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════
+       BOTONES DE ACCIÓN
+       ══════════════════════════════════════ -->
+  <div class="form-acciones">
+    <button
+      tuiButton
+      appearance="primary"
+      size="m"
+      type="submit"
+      [loading]="guardando()"
+      [disabled]="loading() || errorCarga()"
+    >
+      <tui-icon icon="@tui.circle-check" />
+      {{ id() ? 'Actualizar regla' : 'Guardar regla' }}
+    </button>
+    <button
+      tuiButton
+      appearance="outline"
+      size="m"
+      type="button"
+      (click)="cancelar()"
+    >
+      Cancelar
+    </button>
+  </div>
+</form>
+
+<!-- Templates para renderizar opciones de los ComboBox -->
+<ng-template #comboSexo let-item>
+  <span class="combo-item-con-icono">
+    <tui-icon [icon]="item.id === 'M' ? '@tui.mars' : '@tui.venus'" class="combo-icono" />
+    <span>{{ item.label }}</span>
+  </span>
+</ng-template>
+
+<ng-template #comboOpcion let-item>
+  <span class="combo-item-label">{{ item.label }}</span>
+</ng-template>

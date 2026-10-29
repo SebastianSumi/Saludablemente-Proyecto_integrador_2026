@@ -1,0 +1,299 @@
+<div class="col-stack">
+  <!-- ════════════ HERO ════════════ -->
+  <section class="card page-banner">
+    <div class="page-banner-body">
+      <span class="tile tile-rounded tile-soft-violet page-banner-icon">
+        <tui-icon icon="@tui.inbox" />
+      </span>
+      <div class="page-banner-info">
+        <h1 class="card-title hero-titulo">Mis notificaciones</h1>
+        <p class="card-subtitle">
+          @if (loading()) {
+            Cargando tus notificaciones…
+          } @else if (perfil(); as p) {
+            {{ p.nombreCompleto }}
+            @if (p.roles.length) {
+              · {{ p.roles.join(' · ') }}
+            }
+          } @else {
+            Avisos del sistema para ti
+          }
+        </p>
+        <div class="hero-chips">
+          <span class="pill pill-neutral">Total: {{ conteos().total }}</span>
+          <span class="pill pill-warning">Sin leer: {{ conteos().sinLeer }}</span>
+          <span class="pill pill-success">Leídas: {{ conteos().leidas }}</span>
+          @for (m of modulos(); track m.clave) {
+            <span [class]="'pill pill-' + m.visual.color">
+              <tui-icon [icon]="m.visual.icono" class="pill-icono" />
+              {{ m.visual.etiqueta }}: {{ m.total }}
+            </span>
+          }
+        </div>
+      </div>
+    </div>
+    <div class="hero-acciones">
+      @if (esAdmin()) {
+        <a tuiButton appearance="outline" size="m" routerLink="/notificaciones">
+          <tui-icon icon="@tui.settings" />
+          Gestionar
+        </a>
+      }
+      @if (conteos().sinLeer > 0) {
+        <button tuiButton appearance="primary" size="m" type="button" (click)="marcarTodas()">
+          <tui-icon icon="@tui.check" />
+          Marcar todas
+        </button>
+      }
+      <button tuiButton appearance="secondary" size="m" type="button" (click)="cargar()">
+        <tui-icon icon="@tui.refresh-cw" />
+        Recargar
+      </button>
+    </div>
+  </section>
+
+  <!-- ════════════ FILTROS ════════════ -->
+  <section class="card filtros-card">
+    <div class="filtros-linea">
+      <div class="filtro-item">
+        <span class="filtro-etiqueta">Estado</span>
+        <div class="seg" role="tablist" aria-label="Estado">
+          <button type="button" [class.seg-activo]="filtroEstado() === 'todas'" (click)="filtrarEstado('todas')">
+            Todas ({{ conteos().total }})
+          </button>
+          <button type="button" [class.seg-activo]="filtroEstado() === 'no-leidas'" (click)="filtrarEstado('no-leidas')">
+            Sin leer ({{ conteos().sinLeer }})
+          </button>
+          <button type="button" [class.seg-activo]="filtroEstado() === 'leidas'" (click)="filtrarEstado('leidas')">
+            Leídas ({{ conteos().leidas }})
+          </button>
+        </div>
+      </div>
+
+      <div class="filtro-item">
+        <span class="filtro-etiqueta">Ordenar por</span>
+        <div class="seg" role="tablist" aria-label="Orden">
+          <button type="button" [class.seg-activo]="orden() === 'fecha'" (click)="setOrden('fecha')">Fecha</button>
+          <button type="button" [class.seg-activo]="orden() === 'modulo'" (click)="setOrden('modulo')">Módulo</button>
+          <button type="button" [class.seg-activo]="orden() === 'estado'" (click)="setOrden('estado')">Estado</button>
+        </div>
+      </div>
+
+      <div class="filtro-item">
+        <span class="filtro-etiqueta">Vista</span>
+        <div class="seg" role="tablist" aria-label="Modo de vista">
+          <button type="button" [class.seg-activo]="vista() === 'tarjetas'" (click)="vista.set('tarjetas')">
+            <tui-icon icon="@tui.grid" />
+            Tarjetas
+          </button>
+          <button type="button" [class.seg-activo]="vista() === 'lista'" (click)="vista.set('lista')">
+            <tui-icon icon="@tui.list" />
+            Lista
+          </button>
+        </div>
+      </div>
+    </div>
+
+    @if (modulos().length) {
+      <div class="filtros-linea">
+        <div class="filtro-item filtro-modulos">
+          <span class="filtro-etiqueta">Módulo</span>
+          <div class="seg" role="tablist" aria-label="Módulo">
+            <button type="button" [class.seg-activo]="filtroModulo() === ''" (click)="filtrarModulo('')">
+              Todos
+            </button>
+            @for (m of modulos(); track m.clave) {
+              <button type="button" [class.seg-activo]="filtroModulo() === m.clave" (click)="filtrarModulo(m.clave)">
+                <tui-icon [icon]="m.visual.icono" />
+                {{ m.visual.etiqueta }} ({{ m.total }})
+              </button>
+            }
+          </div>
+        </div>
+      </div>
+    }
+
+    <div class="filtros-linea">
+      <div class="filtro-item filtro-fecha">
+        <span class="filtro-etiqueta">Desde</span>
+        <tui-textfield>
+          <input tuiInput type="date" [value]="filtroDesde()" (input)="filtroDesde.set($any($event.target).value)" />
+        </tui-textfield>
+      </div>
+      <div class="filtro-item filtro-fecha">
+        <span class="filtro-etiqueta">Hasta</span>
+        <tui-textfield>
+          <input tuiInput type="date" [value]="filtroHasta()" (input)="filtroHasta.set($any($event.target).value)" />
+        </tui-textfield>
+      </div>
+      <div class="filtro-item filtro-buscar">
+        <span class="filtro-etiqueta">Buscar</span>
+        <tui-textfield>
+          <tui-icon icon="@tui.search" />
+          <input tuiInput [formControl]="textoCtrl" placeholder="Título o mensaje" />
+        </tui-textfield>
+      </div>
+      <button tuiButton appearance="outline" size="m" type="button" class="btn-limpiar" (click)="limpiarFiltros()">
+        <tui-icon icon="@tui.filter-x" />
+        Limpiar
+      </button>
+    </div>
+  </section>
+
+  <!-- ════════════ ERROR ════════════ -->
+  @if (error()) {
+    <div class="card error-caja" role="alert">
+      <span class="tile tile-rounded tile-soft-error">
+        <tui-icon icon="@tui.triangle-alert" class="icono-alerta" />
+      </span>
+      <div class="error-body">
+        <p class="error-title">No se pudo cargar tus notificaciones</p>
+        <p class="error-msg">{{ error() }}</p>
+      </div>
+      <button tuiButton appearance="secondary" size="m" type="button" (click)="cargar()">
+        <tui-icon icon="@tui.refresh-cw" />
+        Reintentar
+      </button>
+    </div>
+  }
+
+  <!-- ════════════ CONTENIDO ════════════ -->
+  @if (loading()) {
+    <div class="card">
+      <div class="sk sk-line sk-line-lg"></div>
+      <div class="sk sk-line"></div>
+      <div class="sk sk-line"></div>
+      <div class="sk sk-line"></div>
+    </div>
+  } @else if (vista() === 'tarjetas') {
+    <div class="grid-notis">
+      @for (n of ordenadas(); track n.idNotificacion) {
+        <article class="card noti-card" [class.no-leida]="!n.leido" [class.leida]="n.leido">
+          <div class="noti-card-top">
+            <span [class]="'tile tile-circle tile-soft-' + origen(n).color">
+              <tui-icon [icon]="origen(n).icono" />
+            </span>
+            <span [class]="'pill pill-' + origen(n).color">
+              <tui-icon [icon]="origen(n).icono" class="pill-icono" />
+              {{ origen(n).etiqueta }}
+            </span>
+            @if (canal(n); as c) {
+              <span class="pill pill-neutral">
+                <tui-icon icon="@tui.mail" class="pill-icono" />
+                {{ c }}
+              </span>
+            }
+            <span [class]="n.leido ? 'pill pill-neutral' : 'pill pill-warning'">
+              {{ n.leido ? 'Leída' : 'Sin leer' }}
+            </span>
+          </div>
+
+          <h3 class="noti-card-titulo">{{ n.titulo }}</h3>
+          <p class="noti-card-mensaje">{{ n.mensaje }}</p>
+
+          <p class="noti-card-fecha">
+            <tui-icon icon="@tui.clock" class="pill-icono" />
+            {{ tiempo(n) }}
+            @if (n.fechaEnvio) {
+              · {{ n.fechaEnvio | date:'dd/MM/yyyy HH:mm' }}
+            }
+          </p>
+
+          <div class="noti-card-pie">
+            @if (!n.leido) {
+              <button tuiButton appearance="flat" size="s" type="button" (click)="marcarLeida(n)">
+                <tui-icon icon="@tui.check" />
+                Marcar leída
+              </button>
+            }
+            @if (rutaOrigen(n); as destino) {
+              <a tuiButton appearance="flat" size="s" [routerLink]="destino">
+                <tui-icon icon="@tui.external-link" />
+                Ver origen
+              </a>
+            }
+            <button tuiButton appearance="outline" size="s" type="button" class="btn-archivar" (click)="archivar(n)">
+              <tui-icon icon="@tui.archive" />
+              Archivar
+            </button>
+          </div>
+        </article>
+      } @empty {
+        <div class="card empty">No tienes notificaciones con esos filtros.</div>
+      }
+    </div>
+  } @else {
+    <div class="card tabla-card">
+      <div class="table-scroll">
+        <table tuiTable>
+          <thead>
+            <tr>
+              <th tuiTh>Estado</th>
+              <th tuiTh>Notificación</th>
+              <th tuiTh>Módulo</th>
+              <th tuiTh>Canal</th>
+              <th tuiTh>Fecha</th>
+              <th tuiTh class="th-acciones"><span class="sr-only">Acciones</span></th>
+            </tr>
+          </thead>
+          <tbody tuiTbody>
+            @for (n of ordenadas(); track n.idNotificacion) {
+              <tr [class.fila-no-leida]="!n.leido">
+                <td tuiTd>
+                  <span [class]="n.leido ? 'pill pill-neutral' : 'pill pill-warning'">
+                    {{ n.leido ? 'Leída' : 'Sin leer' }}
+                  </span>
+                </td>
+                <td tuiTd>
+                  <div class="celda-titulo">{{ n.titulo }}</div>
+                  <p class="text-soft celda-msg">{{ n.mensaje }}</p>
+                </td>
+                <td tuiTd>
+                  <span [class]="'pill pill-' + origen(n).color">
+                    <tui-icon [icon]="origen(n).icono" class="pill-icono" />
+                    {{ origen(n).etiqueta }}
+                  </span>
+                </td>
+                <td tuiTd class="text-soft">{{ canal(n) || '—' }}</td>
+                <td tuiTd class="text-soft font-mono">
+                  {{ n.fechaEnvio ? (n.fechaEnvio | date:'dd/MM/yyyy HH:mm') : '—' }}
+                </td>
+                <td tuiTd class="td-acciones">
+                  <div class="row-actions">
+                    @if (!n.leido) {
+                      <button tuiButton appearance="flat" size="s" type="button" (click)="marcarLeida(n)">
+                        <tui-icon icon="@tui.check" />
+                        Leída
+                      </button>
+                    }
+                    @if (rutaOrigen(n); as destino) {
+                      <a tuiButton appearance="flat" size="s" [routerLink]="destino">
+                        <tui-icon icon="@tui.external-link" />
+                        Origen
+                      </a>
+                    }
+                    <button tuiButton appearance="outline" size="s" type="button" (click)="archivar(n)">
+                      <tui-icon icon="@tui.archive" />
+                      Archivar
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td tuiTd colspan="6" class="empty">No tienes notificaciones con esos filtros.</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+
+  <footer class="pie-pagina">
+    <a tuiButton appearance="flat" size="s" [routerLink]="homeRuta()">
+      <tui-icon icon="@tui.arrow-left" />
+      Volver a mi panel
+    </a>
+  </footer>
+</div>

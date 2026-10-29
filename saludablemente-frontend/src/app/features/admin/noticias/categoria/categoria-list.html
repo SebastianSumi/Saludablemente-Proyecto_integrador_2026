@@ -1,0 +1,101 @@
+<div class="page-banner card">
+  <div class="page-banner-body">
+    <div class="page-banner-icon tile tile-rounded tile-soft-primary">
+      <tui-icon icon="@tui.grid" />
+    </div>
+    <div>
+      <h2 class="card-title">Categorías de noticias</h2>
+      <p class="card-subtitle">
+        @if (loading()) {
+          Cargando categorías...
+        } @else {
+          {{ items().length }} categoría(s) registrada(s)
+        }
+      </p>
+    </div>
+  </div>
+  <div class="acciones-cabecera">
+    <a tuiButton appearance="outline" size="m" routerLink="/noticias/admin">
+      <tui-icon icon="@tui.arrow-left" />
+      Volver a noticias
+    </a>
+    <button tuiButton appearance="primary" size="m" type="button" (click)="abrirModal()">
+      <tui-icon icon="@tui.plus" />
+      Nueva categoría
+    </button>
+  </div>
+</div>
+
+@if (error()) {
+  <div class="card error-caja">
+    <tui-icon icon="@tui.triangle-alert" class="icono-alerta" />
+    <p class="error-msg">{{ error() }}</p>
+  </div>
+}
+
+<div class="card tabla-card flush">
+  <div class="table-wrapper flush">
+    <table tuiTable>
+      <thead>
+        <tr>
+          <th tuiTh>Nombre de categoría</th>
+          <th tuiTh>Descripción</th>
+          <th tuiTh>Noticias asociadas</th>
+          <th tuiTh>Estado</th>
+          <th tuiTh class="th-acciones"><span class="sr-only">Acciones</span></th>
+        </tr>
+      </thead>
+      <tbody tuiTbody>
+        @for (c of items(); track c.id) {
+          <tr>
+            <td tuiTd>
+              <div class="fila-categoria">
+                <span
+                  class="cat-color-dot"
+                  [style.background]="c.colorHex ?? 'var(--sal-accent)'"
+                ></span>
+                <span class="cat-nombre">{{ c.nombre }}</span>
+                @if (c.esSistema) {
+                  <span class="pill pill-soft-neutral">Sistema</span>
+                }
+              </div>
+            </td>
+            <td tuiTd class="text-soft">{{ c.descripcion || '—' }}</td>
+            <td tuiTd>
+              <span class="font-mono fw-bold">{{ c.cantidadNoticias }}</span>
+            </td>
+            <td tuiTd>
+              @if (c.activo) {
+                <span class="pill pill-soft-success">Activa</span>
+              } @else {
+                <span class="pill pill-soft-neutral">Inactiva</span>
+              }
+            </td>
+            <td tuiTd class="td-acciones">
+              <div class="row-actions">
+                <button tuiButton appearance="flat" size="s" type="button" (click)="abrirModal(c)" title="Editar categoría">
+                  <tui-icon icon="@tui.pencil" />
+                  Editar
+                </button>
+                <button tuiButton appearance="flat" size="s" type="button" (click)="cambiarEstado(c)">
+                  {{ c.activo ? 'Inactivar' : 'Activar' }}
+                </button>
+                @if (!c.esSistema) {
+                  <button tuiButton appearance="outline" size="s" type="button" (click)="eliminar(c)" title="Eliminar categoría">
+                    Eliminar
+                  </button>
+                }
+              </div>
+            </td>
+          </tr>
+        } @empty {
+          @if (!loading() && !error()) {
+            <tr>
+              <td tuiTd colspan="5" class="empty">No hay categorías registradas actualmente.</td>
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

@@ -1,0 +1,124 @@
+<div class="form-cabecera">
+  <div class="modulo-icono">
+    <tui-icon icon="@tui.clipboard-list" />
+  </div>
+  <div>
+    <h2>Reporte de agenda</h2>
+    <p class="hint">Actividades agrupadas por periodo.</p>
+  </div>
+</div>
+
+<form [formGroup]="form" (ngSubmit)="consultar()">
+  <div class="filters">
+    <label tuiLabel class="field">
+      Fecha de inicio
+      <tui-textfield>
+        <input tuiInputDate formControlName="fechaInicio" />
+        <ng-template tuiDropdown>
+          <tui-calendar />
+          <div class="cal-acciones">
+            <button tuiButton appearance="secondary" size="s" type="button" (click)="fijarHoy('fechaInicio')">
+              <tui-icon icon="@tui.calendar-check" />
+              Hoy
+            </button>
+            <button tuiButton appearance="flat" size="s" type="button" (click)="limpiarCampo('fechaInicio')">
+              <tui-icon icon="@tui.eraser" />
+              Limpiar
+            </button>
+          </div>
+        </ng-template>
+      </tui-textfield>
+      <tui-error formControlName="fechaInicio" />
+    </label>
+
+    <label tuiLabel class="field">
+      Fecha de fin
+      <tui-textfield>
+        <input tuiInputDate formControlName="fechaFin" />
+        <ng-template tuiDropdown>
+          <tui-calendar />
+          <div class="cal-acciones">
+            <button tuiButton appearance="secondary" size="s" type="button" (click)="fijarHoy('fechaFin')">
+              <tui-icon icon="@tui.calendar-check" />
+              Hoy
+            </button>
+            <button tuiButton appearance="flat" size="s" type="button" (click)="limpiarCampo('fechaFin')">
+              <tui-icon icon="@tui.eraser" />
+              Limpiar
+            </button>
+          </div>
+        </ng-template>
+      </tui-textfield>
+      <tui-error formControlName="fechaFin" />
+    </label>
+
+    <label tuiLabel class="field">
+      Periodo (opcional, ej. 2026-I)
+      <tui-textfield>
+        <input tuiInput type="text" formControlName="periodo" />
+      </tui-textfield>
+    </label>
+
+    <button tuiButton appearance="primary" size="s" type="submit" [loading]="loading()" class="filtro-limpiar">
+      Consultar
+    </button>
+  </div>
+</form>
+
+@if (error()) {
+  <p class="error">{{ error() }}</p>
+}
+
+@if (reporte(); as r) {
+  <div class="kpi-grid">
+    <section class="card kpi">
+      <span class="kpi-valor">{{ r.totalActividades }}</span>
+      <span class="kpi-label">Total</span>
+    </section>
+    <section class="card kpi">
+      <span class="kpi-valor">{{ r.totalProgramadas }}</span>
+      <span class="kpi-label">Programadas</span>
+    </section>
+    <section class="card kpi">
+      <span class="kpi-valor">{{ r.totalEnCurso }}</span>
+      <span class="kpi-label">En curso</span>
+    </section>
+    <section class="card kpi">
+      <span class="kpi-valor">{{ r.totalFinalizadas }}</span>
+      <span class="kpi-label">Finalizadas</span>
+    </section>
+    <section class="card kpi">
+      <span class="kpi-valor">{{ r.totalCanceladas }}</span>
+      <span class="kpi-label">Canceladas</span>
+    </section>
+  </div>
+
+  @if ((r.actividades ?? []).length > 0) {
+    <div class="table-wrapper">
+      <table tuiTable>
+        <thead>
+          <tr>
+            <th tuiTh>Nombre</th>
+            <th tuiTh>Fecha</th>
+            <th tuiTh>Hora</th>
+            <th tuiTh>Lugar</th>
+            <th tuiTh>Estado</th>
+          </tr>
+        </thead>
+        <tbody tuiTbody>
+          @for (a of r.actividades ?? []; track a.idActividad) {
+            <tr>
+              <td tuiTd>{{ a.nombre }}</td>
+              <td tuiTd>{{ a.fecha }}</td>
+              <td tuiTd>{{ a.horaInicio }} – {{ a.horaFin }}</td>
+              <td tuiTd>{{ a.lugar }}</td>
+              <td tuiTd>{{ a.estado }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  } @else {
+    <p class="hint">Sin actividades en ese rango.</p>
+  }
+}

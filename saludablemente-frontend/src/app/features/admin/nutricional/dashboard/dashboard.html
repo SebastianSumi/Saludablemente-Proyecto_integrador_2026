@@ -1,0 +1,127 @@
+<!-- ══════════════════════════════════════
+     CABECERA DE PÁGINA
+     ══════════════════════════════════════ -->
+<div class="page-banner card">
+  <div class="page-banner-body">
+    <div class="page-banner-icon tile tile-rounded tile-soft-success">
+      <tui-icon icon="@tui.apple" />
+    </div>
+    <div>
+      <h2 class="card-title">Dashboard Nutricional</h2>
+      <p class="card-subtitle">Indicadores agregados y promedios antropométricos institucionales</p>
+    </div>
+  </div>
+  <a tuiButton appearance="primary" size="m" routerLink="/nutricional/evaluaciones">
+    <tui-icon icon="@tui.list" />
+    Ver evaluaciones
+  </a>
+</div>
+
+<!-- ══════════════════════════════════════
+     FILTRO DE PERIODO
+     ══════════════════════════════════════ -->
+<div class="filtros-card">
+  <div class="filtros-linea">
+    <div class="filtro-item">
+      <label class="filtro-etiqueta">Periodo de evaluación</label>
+      <tui-textfield>
+        <input
+          tuiInput
+          type="text"
+          [(ngModel)]="filtroPeriodo"
+          placeholder="Ej. 2026-1 (dejar vacío para todos)"
+          (change)="cargar()"
+        />
+      </tui-textfield>
+    </div>
+    <button
+      tuiButton
+      appearance="outline"
+      size="m"
+      type="button"
+      (click)="filtroPeriodo = ''; cargar()"
+      class="btn-limpiar"
+    >
+      <tui-icon icon="@tui.filter-x" />
+      Limpiar filtro
+    </button>
+  </div>
+</div>
+
+@if (loading()) {
+  <div class="card estado-caja">
+    <p class="sal-subtitulo">Cargando métricas nutricionales...</p>
+  </div>
+}
+
+@if (error()) {
+  <div class="card error-caja">
+    <tui-icon icon="@tui.triangle-alert" class="icono-alerta" />
+    <p class="error-msg">{{ error() }}</p>
+  </div>
+}
+
+@if (agregado(); as a) {
+  <!-- ══════════════════════════════════════
+       TARJETAS KPI
+       ══════════════════════════════════════ -->
+  <div class="kpi-grid">
+    <article class="card kpi-card">
+      <div class="kpi-top">
+        <span class="tile tile-circle tile-soft-primary kpi-icon">
+          <tui-icon icon="@tui.users" />
+        </span>
+        <span class="pill pill-soft-primary">Total</span>
+      </div>
+      <div class="kpi-body">
+        <strong class="kpi-value">{{ a.total }}</strong>
+        <span class="kpi-label">Total evaluaciones</span>
+      </div>
+    </article>
+
+    <article class="card kpi-card">
+      <div class="kpi-top">
+        <span class="tile tile-circle tile-soft-success kpi-icon">
+          <tui-icon icon="@tui.scale" />
+        </span>
+        <span class="pill pill-soft-success">Índice</span>
+      </div>
+      <div class="kpi-body">
+        <strong class="kpi-value">{{ formatear(a.promedioImc) }}</strong>
+        <span class="kpi-label">Promedio IMC</span>
+      </div>
+    </article>
+
+    <article class="card kpi-card">
+      <div class="kpi-top">
+        <span class="tile tile-circle tile-soft-warning kpi-icon">
+          <tui-icon icon="@tui.percent" />
+        </span>
+        <span class="pill pill-soft-warning">Grasa</span>
+      </div>
+      <div class="kpi-body">
+        <strong class="kpi-value">{{ formatear(a.promedioPorcentajeGrasa) }}%</strong>
+        <span class="kpi-label">Promedio % grasa corporal</span>
+      </div>
+    </article>
+
+    <article class="card kpi-card">
+      <div class="kpi-top">
+        <span class="tile tile-circle tile-soft-secondary kpi-icon">
+          <tui-icon icon="@tui.biceps-flexed" />
+        </span>
+        <span class="pill pill-soft-secondary">Músculo</span>
+      </div>
+      <div class="kpi-body">
+        <strong class="kpi-value">{{ formatear(a.promedioPorcentajeMasaMuscular) }}%</strong>
+        <span class="kpi-label">Promedio % masa muscular</span>
+      </div>
+    </article>
+  </div>
+
+  @if (a.total === 0) {
+    <div class="card estado-caja">
+      <p class="sal-subtitulo">No hay evaluaciones registradas para el filtro seleccionado.</p>
+    </div>
+  }
+}

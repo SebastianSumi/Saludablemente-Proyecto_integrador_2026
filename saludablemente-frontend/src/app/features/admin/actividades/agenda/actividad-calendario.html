@@ -1,0 +1,54 @@
+<div class="card cal-card">
+  <div class="cal-nav">
+    <div class="cal-nav-left">
+      <button tuiButton appearance="outline" size="s" type="button" (click)="mesAnterior()" aria-label="Mes anterior">
+        <tui-icon icon="@tui.chevron-left" />
+      </button>
+      <strong class="cal-mes">{{ nombreMes() }}</strong>
+      <button tuiButton appearance="outline" size="s" type="button" (click)="mesSiguiente()" aria-label="Mes siguiente">
+        <tui-icon icon="@tui.chevron-right" />
+      </button>
+    </div>
+    <button tuiButton appearance="flat" size="s" type="button" (click)="irAHoy()">
+      Hoy
+    </button>
+  </div>
+
+  <div class="cal-grid" role="grid" aria-label="Calendario de actividades">
+    @for (d of DIAS; track d) {
+      <div class="cal-dow" role="columnheader">{{ d }}</div>
+    }
+    @for (c of celdas(); track c.iso) {
+      <div
+        class="cal-celda"
+        role="gridcell"
+        [class.cal-fuera]="!c.esMes"
+        [class.cal-hoy]="c.esHoy"
+        [attr.aria-label]="c.iso"
+        (click)="abrirDia(c.iso)"
+      >
+        <span class="cal-dia" aria-hidden="true">
+          <span class="cal-num" [class.cal-num-hoy]="c.esHoy">{{ c.dia }}</span>
+        </span>
+        <div class="cal-eventos">
+          @for (a of itemsDe(c.iso).slice(0, MAX_PILLS); track a.idActividad) {
+            <button
+              type="button"
+              class="cal-pill {{ claseEvento(a) }}"
+              (click)="abrirFicha($event, a)"
+              [title]="a.nombre + ' · ' + a.horaInicio + ' – ' + a.horaFin"
+            >
+              <span class="cal-pill-dot" aria-hidden="true"></span>
+              <span class="cal-pill-titulo">{{ a.nombre }}</span>
+            </button>
+          }
+          @if (itemsDe(c.iso).length > MAX_PILLS) {
+            <button type="button" class="cal-mas" (click)="abrirDia(c.iso)">
+              +{{ itemsDe(c.iso).length - MAX_PILLS }} más
+            </button>
+          }
+        </div>
+      </div>
+    }
+  </div>
+</div>

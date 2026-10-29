@@ -1,0 +1,420 @@
+
+> saludablemente-frontend@0.0.0 test
+> ng test --watch=false
+
+[32m✔[0m [33mConsole Ninja[0m extension is connected to [33mAngular[0m, see [36mhttps://tinyurl.com/2vt8jxzw[0m
+> Building...
+√ Building...
+Application bundle generation complete. [5.663 seconds] - 2026-10-09T13:44:24.308Z
+
+▲ [WARNING] NG8113: TuiBadge is not used within the template of AlertaClinicaDetail [plugin angular-compiler]
+
+    src/app/features/admin/alertaclinica/alerta/alerta-clinica-detail.ts:15:80:
+      15 │ ...uiButton, TuiButtonLoading, TuiBadge, TuiIcon, TuiLabel, TuiTex...
+         ╵                                ~~~~~~~~
+
+
+▲ [WARNING] NG8113: TuiLabel is not used within the template of AlertaClinicaDetail [plugin angular-compiler]
+
+    src/app/features/admin/alertaclinica/alerta/alerta-clinica-detail.ts:15:99:
+      15 │ ...nLoading, TuiBadge, TuiIcon, TuiLabel, TuiTextfield, TuiTextarea],
+         ╵                                 ~~~~~~~~
+
+
+▲ [WARNING] NG8113: TuiBadge is not used within the template of AlertaClinicaList [plugin angular-compiler]
+
+    src/app/features/admin/alertaclinica/alerta/alerta-clinica-list.ts:26:93:
+      26 │ ...tiveFormsModule, TuiButton, TuiBadge, TuiChevron, TuiComboBox, ...
+         ╵                                ~~~~~~~~
+
+
+▲ [WARNING] NG8113: TuiLabel is not used within the template of AlertaClinicaList [plugin angular-compiler]
+
+    src/app/features/admin/alertaclinica/alerta/alerta-clinica-list.ts:26:202:
+      26 │ ... TuiFilterByInputPipe, TuiIcon, TuiInput, TuiLabel, TuiTextfield],
+         ╵                                              ~~~~~~~~
+
+
+▲ [WARNING] NG8113: TuiBadge is not used within the template of Dashboard [plugin angular-compiler]
+
+    src/app/features/admin/alertaclinica/dashboard/dashboard.ts:13:49:
+      13 │   imports: [CommonModule, RouterLink, TuiButton, TuiBadge, TuiIcon],
+         ╵                                                  ~~~~~~~~
+
+
+▲ [WARNING] NG8113: RouterLink is not used within the template of ReglaColesterolForm [plugin angular-compiler]
+
+    src/app/features/admin/alertaclinica/reglas/colesterol/regla-colesterol-form.ts:41:4:
+      41 │     RouterLink,
+         ╵     ~~~~~~~~~~
+
+
+▲ [WARNING] NG8113: RouterLink is not used within the template of ReglaGlucosaForm [plugin angular-compiler]
+
+    src/app/features/admin/alertaclinica/reglas/glucosa/regla-glucosa-form.ts:41:4:
+      41 │     RouterLink,
+         ╵     ~~~~~~~~~~
+
+
+▲ [WARNING] NG8113: RouterLink is not used within the template of ReglaGrasaVisceralForm [plugin angular-compiler]
+
+    src/app/features/admin/alertaclinica/reglas/grasa-visceral/regla-grasa-visceral-form.ts:41:4:
+      41 │     RouterLink,
+         ╵     ~~~~~~~~~~
+
+
+▲ [WARNING] NG8113: RouterLink is not used within the template of ReglaImcForm [plugin angular-compiler]
+
+    src/app/features/admin/alertaclinica/reglas/imc/regla-imc-form.ts:41:4:
+      41 │     RouterLink,
+         ╵     ~~~~~~~~~~
+
+
+▲ [WARNING] NG8113: RouterLink is not used within the template of ReglaMasaMuscularForm [plugin angular-compiler]
+
+    src/app/features/admin/alertaclinica/reglas/masa-muscular/regla-masa-muscular-form.ts:41:4:
+      41 │     RouterLink,
+         ╵     ~~~~~~~~~~
+
+
+▲ [WARNING] NG8113: RouterLink is not used within the template of ReglaPerimetroAbdominalForm [plugin angular-compiler]
+
+    src/app/features/admin/alertaclinica/reglas/perimetro-abdominal/regla-perimetro-abdominal-form.ts:41:4:
+      41 │     RouterLink,
+         ╵     ~~~~~~~~~~
+
+
+▲ [WARNING] NG8113: RouterLink is not used within the template of ReglaPorcentajeGrasaForm [plugin angular-compiler]
+
+    src/app/features/admin/alertaclinica/reglas/porcentaje-grasa/regla-porcentaje-grasa-form.ts:41:4:
+      41 │     RouterLink,
+         ╵     ~~~~~~~~~~
+
+
+▲ [WARNING] NG8113: RouterLink is not used within the template of ReglaPresionArterialForm [plugin angular-compiler]
+
+    src/app/features/admin/alertaclinica/reglas/presion-arterial/regla-presion-arterial-form.ts:41:4:
+      41 │     RouterLink,
+         ╵     ~~~~~~~~~~
+
+
+▲ [WARNING] NG8113: RouterLink is not used within the template of ReglaTrigliceridosForm [plugin angular-compiler]
+
+    src/app/features/admin/alertaclinica/reglas/trigliceridos/regla-trigliceridos-form.ts:41:4:
+      41 │     RouterLink,
+         ╵     ~~~~~~~~~~
+
+
+▲ [WARNING] NG8113: TuiBadge is not used within the template of EvaluacionList [plugin angular-compiler]
+
+    src/app/features/admin/aptitud/evaluacion/evaluacion-list.ts:40:4:
+      40 │     TuiBadge,
+         ╵     ~~~~~~~~
+
+
+▲ [WARNING] NG8113: TuiLabel is not used within the template of EvaluacionList [plugin angular-compiler]
+
+    src/app/features/admin/aptitud/evaluacion/evaluacion-list.ts:48:4:
+      48 │     TuiLabel,
+         ╵     ~~~~~~~~
+
+
+▲ [WARNING] NG8113: TuiBadge is not used within the template of AreaList [plugin angular-compiler]
+
+    src/app/features/admin/catalogo/area/area-list.ts:19:56:
+      19 │ ...tiveFormsModule, TuiButton, TuiBadge, TuiChevron, TuiComboBox, ...
+         ╵                                ~~~~~~~~
+
+
+▲ [WARNING] NG8113: TuiLabel is not used within the template of AreaList [plugin angular-compiler]
+
+    src/app/features/admin/catalogo/area/area-list.ts:19:155:
+      19 │ ... TuiFilterByInputPipe, TuiIcon, TuiLabel, TuiTextfield, TuiTable],
+         ╵                                    ~~~~~~~~
+
+
+▲ [WARNING] NG8113: TuiBadge is not used within the template of PeriodoList [plugin angular-compiler]
+
+    src/app/features/admin/catalogo/periodo/periodo-list.ts:19:56:
+      19 │ ...tiveFormsModule, TuiButton, TuiBadge, TuiChevron, TuiComboBox, ...
+         ╵                                ~~~~~~~~
+
+
+▲ [WARNING] NG8113: TuiLabel is not used within the template of PeriodoList [plugin angular-compiler]
+
+    src/app/features/admin/catalogo/periodo/periodo-list.ts:19:155:
+      19 │ ... TuiFilterByInputPipe, TuiIcon, TuiLabel, TuiTextfield, TuiTable],
+         ╵                                    ~~~~~~~~
+
+
+▲ [WARNING] NG8113: TuiBadge is not used within the template of NoticiaList [plugin angular-compiler]
+
+    src/app/features/admin/noticias/noticia/noticia-list.ts:24:4:
+      24 │     TuiBadge,
+         ╵     ~~~~~~~~
+
+
+▲ [WARNING] NG8113: RouterLink is not used within the template of AntropometricoForm [plugin angular-compiler]
+
+    src/app/features/admin/nutricional/antropometrico/antropometrico-form.ts:14:33:
+      14 │ ...rts: [ReactiveFormsModule, RouterLink, TuiButton, TuiButtonLoad...
+         ╵                               ~~~~~~~~~~
+
+
+▲ [WARNING] NG8113: TuiLabel is not used within the template of Dashboard [plugin angular-compiler]
+
+    src/app/features/admin/nutricional/dashboard/dashboard.ts:19:4:
+      19 │     TuiLabel,
+         ╵     ~~~~~~~~
+
+
+▲ [WARNING] NG8113: TuiBadge is not used within the template of EvaluacionDetail [plugin angular-compiler]
+
+    src/app/features/admin/nutricional/evaluacion/evaluacion-detail.ts:15:66:
+      15 │ ...uiButton, TuiButtonLoading, TuiBadge, TuiIcon, TuiLabel, TuiTex...
+         ╵                                ~~~~~~~~
+
+
+▲ [WARNING] NG8113: TuiLabel is not used within the template of EvaluacionDetail [plugin angular-compiler]
+
+    src/app/features/admin/nutricional/evaluacion/evaluacion-detail.ts:15:85:
+      15 │ ...Loading, TuiBadge, TuiIcon, TuiLabel, TuiTextfield, TuiTextarea...
+         ╵                                ~~~~~~~~
+
+
+▲ [WARNING] NG8113: TuiBadge is not used within the template of EvaluacionList [plugin angular-compiler]
+
+    src/app/features/admin/nutricional/evaluacion/evaluacion-list.ts:23:79:
+      23 │ ...tiveFormsModule, TuiButton, TuiBadge, TuiIcon, TuiLabel, TuiTex...
+         ╵                                ~~~~~~~~
+
+
+▲ [WARNING] NG8113: TuiLabel is not used within the template of EvaluacionList [plugin angular-compiler]
+
+    src/app/features/admin/nutricional/evaluacion/evaluacion-list.ts:23:98:
+      23 │ ...iButton, TuiBadge, TuiIcon, TuiLabel, TuiTextfield, TuiInput, T...
+         ╵                                ~~~~~~~~
+
+
+▲ [WARNING] NG8113: TuiBadge is not used within the template of EquipoList [plugin angular-compiler]
+
+    src/app/features/admin/personal/equipo/equipo-list.ts:19:56:
+      19 │ ...tiveFormsModule, TuiButton, TuiBadge, TuiChevron, TuiComboBox, ...
+         ╵                                ~~~~~~~~
+
+
+▲ [WARNING] NG8113: TuiLabel is not used within the template of EquipoList [plugin angular-compiler]
+
+    src/app/features/admin/personal/equipo/equipo-list.ts:19:155:
+      19 │ ... TuiFilterByInputPipe, TuiIcon, TuiLabel, TuiTextfield, TuiTable],
+         ╵                                    ~~~~~~~~
+
+
+▲ [WARNING] NG8113: TuiBadge is not used within the template of PersonaDetail [plugin angular-compiler]
+
+    src/app/features/admin/personal/persona/persona-detail.ts:16:74:
+      16 │ ...uiButton, TuiButtonLoading, TuiBadge, TuiIcon, TuiInput, TuiLab...
+         ╵                                ~~~~~~~~
+
+
+▲ [WARNING] NG8113: TuiBadge is not used within the template of PersonaList [plugin angular-compiler]
+
+    src/app/features/admin/personal/persona/persona-list.ts:33:4:
+      33 │     TuiBadge,
+         ╵     ~~~~~~~~
+
+
+▲ [WARNING] NG8113: TuiBadge is not used within the template of RolesModal [plugin angular-compiler]
+
+    src/app/features/admin/seguridad/usuario/roles-modal.ts:19:46:
+      19 │ ...odule, ReactiveFormsModule, TuiBadge, TuiButton, TuiButtonLoadi...
+         ╵                                ~~~~~~~~
+
+
+▲ [WARNING] NG8113: TuiBadge is not used within the template of UsuarioList [plugin angular-compiler]
+
+    src/app/features/admin/seguridad/usuario/usuario-list.ts:29:4:
+      29 │     TuiBadge,
+         ╵     ~~~~~~~~
+
+
+▲ [WARNING] NG8113: TuiLabel is not used within the template of UsuarioList [plugin angular-compiler]
+
+    src/app/features/admin/seguridad/usuario/usuario-list.ts:37:4:
+      37 │     TuiLabel,
+         ╵     ~~~~~~~~
+
+
+
+ RUN  v4.1.11 D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/LOCAL/saludablemente-frontend
+
+ ❯ |saludablemente-frontend| src/app/features/admin/home/admin-home.spec.ts (4 tests | 1 failed) 2792ms
+     × should render one card per module plus dashboard widgets 322ms
+ ❯ |saludablemente-frontend| src/app/features/admin/aptitud/evaluacion/evaluacion-aptitud.spec.ts (1 test | 1 failed) 1491ms
+     × muestra KPIs y filas 1489ms
+ ❯ |saludablemente-frontend| src/app/features/admin/noticias/noticia/noticia-combo.spec.ts (1 test | 1 failed) 1449ms
+     × el input de Estado acepta texto y filtra 1447ms
+ ❯ |saludablemente-frontend| src/app/features/admin/personal/persona/persona-combo.spec.ts (1 test | 1 failed) 368ms
+     × al escribir "lim" solo aparece Limpieza 367ms
+ ❯ |saludablemente-frontend| src/app/features/admin/seguridad/usuario/usuario-email.spec.ts (2 tests | 2 failed) 551ms
+     × escribir NO consulta al backend 407ms
+     × Enter con texto filtra la tabla 143ms
+ ❯ |saludablemente-frontend| src/app/features/admin/personal/equipo/equipo-combo.spec.ts (1 test | 1 failed) 251ms
+     × al escribir "inact" solo aparece Solo inactivos 251ms
+stdout | src/app/features/admin/seguridad/usuario/usuario-loop.spec.ts > UsuarioList sin bucles > sin tocar nada, las llamadas se estabilizan
+llamadas tras 1.5s quieto: 1
+cabeceras: 0
+
+ ❯ |saludablemente-frontend| src/app/features/admin/seguridad/usuario/usuario-loop.spec.ts (1 test | 1 failed) 1920ms
+     × sin tocar nada, las llamadas se estabilizan 1919ms
+stdout | src/app/features/admin/personal/persona/persona-list-dup.spec.ts > PersonaList duplicados > no duplica con respuestas asíncronas y filtros rápidos
+async: contador 1 veces
+async: cabeceras 0
+async: filas 8
+
+ ❯ |saludablemente-frontend| src/app/features/admin/personal/persona/persona-list-dup.spec.ts (4 tests | 1 failed) 3845ms
+     × no duplica con respuestas asíncronas y filtros rápidos 1303ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 9 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |saludablemente-frontend| src/app/features/admin/home/admin-home.spec.ts > AdminHome > should render one card per module plus dashboard widgets
+AssertionError: expected 10 to be 9 // Object.is equality
+
+- Expected
++ Received
+
+- 9
++ 10
+
+ ❯ src/app/features/admin/home/admin-home.spec.ts:87:56
+     85|     const el = fixture.nativeElement as HTMLElement;
+     86|     expect(el.textContent).toContain('Resumen general');
+     87|     expect(el.querySelectorAll('.modulo-card').length).toBe(9);
+       |                                                        ^
+     88|     expect(el.textContent).toContain('IMC elevado');
+     89|     expect(el.querySelectorAll('.tile').length).toBeGreaterThan(9);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/9]⎯
+
+ FAIL  |saludablemente-frontend| src/app/features/admin/aptitud/evaluacion/evaluacion-aptitud.spec.ts > EvaluacionList aptitud > muestra KPIs y filas
+TypeError: this.periodosSrv.obtenerVigente is not a function
+ ❯ _EvaluacionList.ngOnInit src/app/features/admin/aptitud/evaluacion/evaluacion-list.ts:108:22
+ ❯ callHookInternal ../../../../../../ING%20SISTEMAS/LP2/PROYECTO%202.0/CODIGO/LOCAL/saludablemente-frontend/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs:262:10
+ ❯ callHook ../../../../../../ING%20SISTEMAS/LP2/PROYECTO%202.0/CODIGO/LOCAL/saludablemente-frontend/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs:277:7
+ ❯ callHooks ../../../../../../ING%20SISTEMAS/LP2/PROYECTO%202.0/CODIGO/LOCAL/saludablemente-frontend/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs:251:9
+ ❯ executeInitAndCheckHooks ../../../../../../ING%20SISTEMAS/LP2/PROYECTO%202.0/CODIGO/LOCAL/saludablemente-frontend/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs:220:5
+ ❯ refreshView ../../../../../../ING%20SISTEMAS/LP2/PROYECTO%202.0/CODIGO/LOCAL/saludablemente-frontend/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs:6067:11
+ ❯ detectChangesInView ../../../../../../ING%20SISTEMAS/LP2/PROYECTO%202.0/CODIGO/LOCAL/saludablemente-frontend/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs:6195:5
+ ❯ detectChangesInViewIfAttached ../../../../../../ING%20SISTEMAS/LP2/PROYECTO%202.0/CODIGO/LOCAL/saludablemente-frontend/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs:6178:3
+ ❯ detectChangesInComponent ../../../../../../ING%20SISTEMAS/LP2/PROYECTO%202.0/CODIGO/LOCAL/saludablemente-frontend/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs:6169:5
+ ❯ detectChangesInChildComponents ../../../../../../ING%20SISTEMAS/LP2/PROYECTO%202.0/CODIGO/LOCAL/saludablemente-frontend/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs:6217:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/9]⎯
+
+ FAIL  |saludablemente-frontend| src/app/features/admin/noticias/noticia/noticia-combo.spec.ts > NoticiaList autocompletado > el input de Estado acepta texto y filtra
+TypeError: Cannot read properties of null (reading 'readOnly')
+ ❯ src/app/features/admin/noticias/noticia/noticia-combo.spec.ts:59:36
+     57|     const input = label.querySelector('input') as HTMLInputElement;
+     58|     // eslint-disable-next-line no-console
+     59|     /* eslint-disable */console.log(...oo_oo(`889611575_59_4_59_73_4`,…
+       |                                    ^
+     60|     expect(input.readOnly).toBe(false);
+     61|     expect(input.disabled).toBe(false);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/9]⎯
+
+ FAIL  |saludablemente-frontend| src/app/features/admin/personal/equipo/equipo-combo.spec.ts > EquipoList autocompletado > al escribir "inact" solo aparece Solo inactivos
+TypeError: Cannot read properties of null (reading 'focus')
+ ❯ src/app/features/admin/personal/equipo/equipo-combo.spec.ts:53:11
+     51|     if (!label) throw new Error('No hay filtro Estado');
+     52|     const input = label.querySelector('input') as HTMLInputElement;
+     53|     input.focus();
+       |           ^
+     54|     input.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+     55|     fixture.detectChanges();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/9]⎯
+
+ FAIL  |saludablemente-frontend| src/app/features/admin/personal/persona/persona-combo.spec.ts > PersonaList autocompletado > al escribir "lim" solo aparece Limpieza
+Error: Sin input en Área
+ ❯ inputDeFiltro src/app/features/admin/personal/persona/persona-combo.spec.ts:63:23
+     61|     if (!label) throw new Error(`No hay filtro ${etiqueta}`);
+     62|     const input = label.querySelector('input');
+     63|     if (!input) throw new Error(`Sin input en ${etiqueta}`);
+       |                       ^
+     64|     return input as HTMLInputElement;
+     65|   }
+ ❯ src/app/features/admin/personal/persona/persona-combo.spec.ts:74:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/9]⎯
+
+ FAIL  |saludablemente-frontend| src/app/features/admin/personal/persona/persona-list-dup.spec.ts > PersonaList duplicados > no duplica con respuestas asíncronas y filtros rápidos
+AssertionError: expected +0 to be 1 // Object.is equality
+
+- Expected
++ Received
+
+- 1
++ 0
+
+ ❯ src/app/features/admin/personal/persona/persona-list-dup.spec.ts:129:30
+    127|     /* eslint-disable */console.log(...oo_oo(`3070486573_127_4_127_47_…
+    128|     expect(veces).toBe(1);
+    129|     expect(cabeceras.length).toBe(1);
+       |                              ^
+    130|     expect(filas.length).toBe(8);
+    131|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/9]⎯
+
+ FAIL  |saludablemente-frontend| src/app/features/admin/seguridad/usuario/usuario-email.spec.ts > UsuarioList filtro email > escribir NO consulta al backend
+Error: No hay filtro Email
+ ❯ inputEmail src/app/features/admin/seguridad/usuario/usuario-email.spec.ts:69:23
+     67|     );
+     68|     const label = labels.find((el: HTMLElement) => (el.textContent ?? …
+     69|     if (!label) throw new Error('No hay filtro Email');
+       |                       ^
+     70|     return label.querySelector('input') as HTMLInputElement;
+     71|   }
+ ❯ src/app/features/admin/seguridad/usuario/usuario-email.spec.ts:75:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/9]⎯
+
+ FAIL  |saludablemente-frontend| src/app/features/admin/seguridad/usuario/usuario-email.spec.ts > UsuarioList filtro email > Enter con texto filtra la tabla
+Error: No hay filtro Email
+ ❯ inputEmail src/app/features/admin/seguridad/usuario/usuario-email.spec.ts:69:23
+     67|     );
+     68|     const label = labels.find((el: HTMLElement) => (el.textContent ?? …
+     69|     if (!label) throw new Error('No hay filtro Email');
+       |                       ^
+     70|     return label.querySelector('input') as HTMLInputElement;
+     71|   }
+ ❯ src/app/features/admin/seguridad/usuario/usuario-email.spec.ts:86:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/9]⎯
+
+ FAIL  |saludablemente-frontend| src/app/features/admin/seguridad/usuario/usuario-loop.spec.ts > UsuarioList sin bucles > sin tocar nada, las llamadas se estabilizan
+AssertionError: expected +0 to be 1 // Object.is equality
+
+- Expected
++ Received
+
+- 1
++ 0
+
+ ❯ src/app/features/admin/seguridad/usuario/usuario-loop.spec.ts:81:30
+     79|     // eslint-disable-next-line no-console
+     80|     /* eslint-disable */console.log(...oo_oo(`264741757_80_4_80_49_4`,…
+     81|     expect(cabeceras.length).toBe(1);
+       |                              ^
+     82|   });
+     83| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/9]⎯
+
+
+ Test Files  8 failed | 45 passed (53)
+      Tests  9 failed | 64 passed (73)
+   Start at  08:44:25
+   Duration  19.41s (transform 9.86s, setup 26.81s, import 165.54s, tests 76.95s, environment 160.11s)
+

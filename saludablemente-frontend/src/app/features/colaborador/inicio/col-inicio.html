@@ -1,0 +1,305 @@
+@let p = perfil();
+
+<!-- ══════════ Hero: tarjeta de perfil ══════════ -->
+<section class="card perfil-card" [appReveal]="0">
+  <div class="perfil-avatar tile tile-circle tile-primary">
+    {{ p ? iniciales(p.nombreCompleto) : '?' }}
+  </div>
+
+  <div class="perfil-body">
+    <h1 class="perfil-saludo">
+      {{ p ? 'Hola, ' + p.nombreCompleto : 'Mi panel' }}
+    </h1>
+    <p class="card-subtitle">
+      {{ fechaHoy() }} · Todo lo que ves aquí son solo tus datos.
+    </p>
+    <div class="perfil-tags">
+      @for (rol of p?.roles ?? []; track rol) {
+        <span class="pill pill-neutral">{{ rol }}</span>
+      }
+      @if (p?.areaTrabajo) {
+        <span class="pill pill-primary">{{ p?.areaTrabajo }}</span>
+      }
+    </div>
+  </div>
+
+  <div class="perfil-acciones">
+    @if (kpis().noLeidas > 0) {
+      <a tuiButton appearance="secondary" size="s" routerLink="/colaborador/mis-notificaciones">
+        <tui-icon icon="@tui.bell" />
+        {{ kpis().noLeidas }} sin leer
+      </a>
+    }
+    <a tuiButton appearance="outline" size="s" routerLink="/colaborador/mi-perfil">
+      <tui-icon icon="@tui.user" />
+      Mi perfil
+    </a>
+  </div>
+</section>
+
+@if (error(); as msg) {
+  <p class="error">{{ msg }}</p>
+}
+
+<!-- ══════════ KPIs ══════════ -->
+<section class="kpis" [appReveal]="1">
+  <a class="card mini tint-red" routerLink="/colaborador/mis-alertas">
+    <span class="tile tile-circle tile-error"><tui-icon icon="@tui.bell" /></span>
+    <span class="mini-body">
+      <strong class="mini-valor">{{ kpis().alertasPendientes }}</strong>
+      <span class="mini-label">Alertas pendientes · {{ kpis().alertasCriticas }} críticas</span>
+    </span>
+  </a>
+
+  <a class="card mini tint-green" routerLink="/colaborador/mis-metas">
+    <span class="tile tile-circle tile-success"><tui-icon icon="@tui.target" /></span>
+    <span class="mini-body">
+      <strong class="mini-valor">{{ kpis().metasActivas }}</strong>
+      <span class="mini-label">Metas activas</span>
+    </span>
+  </a>
+
+  <a class="card mini tint-blue" routerLink="/colaborador/mis-evaluaciones">
+    <span class="tile tile-circle tile-primary"><tui-icon icon="@tui.activity" /></span>
+    <span class="mini-body">
+      <strong class="mini-valor">{{ kpis().evaluaciones }}</strong>
+      <span class="mini-label">Evaluaciones registradas</span>
+    </span>
+  </a>
+
+  <a class="card mini tint-violet" routerLink="/colaborador/mis-notificaciones">
+    <span class="tile tile-circle tile-violet"><tui-icon icon="@tui.inbox" /></span>
+    <span class="mini-body">
+      <strong class="mini-valor">{{ kpis().noLeidas }}</strong>
+      <span class="mini-label">Notificaciones sin leer</span>
+    </span>
+  </a>
+</section>
+
+<!-- ══════════ Dashboard: principal + lateral ══════════ -->
+<section class="dash-row" [appReveal]="2">
+  <div class="col-main">
+    <!-- Mis evaluaciones recientes -->
+    <article class="card flush">
+      <div class="card-head dash-head">
+        <div>
+          <h3 class="card-title">Mis evaluaciones recientes</h3>
+          <p class="card-subtitle">Tus últimos controles nutricionales y de aptitud</p>
+        </div>
+        <a tuiButton appearance="flat" size="s" routerLink="/colaborador/mis-evaluaciones">
+          Ver todas
+        </a>
+      </div>
+
+      @if (loading()) {
+        <p class="hint padded">Cargando tus evaluaciones...</p>
+      } @else if (evaluaciones().length === 0) {
+        <p class="empty">Aún no tienes evaluaciones registradas.</p>
+      } @else {
+        <div class="table-wrapper flush">
+          <table>
+            <thead>
+              <tr>
+                <th>Evaluación</th>
+                <th>Fecha</th>
+                <th>Estado</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (e of evaluaciones(); track e.key) {
+                <tr>
+                  <td>
+                    <div class="celda-tipo">
+                      <span [class]="tileEvaluacion(e.tipo)">
+                        <tui-icon [icon]="iconoEvaluacion(e.tipo)" />
+                      </span>
+                      <div class="celda-info">
+                        <strong>{{ etiquetaEvaluacion(e.tipo) }}</strong>
+                        <span class="text-soft">{{ e.detalle }}</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="text-soft">{{ e.fecha | date: 'dd/MM/yyyy' }}</td>
+                  <td>
+                    <span [class]="pillEstadoEvaluacion(e.estado)">
+                      {{ estadoEvaluacionTexto(e.estado) }}
+                    </span>
+                  </td>
+                  <td>
+                    <a tuiButton appearance="flat" size="s" [routerLink]="e.ruta">
+                      <tui-icon icon="@tui.eye" />
+                    </a>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </article>
+
+    <!-- Actividades de hoy -->
+    <article class="card">
+      <div class="dash-head">
+        <div>
+          <h3 class="card-title">Actividades de hoy</h3>
+          <p class="card-subtitle">
+            {{ actividadesHoy().length }} programadas · {{ kpis().asistencias }} marcaciones registradas
+          </p>
+        </div>
+      </div>
+
+      @if (actividadesHoy().length === 0) {
+        <p class="empty">No tienes actividades programadas para hoy.</p>
+      } @else {
+        <ol class="timeline">
+          @for (a of actividadesHoy(); track a.idActividad) {
+            <li>
+              <span class="timeline-dot"></span>
+              <div>
+                <p class="timeline-text">{{ a.nombre }}</p>
+                <span class="hint">
+                  @if (a.horaInicio) {
+                    {{ a.horaInicio }}@if (a.horaFin) { – {{ a.horaFin }} }
+                  } @else {
+                    Todo el día
+                  }
+                  @if (a.lugar) {
+                    · {{ a.lugar }}
+                  }
+                </span>
+              </div>
+            </li>
+          }
+        </ol>
+      }
+    </article>
+  </div>
+
+  <aside class="col-aside">
+    <!-- Mis alertas pendientes -->
+    <article class="card">
+      <div class="dash-head">
+        <div>
+          <h3 class="card-title">Mis alertas pendientes</h3>
+          <p class="card-subtitle">{{ kpis().alertasPendientes }} por revisar</p>
+        </div>
+        <a tuiButton appearance="flat" size="s" routerLink="/colaborador/mis-alertas">
+          Ver todas
+        </a>
+      </div>
+
+      @if (alertas().length === 0) {
+        <p class="empty">Sin alertas pendientes. Todo bajo control.</p>
+      } @else {
+        <ul class="lista">
+          @for (a of alertas(); track a.idAlerta) {
+            <li>
+              <a class="lista-item" [routerLink]="['/colaborador/mis-alertas', a.idAlerta]">
+                <span [class]="tileSeveridad(a.nivelSeveridad)">
+                  <tui-icon icon="@tui.bell" />
+                </span>
+                <span class="lista-body">
+                  <span class="lista-titulo">{{ a.mensajeResumen }}</span>
+                  <span class="hint">
+                    {{ a.fechaGeneracion | date: 'dd/MM HH:mm' }} · {{ a.tipoEvaluacionOrigen }}
+                  </span>
+                </span>
+                <span [class]="pillSeveridad(a.nivelSeveridad)">{{ a.nivelSeveridad }}</span>
+              </a>
+            </li>
+          }
+        </ul>
+      }
+    </article>
+
+    <!-- Mis metas -->
+    <article class="card">
+      <div class="dash-head">
+        <div>
+          <h3 class="card-title">Mis metas</h3>
+          <p class="card-subtitle">{{ kpis().metasActivas }} activas</p>
+        </div>
+        <a tuiButton appearance="flat" size="s" routerLink="/colaborador/mis-metas">
+          Ver todas
+        </a>
+      </div>
+
+      @if (metas().length === 0) {
+        <p class="empty">Aún no tienes metas activas.</p>
+      } @else {
+        <ul class="lista">
+          @for (m of metas(); track m.id) {
+            <li class="meta-item">
+              <div class="meta-head">
+                <span class="lista-titulo">{{ m.descripcion }}</span>
+                <span class="meta-pct">{{ m.porcentaje }}%</span>
+              </div>
+              <span class="minibar"><span [style.width.%]="m.porcentaje"></span></span>
+            </li>
+          }
+        </ul>
+      }
+    </article>
+
+    <!-- Noticias -->
+    @if (noticias().length > 0) {
+      <article class="card">
+        <div class="dash-head">
+          <div>
+            <h3 class="card-title">Noticias</h3>
+            <p class="card-subtitle">Lo último publicado para ti</p>
+          </div>
+          <a tuiButton appearance="flat" size="s" routerLink="/colaborador/noticias">
+            Ver todas
+          </a>
+        </div>
+
+        <ul class="lista">
+          @for (n of noticias(); track n.id) {
+            <li>
+              <a class="lista-item" [routerLink]="['/colaborador/noticias', n.id]">
+                <span class="lista-body">
+                  <span class="lista-titulo">{{ n.titulo }}</span>
+                  <span class="hint">
+                    {{ n.nombreCategoria ?? 'General' }} · {{ n.fechaPublicacion | date: 'dd/MM/yyyy' }}
+                  </span>
+                </span>
+                <tui-icon icon="@tui.arrow-right" class="lista-flecha" />
+              </a>
+            </li>
+          }
+        </ul>
+      </article>
+    }
+  </aside>
+</section>
+
+<!-- ══════════ Módulos ══════════ -->
+<section class="modulos-seccion">
+  <header class="seccion-head">
+    <span class="tile tile-rounded tile-soft-primary"><tui-icon icon="@tui.layout-grid" /></span>
+    <div>
+      <h3 class="card-title">Módulos</h3>
+      <p class="hint">Accesos rápidos a tu información.</p>
+    </div>
+  </header>
+
+  <div class="modulos-grid">
+    @for (m of modulos; track m.ruta; let i = $index) {
+      <a class="card modulo-card" [routerLink]="m.ruta" [appReveal]="i">
+        <div class="modulo-top">
+          <span class="tile tile-circle tile-{{ m.color }}">
+            <tui-icon [icon]="m.icono" />
+          </span>
+          <span class="tile arrow tile-soft-{{ m.color }}">
+            <tui-icon icon="@tui.arrow-right" />
+          </span>
+        </div>
+        <h4>{{ m.titulo }}</h4>
+        <p class="hint">{{ m.descripcion }}</p>
+      </a>
+    }
+  </div>
+</section>

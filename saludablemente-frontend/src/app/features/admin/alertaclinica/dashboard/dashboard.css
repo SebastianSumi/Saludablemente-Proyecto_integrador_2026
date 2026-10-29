@@ -1,0 +1,317 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  width: 100%;
+}
+
+.page-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+  padding: 1.25rem 1.75rem;
+  max-width: none !important;
+  width: 100%;
+}
+
+.page-banner-body {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  flex: 1 1 auto;
+}
+
+.page-banner-icon {
+  width: 52px;
+  height: 52px;
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* ==== Filtros por chips ==== */
+.filtros-card {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem 2rem;
+  padding: 1rem 1.75rem;
+  max-width: none !important;
+  width: 100%;
+}
+
+.filtros-linea {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.filtro-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  min-width: 0;
+}
+
+.filtro-item tui-segmented {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.filtro-item--grow {
+  flex: 1 1 200px;
+}
+
+.filtro-item--grow tui-segmented {
+  width: 100%;
+}
+
+.periodo-combo {
+  width: 220px;
+  max-width: 100%;
+}
+
+.filtros-etiqueta {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--sal-ink, #111c2d);
+  white-space: nowrap;
+}
+
+/* ==== KPIs estilo total-followers ==== */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.25rem;
+  width: 100%;
+}
+
+.card.mini {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  margin-bottom: 0;
+  max-width: none;
+  padding: 1.25rem;
+}
+
+.card.mini.tint-blue {
+  background: color-mix(in srgb, var(--sal-primary) 9%, var(--sal-card, #fff));
+}
+
+.card.mini.tint-red {
+  background: color-mix(in srgb, var(--sal-danger) 8%, var(--sal-card, #fff));
+}
+
+.card.mini.tint-amber {
+  background: color-mix(in srgb, var(--sal-warning) 9%, var(--sal-card, #fff));
+}
+
+.card.mini.tint-green {
+  background: color-mix(in srgb, var(--sal-success) 9%, var(--sal-card, #fff));
+}
+
+.mini-body {
+  display: flex;
+  flex-direction: column;
+}
+
+.mini-valor {
+  font-size: 1.9rem;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.mini-label {
+  font-size: 0.82rem;
+  color: var(--sal-ink-soft, #5a6b7c);
+}
+
+/* ==== Fila principal 8/4 ==== */
+.dash-row {
+  display: grid;
+  grid-template-columns: minmax(0, 8fr) minmax(0, 4fr);
+  gap: 1.25rem;
+  align-items: stretch;
+  width: 100%;
+}
+
+.dash-row .card {
+  margin-bottom: 0;
+  max-width: none;
+}
+
+.dash-side {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  min-width: 0;
+}
+
+.chart-card {
+  padding: 1.25rem 1.5rem;
+}
+
+.card-head {
+  margin-bottom: 0.5rem;
+}
+
+.chart {
+  height: 320px;
+  min-height: 260px;
+}
+
+.chart.sm {
+  height: 220px;
+  min-height: 180px;
+}
+
+.chart.xs {
+  height: 180px;
+  min-height: 150px;
+}
+
+.padded {
+  padding: 0 0.25rem 0.5rem;
+}
+
+/* ==== Top 8 estilo earning-reports ==== */
+.top-card {
+  max-width: none !important;
+  width: 100%;
+  padding: 1.25rem 1.5rem;
+}
+
+.dash-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.top-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.top-list li {
+  border-bottom: 1px solid var(--sal-line, #e2e8f0);
+}
+
+.top-list li:last-child {
+  border-bottom: none;
+}
+
+.top-row {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 0.9rem 0;
+  text-decoration: none;
+  color: inherit;
+}
+
+.top-avatar {
+  width: 2.75rem;
+  height: 2.75rem;
+  font-size: 1rem;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.top-texto {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.top-texto strong {
+  font-size: 0.95rem;
+}
+
+.top-texto .hint {
+  margin: 0;
+}
+
+.top-badge {
+  flex-shrink: 0;
+}
+
+.empty {
+  text-align: center;
+  color: var(--sal-ink-soft, #5a6b7c);
+  padding: 2rem 1rem;
+  font-style: italic;
+}
+
+.error-caja {
+  border-left: 4px solid var(--sal-danger, #ef4444);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  max-width: none !important;
+  width: 100%;
+}
+
+.icono-alerta {
+  color: var(--sal-danger, #ef4444);
+  font-size: 1.25rem;
+}
+
+.error-msg {
+  color: var(--sal-danger, #ef4444);
+  font-weight: 600;
+  margin: 0;
+}
+
+@media (max-width: 992px) {
+  .kpi-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .dash-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .page-banner {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 1.25rem;
+  }
+
+  .page-banner a {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .kpi-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .filtros-card {
+    padding: 1rem 1.25rem;
+  }
+
+  .filtros-linea {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+
+  .periodo-combo {
+    width: 100%;
+  }
+}

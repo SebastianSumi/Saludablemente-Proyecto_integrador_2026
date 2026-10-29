@@ -1,0 +1,125 @@
+<!-- ══════════════════════════════════════
+     CABECERA DE PÁGINA
+     ══════════════════════════════════════ -->
+<div class="page-banner card">
+  <div class="page-banner-body">
+    <div class="page-banner-icon tile tile-rounded tile-soft-secondary">
+      <tui-icon icon="@tui.user-check" />
+    </div>
+    <div>
+      <h2 class="card-title">Equipos</h2>
+      <p class="card-subtitle">
+        @if (loading()) {
+          Cargando equipos...
+        } @else {
+          {{ equipos().length }} equipo(s) registrado(s)
+        }
+      </p>
+    </div>
+  </div>
+  <a tuiButton appearance="primary" size="m" routerLink="/teams/nuevo">
+    <tui-icon icon="@tui.plus" />
+    Nuevo equipo
+  </a>
+</div>
+
+<!-- ══════════════════════════════════════
+     FILTROS EN LÍNEA
+     ══════════════════════════════════════ -->
+<div class="filtros-card">
+  <div class="filtros-linea">
+    <label class="filtro-item">
+      <span class="filtro-etiqueta">Estado</span>
+      <tui-textfield tuiChevron>
+        <input tuiComboBox [formControl]="estadoCtrl" [strict]="true" placeholder="— Todos —" />
+        <tui-data-list-wrapper *tuiDropdown [items]="estadoOpts | tuiFilterByInput" [itemContent]="opt" />
+      </tui-textfield>
+    </label>
+  </div>
+</div>
+
+<ng-template #opt let-item>{{ item.label }}</ng-template>
+
+@if (error()) {
+  <div class="card error-caja">
+    <tui-icon icon="@tui.triangle-alert" class="icono-alerta" />
+    <p class="error-msg">{{ error() }}</p>
+  </div>
+}
+
+<!-- ══════════════════════════════════════
+     TABLA DE EQUIPOS
+     ══════════════════════════════════════ -->
+<div class="card tabla-card flush">
+  <div class="table-wrapper flush">
+    <table tuiTable [columns]="columnas">
+      <thead>
+        <tr>
+          <th tuiTh>Nombre del equipo</th>
+          <th tuiTh>Descripción</th>
+          <th tuiTh>Estado</th>
+          <th tuiTh class="th-acciones"><span class="sr-only">Acciones</span></th>
+        </tr>
+      </thead>
+      <tbody tuiTbody [data]="equipos()">
+        @for (equipo of equipos(); track equipo.id) {
+          <tr>
+            <td tuiTd class="fw-bold" [style.border-left]="'5px solid ' + (equipo.color || 'transparent')">
+              @if (equipo.imagenUrl) { <img [src]="equipo.imagenUrl" alt="" width="40" height="40" style="object-fit:contain;vertical-align:middle;margin-right:0.5rem" /> }
+              {{ equipo.nombre }}
+              @if (equipo.slogan) { <small style="display:block">{{ equipo.slogan }}</small> }
+            </td>
+            <td tuiTd class="text-soft">{{ equipo.descripcion || '—' }}</td>
+            <td tuiTd>
+              @if (equipo.activo) {
+                <span class="pill pill-soft-success">Activo</span>
+              } @else {
+                <span class="pill pill-soft-neutral">Inactivo</span>
+              }
+            </td>
+            <td tuiTd class="td-acciones">
+              <div class="row-actions">
+                <a
+                  tuiButton
+                  appearance="flat"
+                  size="s"
+                  [routerLink]="['/personal/personas']"
+                  [queryParams]="{ equipo: equipo.id }"
+                >
+                  <tui-icon icon="@tui.users" />
+                  Ver personas
+                </a>
+                <a
+                  tuiButton
+                  appearance="flat"
+                  size="s"
+                  [routerLink]="['/teams', equipo.id, 'editar']"
+                >
+                  <tui-icon icon="@tui.pencil" />
+                  Editar
+                </a>
+                @if (equipo.activo) {
+                  <button
+                    tuiButton
+                    appearance="outline"
+                    size="s"
+                    type="button"
+                    (click)="inactivar(equipo)"
+                  >
+                    Inactivar
+                  </button>
+                }
+              </div>
+            </td>
+          </tr>
+        } @empty {
+          @if (!loading() && !error()) {
+            <tr>
+              <td tuiTd colspan="4" class="empty">No hay equipos registrados.</td>
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

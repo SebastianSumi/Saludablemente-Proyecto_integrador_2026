@@ -1,0 +1,736 @@
+<div class="detail-shell">
+  <div class="detail-nav">
+    <a tuiButton appearance="flat" size="s" routerLink="/actividades">
+      <tui-icon icon="@tui.arrow-left" />
+      Volver a la agenda
+    </a>
+  </div>
+
+  @if (loading()) {
+    <div class="card estado-caja">
+      <p class="sal-subtitulo">Cargando datos de la actividad...</p>
+    </div>
+  }
+
+  @if (error()) {
+    <div class="card error-caja">
+      <tui-icon icon="@tui.triangle-alert" class="icono-alerta" />
+      <p class="error-msg">{{ error() }}</p>
+    </div>
+  }
+
+  @if (actividad(); as a) {
+    <!-- ══════════════════════════════════════
+         HERO — DETALLE DE ACTIVIDAD
+         ══════════════════════════════════════ -->
+    <div class="card hero-card">
+      <div class="hero-body">
+        <div class="hero-info">
+          @if (a.logoUrl) {
+            <div class="hero-logo-box">
+              <img [src]="resolverUrl(a.logoUrl)" [alt]="'Logo ' + a.nombre" class="hero-logo-img" />
+            </div>
+          } @else {
+            <div class="tile tile-circle tile-soft-primary hero-icono">
+              <tui-icon icon="@tui.calendar" />
+            </div>
+          }
+          <div>
+            <div class="badges-row">
+              @if (a.estado === 'PROGRAMADA') {
+                <span class="pill pill-soft-primary">Programada</span>
+              } @else if (a.estado === 'EN_CURSO') {
+                <span class="pill pill-soft-warning">En curso</span>
+              } @else if (a.estado === 'FINALIZADA' || a.estado === 'CERRADA') {
+                <span class="pill pill-soft-success">Finalizada</span>
+              } @else {
+                <span class="pill pill-soft-neutral">{{ a.estado }}</span>
+              }
+              <span class="pill pill-soft-secondary font-mono">{{ a.fechaActividad }}</span>
+            </div>
+            <h2 class="hero-nombre">{{ a.nombre }}</h2>
+            <p class="hero-meta">
+              <span>Horario: {{ a.horaInicio }} – {{ a.horaFin }}</span>
+              <span class="hero-sep">·</span>
+              <span>Lugar: {{ a.lugar }}</span>
+              <span class="hero-sep">·</span>
+              <span>Coordinador: {{ a.nombreCoordinador ?? 'Sin asignar' }}</span>
+            </p>
+          </div>
+        </div>
+        <div class="hero-actions">
+          @if (a.estado === 'PROGRAMADA') {
+            <button tuiButton appearance="primary" size="m" type="button" [loading]="procesando()" (click)="cambiarEstado('iniciar')">
+              <tui-icon icon="@tui.play" />
+              Iniciar actividad
+            </button>
+          }
+          @if (a.estado === 'EN_CURSO') {
+            <button tuiButton appearance="primary" size="m" type="button" [loading]="procesando()" (click)="cambiarEstado('finalizar')">
+              <tui-icon icon="@tui.circle-check" />
+              Finalizar actividad
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- PESTAÑAS DE NAVEGACIÓN -->
+    <div class="tabs-wrap">
+      <tui-tabs [activeItemIndex]="tabActivo()" (activeItemIndexChange)="tabActivo.set($event)">
+        <button tuiTab>
+          <tui-icon icon="@tui.file-text" />
+          Información general
+        </button>
+        <button tuiTab>
+          <tui-icon icon="@tui.users" />
+          Inscripciones ({{ totalInscritos() || inscritos().length }})
+        </button>
+        <button tuiTab>
+          <tui-icon icon="@tui.settings" />
+          Configuración y geocerca
+        </button>
+        <button tuiTab>
+          <tui-icon icon="@tui.qr-code" />
+          QR operativo y reporte
+        </button>
+        <button tuiTab>
+          <tui-icon icon="@tui.image" />
+          Logo y Galería ({{ a.imagenes?.length ?? 0 }})
+        </button>
+      </tui-tabs>
+    </div>
+
+    @if (tabActivo() === 0) {
+      <div class="secciones-grid">
+        <section class="card">
+          <div class="section-title">
+            <div class="section-title-left">
+              <span class="tile tile-rounded tile-soft-primary seccion-icono">
+                <tui-icon icon="@tui.info" />
+              </span>
+              <div>
+                <h3>Parámetros de la sesión</h3>
+                <p class="seccion-desc">Detalles operativos y de control</p>
+              </div>
+            </div>
+          </div>
+
+          <dl class="detail-grid">
+            <dt>Descripción</dt>
+            <dd>{{ a.descripcion || '—' }}</dd>
+            <dt>Coordinador</dt>
+            <dd>{{ a.nombreCoordinador ?? '—' }}</dd>
+            <dt>Periodo</dt>
+            <dd>{{ a.periodo ?? '—' }}</dd>
+            <dt>Duración</dt>
+            <dd>{{ a.duracionMinutos ?? '—' }} min</dd>
+            <dt>Check-in/out</dt>
+            <dd>
+              <span [class]="a.requiereCheckInOut ? 'pill pill-soft-success' : 'pill pill-soft-neutral'">
+                {{ a.requiereCheckInOut ? 'Requerido' : 'Opcional' }}
+              </span>
+            </dd>
+            <dt>Geocerca</dt>
+            <dd>{{ a.toleranciaGeocercaMetros ?? '—' }} metros de radio</dd>
+            <dt>Autoservicio</dt>
+            <dd>
+              <span [class]="a.permiteAutoservicio ? 'pill pill-soft-primary' : 'pill pill-soft-neutral'">
+                {{ a.permiteAutoservicio ? 'Habilitado' : 'Deshabilitado' }}
+              </span>
+            </dd>
+            <dt>Escaneo coordinador</dt>
+            <dd>
+              <span [class]="a.permiteEscaneoCoordinador ? 'pill pill-soft-primary' : 'pill pill-soft-neutral'">
+                {{ a.permiteEscaneoCoordinador ? 'Habilitado' : 'Deshabilitado' }}
+              </span>
+            </dd>
+          </dl>
+        </section>
+
+        <section class="card">
+          <div class="section-title">
+            <div class="section-title-left">
+              <span class="tile tile-rounded tile-soft-warning seccion-icono">
+                <tui-icon icon="@tui.calendar-cog" />
+              </span>
+              <div>
+                <h3>Operaciones y reprogramación</h3>
+                <p class="seccion-desc">Modificación de fecha, traspaso o anulación</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="operaciones-stack">
+            <!-- Reprogramar -->
+            <div class="op-box">
+              <h4 class="op-title">Reprogramar horario (solo programadas)</h4>
+              <form [formGroup]="reprogramarForm" (ngSubmit)="reprogramar()" class="op-form">
+                <label tuiLabel class="field">
+                  <span class="field-label">Nueva fecha</span>
+                  <tui-textfield>
+                    <input tuiInputDate formControlName="nuevaFecha" />
+                    <ng-template tuiDropdown>
+                      <tui-calendar />
+                      <div class="cal-acciones">
+                        <button tuiButton appearance="secondary" size="s" type="button" (click)="fijarHoy('nuevaFecha')">
+                          <tui-icon icon="@tui.calendar-check" />
+                          Hoy
+                        </button>
+                        <button tuiButton appearance="flat" size="s" type="button" (click)="limpiarCampo('nuevaFecha')">
+                          <tui-icon icon="@tui.eraser" />
+                          Limpiar
+                        </button>
+                      </div>
+                    </ng-template>
+                  </tui-textfield>
+                </label>
+                <div class="horas-row">
+                  <label tuiLabel class="field">
+                    <span class="field-label">Nueva hora inicio</span>
+                    <tui-textfield>
+                      <input tuiInput type="time" formControlName="nuevaHoraInicio" />
+                    </tui-textfield>
+                  </label>
+                  <label tuiLabel class="field">
+                    <span class="field-label">Nueva hora fin</span>
+                    <tui-textfield>
+                      <input tuiInput type="time" formControlName="nuevaHoraFin" />
+                    </tui-textfield>
+                  </label>
+                </div>
+                <div class="form-acciones">
+                  <button tuiButton appearance="outline" size="s" type="submit" [loading]="procesando()">
+                    Guardar nueva fecha
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            <!-- Transferir -->
+            <div class="op-box">
+              <h4 class="op-title">Transferir coordinador</h4>
+              <label tuiLabel class="field">
+                <span class="field-label">Nuevo coordinador responsable</span>
+                <tui-textfield tuiChevron>
+                  <input tuiComboBox [formControl]="transferirCtrl" [strict]="true" placeholder="— Seleccione usuario —" />
+                  <tui-data-list-wrapper *tuiDropdown [items]="usuarios() | tuiFilterByInput" [itemContent]="usr" />
+                </tui-textfield>
+              </label>
+              <div class="form-acciones">
+                <button tuiButton appearance="outline" size="s" type="button" [loading]="procesando()" (click)="transferir()">
+                  Asignar nuevo coordinador
+                </button>
+              </div>
+            </div>
+
+            <!-- Cancelar -->
+            <div class="op-box danger">
+              <h4 class="op-title text-error">Cancelar actividad</h4>
+              <form [formGroup]="cancelarForm" (ngSubmit)="cancelarActividad()" class="op-form">
+                <label tuiLabel class="field">
+                  <span class="field-label">Motivo de cancelación</span>
+                  <tui-textfield>
+                    <input tuiInput type="text" formControlName="motivo" maxlength="200" placeholder="Ej. Lluvia, reprogramación institucional" />
+                  </tui-textfield>
+                  <tui-error formControlName="motivo" />
+                </label>
+                <div class="form-acciones">
+                  <button tuiButton appearance="destructive" size="s" type="submit" [loading]="procesando()">
+                    Cancelar actividad
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </section>
+
+        <!-- RESUMEN MULTIMEDIA EN TAB 0 -->
+        <section class="card galeria-resumen-card full-col">
+          <div class="section-title">
+            <div class="section-title-left">
+              <span class="tile tile-rounded tile-soft-primary seccion-icono">
+                <tui-icon icon="@tui.image" />
+              </span>
+              <div>
+                <h3>Identidad visual y galería</h3>
+                <p class="seccion-desc">Logo institucional y fotografías de la actividad</p>
+              </div>
+            </div>
+            <button tuiButton appearance="outline" size="s" type="button" (click)="tabActivo.set(4)">
+              <tui-icon icon="@tui.pencil" />
+              Gestionar logo y galería
+            </button>
+          </div>
+
+          <div class="resumen-multimedia-grid">
+            <div class="resumen-logo-col">
+              <span class="field-label">Logo oficial</span>
+              @if (a.logoUrl) {
+                <div class="resumen-logo-preview">
+                  <img [src]="resolverUrl(a.logoUrl)" alt="Logo" class="resumen-logo-thumb" />
+                  <span class="pill pill-soft-success">Configurado</span>
+                </div>
+              } @else {
+                <div class="resumen-sin-logo">
+                  <tui-icon icon="@tui.image" />
+                  <span>Sin logo asignado</span>
+                </div>
+              }
+            </div>
+
+            <div class="resumen-fotos-col">
+              <div class="resumen-fotos-header">
+                <span class="field-label">Galería fotográfica ({{ a.imagenes?.length ?? 0 }})</span>
+                @if (a.imagenes && a.imagenes.length > 0) {
+                  <button tuiButton appearance="flat" size="xs" type="button" (click)="tabActivo.set(4)">
+                    Ver todas ({{ a.imagenes.length }})
+                  </button>
+                }
+              </div>
+
+              @if (a.imagenes && a.imagenes.length > 0) {
+                <div class="resumen-fotos-strip">
+                  @for (img of a.imagenes; track img.idImagen) {
+                    <div class="resumen-foto-item" (click)="abrirFoto(img)" [title]="img.descripcion || 'Ver foto'">
+                      <img [src]="resolverUrl(img.url)" [alt]="img.descripcion || 'Foto'" />
+                    </div>
+                  }
+                </div>
+              } @else {
+                <p class="text-soft">No hay fotografías subidas para esta actividad todavía.</p>
+              }
+            </div>
+          </div>
+        </section>
+      </div>
+    }
+
+    @if (tabActivo() === 1) {
+      <section class="card">
+        <div class="section-title">
+          <div class="section-title-left">
+            <span class="tile tile-rounded tile-soft-primary seccion-icono">
+              <tui-icon icon="@tui.users" />
+            </span>
+            <div>
+              <h3>Participantes inscritos ({{ inscritos().length }})</h3>
+              <p class="seccion-desc">Colaboradores registrados para esta sesión</p>
+            </div>
+          </div>
+          <button tuiButton appearance="outline" size="s" type="button" [loading]="procesando()" (click)="inscribirTodos()">
+            <tui-icon icon="@tui.user-plus" />
+            Inscribir a todo el personal
+          </button>
+        </div>
+
+        <div class="inscribir-linea">
+          <label tuiLabel class="field flex-grow">
+            <span class="field-label">Agregar persona individual</span>
+            <tui-textfield tuiChevron>
+              <input tuiComboBox [formControl]="inscribirCtrl" [strict]="true" placeholder="— Busca por DNI o nombres —" />
+              <tui-data-list-wrapper *tuiDropdown [items]="personas() | tuiFilterByInput" [itemContent]="per" />
+            </tui-textfield>
+          </label>
+          <button tuiButton appearance="primary" size="m" type="button" [loading]="procesando()" (click)="inscribirPersona()">
+            <tui-icon icon="@tui.plus" />
+            Inscribir
+          </button>
+        </div>
+
+        @if (inscritos().length > 0) {
+          <div class="tabla-card flush">
+            <div class="table-wrapper flush">
+              <table tuiTable>
+                <thead>
+                  <tr>
+                    <th tuiTh>Persona</th>
+                    <th tuiTh>Área</th>
+                    <th tuiTh>Celular</th>
+                    <th tuiTh class="th-acciones"><span class="sr-only">Acciones</span></th>
+                  </tr>
+                </thead>
+                <tbody tuiTbody>
+                  @for (p of inscritos(); track p.idPersona) {
+                    <tr>
+                      <td tuiTd>
+                        <span class="fw-bold">{{ p.nombreCompleto }}</span>
+                        <span class="text-soft font-mono"> · Persona #{{ p.idPersona }}</span>
+                      </td>
+                      <td tuiTd>{{ p.areaTrabajo || '—' }}</td>
+                      <td tuiTd>{{ p.celular || '—' }}</td>
+                      <td tuiTd class="td-acciones">
+                        <button tuiButton appearance="flat" size="s" type="button" (click)="quitarInscrito(p.idPersona)">
+                          <tui-icon icon="@tui.trash" />
+                          Quitar
+                        </button>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </div>
+        } @else {
+          <div class="empty-state">
+            <p class="text-soft">No hay participantes inscritos en esta actividad.</p>
+          </div>
+        }
+      </section>
+    }
+
+    @if (tabActivo() === 2) {
+      <div class="secciones-grid">
+        <section class="card">
+          <div class="section-title">
+            <div class="section-title-left">
+              <span class="tile tile-rounded tile-soft-success seccion-icono">
+                <tui-icon icon="@tui.trophy" />
+              </span>
+              <div>
+                <h3>Materiales y Health Points</h3>
+                <p class="seccion-desc">Requerimientos y puntaje otorgado por asistencia</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="field mb-3">
+            <span class="field-label">Materiales requeridos (uno por línea)</span>
+            <tui-textfield>
+              <textarea tuiTextarea [formControl]="materialesCtrl" rows="3" placeholder="Proyector&#10;Hojas de trabajo&#10;Colchonetas"></textarea>
+            </tui-textfield>
+            <div class="form-acciones mt-2">
+              <button tuiButton appearance="outline" size="s" type="button" [loading]="procesando()" (click)="guardarMateriales()">
+                Guardar materiales
+              </button>
+            </div>
+          </div>
+
+          <div class="field">
+            <span class="field-label">Puntaje salud por asistencia (Health Points)</span>
+            <tui-textfield>
+              <input tuiInput type="number" [formControl]="puntajeCtrl" min="0" placeholder="Ej. 50" />
+            </tui-textfield>
+            <div class="form-acciones mt-2">
+              <button tuiButton appearance="outline" size="s" type="button" [loading]="procesando()" (click)="guardarPuntaje()">
+                Guardar puntaje
+              </button>
+            </div>
+          </div>
+        </section>
+      </div>
+    }
+
+    @if (tabActivo() === 3) {
+      <div class="secciones-grid">
+        <section class="card">
+          <div class="section-title">
+            <div class="section-title-left">
+              <span class="tile tile-rounded tile-soft-primary seccion-icono">
+                <tui-icon icon="@tui.qr-code" />
+              </span>
+              <div>
+                <h3>Token QR operativo</h3>
+                <p class="seccion-desc">Código dinámico para marcación de asistencia</p>
+              </div>
+            </div>
+          </div>
+
+          @if (token(); as t) {
+            <div class="qr-codigo font-mono">{{ t.codigoQr }}</div>
+            <dl class="detail-grid mt-3">
+              <dt>Versión</dt>
+              <dd class="font-mono">v{{ t.version }}</dd>
+              <dt>Ventana inicio</dt>
+              <dd class="font-mono">{{ t.ventanaInicio ?? '—' }}</dd>
+              <dt>Ventana fin</dt>
+              <dd class="font-mono">{{ t.ventanaFin ?? '—' }}</dd>
+            </dl>
+          } @else {
+            <p class="text-soft">
+              @if (puedeUsarQr()) {
+                Sin token activo. Rota para generar uno (la actividad debe estar en curso).
+              } @else {
+                QR no disponible: la actividad está {{ a.estado }}. Solo puedes ver/rotar QR cuando está EN_CURSO.
+              }
+            </p>
+          }
+
+          <div class="form-acciones mt-3">
+            <button tuiButton appearance="outline" size="s" type="button" [loading]="procesando()" (click)="rotarToken()">
+              <tui-icon icon="@tui.refresh-cw" />
+              Rotar / Generar token
+            </button>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="section-title">
+            <div class="section-title-left">
+              <span class="tile tile-rounded tile-soft-secondary seccion-icono">
+                <tui-icon icon="@tui.chart-column" />
+              </span>
+              <div>
+                <h3>Reporte de la actividad</h3>
+                <p class="seccion-desc">Resumen consolidado</p>
+              </div>
+            </div>
+          </div>
+
+          @if (reporte(); as r) {
+            <dl class="detail-grid">
+              <dt>Puntaje salud</dt>
+              <dd><strong class="text-primary">{{ r.puntajeSalud ?? '—' }} pts</strong></dd>
+              <dt>Coordinador</dt>
+              <dd>{{ r.nombreCoordinador ?? '—' }}</dd>
+              <dt>Materiales</dt>
+              <dd>{{ r.materiales.join(', ') || 'Sin materiales' }}</dd>
+            </dl>
+          } @else {
+            <p class="text-soft">Sin reporte disponible aún.</p>
+          }
+        </section>
+      </div>
+    }
+
+    <!-- ══════════════════════════════════════
+         PESTAÑA 4: LOGO Y GALERÍA MULTIMEDIA
+         ══════════════════════════════════════ -->
+    @if (tabActivo() === 4) {
+      <div class="secciones-grid multimedia-grid">
+        @if (errorMultimedia()) {
+          <div class="card error-caja full-col">
+            <tui-icon icon="@tui.triangle-alert" class="icono-alerta" />
+            <p class="error-msg">{{ errorMultimedia() }}</p>
+          </div>
+        }
+
+        <!-- TARJETA: LOGO INSTITUCIONAL -->
+        <section class="card logo-card">
+          <div class="section-title">
+            <div class="section-title-left">
+              <span class="tile tile-rounded tile-soft-primary seccion-icono">
+                <tui-icon icon="@tui.badge-check" />
+              </span>
+              <div>
+                <h3>Logo de la actividad</h3>
+                <p class="seccion-desc">Distintivo visual principal (máx. 2 MB)</p>
+              </div>
+            </div>
+            @if (a.logoUrl) {
+              <span class="pill pill-soft-success">Logo activo</span>
+            } @else {
+              <span class="pill pill-soft-neutral">Sin logo</span>
+            }
+          </div>
+
+          <div class="logo-area-wrapper">
+            @if (a.logoUrl) {
+              <div class="logo-display-box">
+                <img [src]="resolverUrl(a.logoUrl)" alt="Logo institucional" class="logo-grande-preview" />
+                <div class="logo-acciones-overlay">
+                  <button tuiButton appearance="outline" size="s" type="button" (click)="logoInput.click()" [loading]="logoCargando()">
+                    <tui-icon icon="@tui.upload" />
+                    Cambiar logo
+                  </button>
+                  <button tuiButton appearance="secondary" size="s" type="button" (click)="eliminarLogo()" [loading]="logoCargando()">
+                    <tui-icon icon="@tui.trash" />
+                    Eliminar logo
+                  </button>
+                </div>
+              </div>
+            } @else {
+              <div class="dropzone logo-dropzone" (click)="logoInput.click()">
+                <div class="dropzone-icon tile tile-circle tile-soft-primary">
+                  <tui-icon icon="@tui.cloud-upload" />
+                </div>
+                <h4>Haz clic para subir el logo</h4>
+                <p class="text-soft">Formatos: PNG, JPG, SVG, WEBP (hasta 2 MB)</p>
+                <button tuiButton appearance="secondary" size="s" type="button" [loading]="logoCargando()">
+                  <tui-icon icon="@tui.folder-open" />
+                  Seleccionar archivo
+                </button>
+              </div>
+            }
+            <input #logoInput type="file" accept="image/*" (change)="onLogoSeleccionado($event)" hidden />
+          </div>
+        </section>
+
+        <!-- TARJETA: GALERÍA DE IMÁGENES -->
+        <section class="card galeria-card">
+          <div class="section-title">
+            <div class="section-title-left">
+              <span class="tile tile-rounded tile-soft-primary seccion-icono">
+                <tui-icon icon="@tui.images" />
+              </span>
+              <div>
+                <h3>Galería de fotos y afiches</h3>
+                <p class="seccion-desc">Evidencias, recuerdos y material gráfico (máx. 10 fotos, 5 MB c/u)</p>
+              </div>
+            </div>
+            <div class="galeria-head-acciones">
+              <span class="pill pill-soft-primary font-mono">
+                {{ a.imagenes?.length ?? 0 }} / 10 fotos
+              </span>
+              @if ((a.imagenes?.length ?? 0) < 10) {
+                <button tuiButton appearance="primary" size="s" type="button" (click)="galeriaInput.click()">
+                  <tui-icon icon="@tui.plus" />
+                  Agregar imagen
+                </button>
+              }
+            </div>
+          </div>
+
+          <input #galeriaInput type="file" accept="image/*" (change)="onImagenSeleccionada($event)" hidden />
+
+          <!-- LIMITE ALCANZADO -->
+          @if ((a.imagenes?.length ?? 0) >= 10) {
+            <div class="alerta-limite pill-soft-warning">
+              <tui-icon icon="@tui.info" />
+              Se ha alcanzado el límite máximo de 10 imágenes para esta actividad.
+            </div>
+          }
+
+          <!-- GRID DE FOTOS -->
+          @if (a.imagenes && a.imagenes.length > 0) {
+            <div class="fotos-galeria-grid">
+              @for (img of a.imagenes; track img.idImagen) {
+                <div class="foto-card">
+                  <div class="foto-card-thumb" (click)="abrirFoto(img)">
+                    <img [src]="resolverUrl(img.url)" [alt]="img.descripcion || 'Foto de actividad'" loading="lazy" />
+                    <div class="foto-hover-overlay">
+                      <span class="btn-ver-zoom">
+                        <tui-icon icon="@tui.zoom-in" />
+                        Ampliar
+                      </span>
+                    </div>
+                    <span class="foto-badge-orden">#{{ img.orden }}</span>
+                  </div>
+                  <div class="foto-card-info">
+                    <p class="foto-descripcion" [title]="img.descripcion || 'Sin descripción'">
+                      {{ img.descripcion || 'Foto #' + img.orden }}
+                    </p>
+                    <button
+                      tuiButton
+                      appearance="flat-destructive"
+                      size="xs"
+                      type="button"
+                      title="Eliminar imagen"
+                      (click)="eliminarImagen(img.idImagen)"
+                    >
+                      <tui-icon icon="@tui.trash" />
+                    </button>
+                  </div>
+                </div>
+              }
+            </div>
+          } @else {
+            <div class="dropzone galeria-dropzone" (click)="galeriaInput.click()">
+              <div class="dropzone-icon tile tile-circle tile-soft-primary">
+                <tui-icon icon="@tui.camera" />
+              </div>
+              <h4>Haz clic para seleccionar una foto para la galería</h4>
+              <p class="text-soft">Formatos: JPG, PNG, WEBP (hasta 5 MB). Podrás previsualizarla y confirmarla antes de subir.</p>
+              <button tuiButton appearance="secondary" size="s" type="button">
+                <tui-icon icon="@tui.folder-open" />
+                Seleccionar fotografía
+              </button>
+            </div>
+          }
+        </section>
+      </div>
+    }
+  }
+</div>
+
+<!-- MODAL LIGHTBOX PARA VER FOTO AMPLIADA -->
+@if (fotoSeleccionada(); as foto) {
+  <div class="lightbox-backdrop" (click)="cerrarFoto()">
+    <div class="lightbox-container" (click)="$event.stopPropagation()">
+      <div class="lightbox-header">
+        <div class="lightbox-info">
+          <span class="pill pill-soft-primary">Foto #{{ foto.orden }}</span>
+          <span class="lightbox-desc">{{ foto.descripcion || 'Sin descripción' }}</span>
+        </div>
+        <button tuiButton appearance="flat" size="s" type="button" (click)="cerrarFoto()" aria-label="Cerrar">
+          <tui-icon icon="@tui.x" />
+        </button>
+      </div>
+      <div class="lightbox-body">
+        <img [src]="resolverUrl(foto.url)" [alt]="foto.descripcion || 'Imagen ampliada'" class="lightbox-img" />
+      </div>
+    </div>
+  </div>
+}
+
+<!-- MODAL DE CONFIRMACIÓN PARA SUBIR FOTO A LA GALERÍA -->
+@if (mostrarModalSubida()) {
+  <div class="modal-confirmacion-backdrop" (click)="cancelarSubidaModal()">
+    <div class="modal-confirmacion-card" (click)="$event.stopPropagation()">
+      <div class="modal-confirmacion-head">
+        <div class="modal-head-title">
+          <div class="tile tile-circle tile-soft-primary modal-icono">
+            <tui-icon icon="@tui.cloud-upload" />
+          </div>
+          <div>
+            <h3 class="modal-title">Subir fotografía a la galería</h3>
+            <p class="modal-sub">Confirma los detalles antes de almacenar la imagen</p>
+          </div>
+        </div>
+        <button tuiButton appearance="flat" size="s" type="button" (click)="cancelarSubidaModal()" aria-label="Cerrar">
+          <tui-icon icon="@tui.x" />
+        </button>
+      </div>
+
+      <div class="modal-confirmacion-body">
+        <div class="modal-preview-box">
+          @if (imagenPendientePreview(); as prev) {
+            <img [src]="prev" alt="Vista previa de la foto" class="modal-preview-img" />
+          }
+        </div>
+
+        <div class="modal-archivo-meta">
+          <span class="pill pill-soft-secondary font-mono">
+            {{ imagenPendienteArchivo()?.name }}
+          </span>
+          <span class="pill pill-soft-primary font-mono">
+            {{ formatearTamano(imagenPendienteArchivo()?.size) }}
+          </span>
+        </div>
+
+        <label tuiLabel class="field-desc-modal">
+          <span class="field-label">Descripción o pie de foto (opcional)</span>
+          <tui-textfield>
+            <input
+              tuiInput
+              placeholder="Ej. Taller práctico, participantes, premiación..."
+              [ngModel]="descripcionFoto()"
+              (ngModelChange)="descripcionFoto.set($event)"
+              (keydown.enter)="ejecutarSubidaImagen()"
+            />
+          </tui-textfield>
+        </label>
+
+        @if (errorMultimedia()) {
+          <div class="modal-error-box">
+            <tui-icon icon="@tui.triangle-alert" />
+            <span>{{ errorMultimedia() }}</span>
+          </div>
+        }
+      </div>
+
+      <div class="modal-confirmacion-foot">
+        <button tuiButton appearance="outline" size="m" type="button" (click)="cancelarSubidaModal()" [disabled]="subiendoImagen()">
+          Cancelar
+        </button>
+        <button tuiButton appearance="primary" size="m" type="button" (click)="ejecutarSubidaImagen()" [loading]="subiendoImagen()">
+          <tui-icon icon="@tui.check" />
+          Confirmar y subir
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<ng-template #usr let-item>{{ item.email }}</ng-template>
+<ng-template #per let-item>{{ nombrePersona(item) }}</ng-template>

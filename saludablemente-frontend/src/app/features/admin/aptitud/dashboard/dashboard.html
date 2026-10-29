@@ -1,0 +1,228 @@
+<!-- ══════════════════════════════════════
+     CABECERA DE PÁGINA
+     ══════════════════════════════════════ -->
+<div class="page-banner card">
+  <div class="page-banner-body">
+    <div class="page-banner-icon tile tile-rounded tile-soft-primary">
+      <tui-icon icon="@tui.activity" />
+    </div>
+    <div>
+      <h2 class="card-title">Dashboard de Aptitud Física</h2>
+      <p class="card-subtitle">Indicadores agregados, consolidado de dictámenes y estado institucional de pruebas físicas</p>
+    </div>
+  </div>
+  <div class="page-banner-actions">
+    <a tuiButton appearance="outline" size="m" routerLink="/aptitud">
+      <tui-icon icon="@tui.list" />
+      Ver evaluaciones
+    </a>
+    <a tuiButton appearance="primary" size="m" routerLink="/aptitud/nueva">
+      <tui-icon icon="@tui.plus" />
+      Nueva evaluación
+    </a>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     FILTRO DE PERIODO
+     ══════════════════════════════════════ -->
+<div class="filtros-card">
+  <div class="filtros-linea">
+    <div class="filtro-item">
+      <label class="filtro-etiqueta">Periodo de evaluación</label>
+      <tui-textfield tuiChevron>
+        <input tuiComboBox [formControl]="periodoCtrl" [strict]="true" placeholder="— Selecciona un periodo —" />
+        <tui-data-list-wrapper *tuiDropdown [items]="periodos() | tuiFilterByInput" [itemContent]="tplOpcion" />
+      </tui-textfield>
+    </div>
+    <button
+      tuiButton
+      appearance="outline"
+      size="m"
+      type="button"
+      (click)="limpiar()"
+      class="btn-limpiar"
+    >
+      <tui-icon icon="@tui.filter-x" />
+      Limpiar filtro
+    </button>
+  </div>
+</div>
+
+<ng-template #tplOpcion let-item>{{ item.label }}</ng-template>
+
+@if (loading()) {
+  <div class="card estado-caja">
+    <p class="sal-subtitulo">Cargando métricas de aptitud física…</p>
+  </div>
+}
+
+@if (error()) {
+  <div class="card error-caja">
+    <tui-icon icon="@tui.triangle-alert" class="icono-alerta" />
+    <p class="error-msg">{{ error() }}</p>
+  </div>
+}
+
+@if (!loading() && !agregado() && !error()) {
+  <div class="card estado-caja">
+    <tui-icon icon="@tui.info" class="icono-info" />
+    <p class="sal-subtitulo">Selecciona un periodo arriba para consultar sus indicadores agregados.</p>
+  </div>
+}
+
+@if (agregado(); as a) {
+  <!-- ══════════════════════════════════════
+       TARJETAS KPI
+       ══════════════════════════════════════ -->
+  <div class="kpi-grid">
+    <article class="card kpi-card">
+      <div class="kpi-top">
+        <span class="tile tile-circle tile-soft-primary kpi-icon">
+          <tui-icon icon="@tui.clipboard-list" />
+        </span>
+        <span class="pill pill-soft-primary">Total</span>
+      </div>
+      <div class="kpi-body">
+        <strong class="kpi-value">{{ a.total }}</strong>
+        <span class="kpi-label">Evaluaciones registradas</span>
+      </div>
+    </article>
+
+    <article class="card kpi-card">
+      <div class="kpi-top">
+        <span class="tile tile-circle tile-soft-success kpi-icon">
+          <tui-icon icon="@tui.user-check" />
+        </span>
+        <span class="pill pill-soft-success">{{ porcentaje(a.aptos, a.total) }}</span>
+      </div>
+      <div class="kpi-body">
+        <strong class="kpi-value">{{ a.aptos }}</strong>
+        <span class="kpi-label">Aptos físicamente</span>
+      </div>
+    </article>
+
+    <article class="card kpi-card">
+      <div class="kpi-top">
+        <span class="tile tile-circle tile-soft-warning kpi-icon">
+          <tui-icon icon="@tui.shield-alert" />
+        </span>
+        <span class="pill pill-soft-warning">{{ porcentaje(a.aptosConRestricciones, a.total) }}</span>
+      </div>
+      <div class="kpi-body">
+        <strong class="kpi-value">{{ a.aptosConRestricciones }}</strong>
+        <span class="kpi-label">Aptos con restricciones</span>
+      </div>
+    </article>
+
+    <article class="card kpi-card">
+      <div class="kpi-top">
+        <span class="tile tile-circle tile-soft-error kpi-icon">
+          <tui-icon icon="@tui.ban" />
+        </span>
+        <span class="pill pill-soft-error">{{ porcentaje(a.noAptos, a.total) }}</span>
+      </div>
+      <div class="kpi-body">
+        <strong class="kpi-value">{{ a.noAptos }}</strong>
+        <span class="kpi-label">No aptos</span>
+      </div>
+    </article>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       SECCIONES DE RESUMEN
+       ══════════════════════════════════════ -->
+  <div class="paneles-grid">
+    <!-- Panel 1: Dictamen Global -->
+    <section class="card panel-card">
+      <div class="section-title">
+        <div class="section-title-left">
+          <span class="tile tile-rounded tile-soft-primary seccion-icono">
+            <tui-icon icon="@tui.pie-chart" />
+          </span>
+          <div>
+            <h3>Distribución de Dictamen Global</h3>
+            <p class="seccion-desc">Clasificación final del estado físico en el periodo</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="barras-lista">
+        <div class="barra-fila">
+          <div class="barra-encabezado">
+            <span class="barra-nombre">
+              <span class="dot dot-success"></span>
+              Aptos
+            </span>
+            <span class="barra-conteo"><strong>{{ a.aptos }}</strong> ({{ porcentaje(a.aptos, a.total) }})</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill fill-success" [style.width]="porcentaje(a.aptos, a.total)"></div>
+          </div>
+        </div>
+
+        <div class="barra-fila">
+          <div class="barra-encabezado">
+            <span class="barra-nombre">
+              <span class="dot dot-warning"></span>
+              Aptos con Restricciones
+            </span>
+            <span class="barra-conteo"><strong>{{ a.aptosConRestricciones }}</strong> ({{ porcentaje(a.aptosConRestricciones, a.total) }})</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill fill-warning" [style.width]="porcentaje(a.aptosConRestricciones, a.total)"></div>
+          </div>
+        </div>
+
+        <div class="barra-fila">
+          <div class="barra-encabezado">
+            <span class="barra-nombre">
+              <span class="dot dot-error"></span>
+              No Aptos
+            </span>
+            <span class="barra-conteo"><strong>{{ a.noAptos }}</strong> ({{ porcentaje(a.noAptos, a.total) }})</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill fill-error" [style.width]="porcentaje(a.noAptos, a.total)"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Panel 2: Estado del Flujo -->
+    <section class="card panel-card">
+      <div class="section-title">
+        <div class="section-title-left">
+          <span class="tile tile-rounded tile-soft-secondary seccion-icono">
+            <tui-icon icon="@tui.check-check" />
+          </span>
+          <div>
+            <h3>Estado del Flujo de Evaluaciones</h3>
+            <p class="seccion-desc">Avance del proceso de evaluación en el periodo</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-box">
+          <span class="stat-numero font-success">{{ a.completas }}</span>
+          <span class="stat-texto">Completas</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-numero font-warning">{{ a.pendientes }}</span>
+          <span class="stat-texto">Pendientes de pruebas</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-numero font-error">{{ a.anuladas }}</span>
+          <span class="stat-texto">Anuladas</span>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  @if (a.total === 0) {
+    <div class="card estado-caja">
+      <p class="sal-subtitulo">No hay evaluaciones registradas para el periodo seleccionado.</p>
+    </div>
+  }
+}

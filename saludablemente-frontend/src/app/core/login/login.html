@@ -1,0 +1,103 @@
+<section class="login-fondo">
+  <div class="login-card">
+    <div class="login-marca">
+      <img class="login-logo" src="img/logo-icon.svg" alt="Saludablemente" />
+      <div>
+        <span tuiBadge appearance="primary" size="s">Saludablemente ERP</span>
+        <h1>Bienvenido</h1>
+      </div>
+      <span class="login-tema">
+        <button tuiIconButton appearance="flat" size="s" type="button"
+          [iconStart]="esOscuro() ? '@tui.sun' : '@tui.moon'"
+          (click)="alternarTema()" aria-label="Cambiar tema claro/oscuro">
+          Tema
+        </button>
+      </span>
+    </div>
+
+    @if (auth.estaAutenticado()) {
+      <p class="hint">
+        Ya tienes sesión como <strong>{{ auth.obtenerNombre() }}</strong>.
+      </p>
+      <div class="login-acciones">
+        <button tuiButton appearance="primary" size="l" type="button" (click)="irAlPanel()">
+          <tui-icon icon="@tui.log-in" />
+          Ir a mi panel
+        </button>
+        <button tuiButton appearance="flat" size="m" type="button" (click)="auth.cerrarSesion()">
+          Cerrar sesión
+        </button>
+      </div>
+    } @else {
+      <p class="hint">
+        Accede con tu cuenta institucional. Usa tu correo o nombre de usuario
+        y la contraseña registrada en el sistema.
+      </p>
+
+      <form [formGroup]="form" (ngSubmit)="ingresar()">
+        <div class="login-campos">
+          <label tuiLabel class="campo">
+            Correo o usuario
+            <tui-textfield>
+              <input
+                tuiInput
+                type="text"
+                formControlName="identificador"
+                maxlength="120"
+                autocomplete="username"
+                autocapitalize="none"
+                spellcheck="false"
+              />
+            </tui-textfield>
+            <tui-error formControlName="identificador" />
+          </label>
+
+          <label tuiLabel class="campo">
+            Contraseña
+            <tui-textfield>
+              <input
+                tuiInput
+                type="password"
+                formControlName="password"
+                maxlength="80"
+                autocomplete="current-password"
+              />
+            </tui-textfield>
+            <tui-error formControlName="password" />
+          </label>
+        </div>
+
+        @if (error()) {
+          <p class="error" role="alert">{{ error() }}</p>
+        }
+
+        <div class="login-acciones">
+          <button
+            tuiButton
+            appearance="primary"
+            size="l"
+            type="submit"
+            [loading]="ingresando()"
+            [disabled]="ingresando()"
+          >
+            <tui-icon icon="@tui.log-in" />
+            Iniciar sesión
+          </button>
+        </div>
+      </form>
+    }
+
+    <ul class="login-lista">
+      <li><tui-icon icon="@tui.shield-check" /> Sesión segura con roles automáticos</li>
+      <li><tui-icon icon="@tui.users" /> Colaboradores, coordinadores y administradores</li>
+      <li><tui-icon icon="@tui.bell" /> Noticias, asistencias y alertas en un solo lugar</li>
+    </ul>
+
+    <p class="hint login-ayuda">
+      ¿Sin acceso o olvidaste tu contraseña? Contacta al administrador para que active o restablezca tu usuario.
+    </p>
+    <p class="hint login-crear">
+      ¿Aún no tienes cuenta? <a routerLink="/registro">Crear una</a>
+    </p>
+  </div>
+</section>

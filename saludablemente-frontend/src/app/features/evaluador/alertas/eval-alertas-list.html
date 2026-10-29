@@ -1,0 +1,124 @@
+<div class="page-banner card">
+  <div class="page-banner-body">
+    <div class="page-banner-icon tile tile-rounded tile-soft-error">
+      <tui-icon icon="@tui.bell" />
+    </div>
+    <div>
+      <h2 class="card-title">Alertas clínicas</h2>
+      <p class="card-subtitle">
+        @if (loading()) {
+          Cargando alertas…
+        } @else {
+          {{ alertas().length }} alerta(s) encontrada(s)
+        }
+      </p>
+    </div>
+  </div>
+</div>
+
+<div class="filtros-card">
+  <div class="filtros-linea">
+    <div class="filtro-item">
+      <label class="filtro-etiqueta">Estado</label>
+      <tui-textfield tuiChevron>
+        <input tuiComboBox [formControl]="estadoCtrl" [strict]="true" placeholder="— Todas —" />
+        <tui-data-list-wrapper
+          *tuiDropdown
+          [items]="estadoOpts | tuiFilterByInput"
+          [itemContent]="optTpl"
+        />
+      </tui-textfield>
+    </div>
+
+    <div class="filtro-item">
+      <label class="filtro-etiqueta">Severidad</label>
+      <tui-textfield tuiChevron>
+        <input tuiComboBox [formControl]="severidadCtrl" [strict]="true" placeholder="— Todas —" />
+        <tui-data-list-wrapper
+          *tuiDropdown
+          [items]="severidadOpts | tuiFilterByInput"
+          [itemContent]="optTpl"
+        />
+      </tui-textfield>
+    </div>
+
+    <div class="filtro-item">
+      <label class="filtro-etiqueta">Origen</label>
+      <tui-textfield tuiChevron>
+        <input tuiComboBox [formControl]="tipoCtrl" [strict]="true" placeholder="— Todos —" />
+        <tui-data-list-wrapper
+          *tuiDropdown
+          [items]="tipoOpts | tuiFilterByInput"
+          [itemContent]="optTpl"
+        />
+      </tui-textfield>
+    </div>
+
+    <button tuiButton appearance="outline" size="m" type="button" (click)="limpiar()" class="btn-limpiar">
+      <tui-icon icon="@tui.filter-x" />
+      Limpiar
+    </button>
+  </div>
+</div>
+
+<ng-template #optTpl let-item>{{ item.label }}</ng-template>
+
+@if (error()) {
+  <div class="card error-caja">
+    <tui-icon icon="@tui.triangle-alert" class="icono-alerta" />
+    <p class="error-msg">{{ error() }}</p>
+  </div>
+}
+
+<div class="card tabla-card flush">
+  <div class="table-wrapper flush">
+    <table tuiTable>
+      <thead>
+        <tr>
+          <th tuiTh>Origen</th>
+          <th tuiTh>Resumen</th>
+          <th tuiTh>Puntaje</th>
+          <th tuiTh>Severidad</th>
+          <th tuiTh>Fecha</th>
+          <th tuiTh>Estado</th>
+          <th tuiTh class="th-acciones"><span class="sr-only">Acciones</span></th>
+        </tr>
+      </thead>
+      <tbody tuiTbody>
+        @for (a of alertas(); track a.idAlerta) {
+          <tr>
+            <td tuiTd class="text-soft">{{ a.tipoEvaluacionOrigen }}</td>
+            <td tuiTd class="fw-bold">{{ a.mensajeResumen }}</td>
+            <td tuiTd class="text-soft font-mono">{{ a.puntajeTotal }}</td>
+            <td tuiTd>
+              <span [class]="pillSeveridad(a.nivelSeveridad)">{{ a.nivelSeveridad }}</span>
+            </td>
+            <td tuiTd class="text-soft">{{ a.fechaGeneracion }}</td>
+            <td tuiTd>
+              <span [class]="pillEstado(a.estado)">{{ a.estado }}</span>
+            </td>
+            <td tuiTd class="td-acciones">
+              <div class="row-actions">
+                <a
+                  tuiButton
+                  appearance="flat"
+                  size="s"
+                  [routerLink]="['/evaluador/alertas', a.idAlerta]"
+                >
+                  <tui-icon icon="@tui.eye" />
+                  Ver
+                </a>
+              </div>
+            </td>
+          </tr>
+        } @empty {
+          @if (!loading() && !error()) {
+            <tr>
+              <td tuiTd colspan="7" class="empty">No hay alertas con los filtros seleccionados.</td>
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

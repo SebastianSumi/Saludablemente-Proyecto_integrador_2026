@@ -1,0 +1,162 @@
+<!-- ══════════════════════════════════════
+     CABECERA DE PÁGINA
+     ══════════════════════════════════════ -->
+<div class="page-banner card">
+  <div class="page-banner-body">
+    <div class="page-banner-icon tile tile-rounded tile-soft-success">
+      <tui-icon icon="@tui.file-spreadsheet" />
+    </div>
+    <div>
+      <h2 class="card-title">Importar Bioquímica desde Excel</h2>
+      <p class="card-subtitle">
+        Carga masiva de resultados de laboratorio cruzados por número de celular con evaluaciones pendientes
+      </p>
+    </div>
+  </div>
+  <a tuiButton appearance="outline" size="m" routerLink="/nutricional/evaluaciones">
+    <tui-icon icon="@tui.arrow-left" />
+    Volver a evaluaciones
+  </a>
+</div>
+
+<div class="import-layout">
+  <!-- ══════════════════════════════════════
+       TARJETA DE FORMULARIO DE CARGA
+       ══════════════════════════════════════ -->
+  <section class="card form-card">
+    <div class="seccion-titulo">
+      <span class="tile tile-rounded tile-soft-primary seccion-icono">
+        <tui-icon icon="@tui.upload" />
+      </span>
+      <div>
+        <h3 class="seccion-nombre">Carga de archivo de laboratorio</h3>
+        <p class="seccion-desc">Seleccione el periodo y el archivo con formato .xlsx</p>
+      </div>
+    </div>
+
+    @if (error()) {
+      <div class="error-caja">
+        <tui-icon icon="@tui.triangle-alert" class="icono-alerta" />
+        <p class="error-msg">{{ error() }}</p>
+      </div>
+    }
+
+    <div class="form-grid">
+      <!-- Periodo -->
+      <label tuiLabel class="field">
+        <span class="field-label">Periodo activo <span class="required">*</span></span>
+        <tui-textfield tuiChevron>
+          <input
+            tuiComboBox
+            [(ngModel)]="periodoSeleccionado"
+            placeholder="— Seleccione periodo —"
+            [disabled]="loading() || cargandoPeriodos()"
+          />
+          <tui-data-list-wrapper
+            *tuiDropdown
+            [items]="periodos() | tuiFilterByInput"
+            [itemContent]="optTpl"
+          />
+        </tui-textfield>
+      </label>
+
+      <!-- Archivo -->
+      <div class="field">
+        <span class="field-label">Archivo Excel (.xlsx) <span class="required">*</span></span>
+        <input
+          id="archivo"
+          type="file"
+          class="file-input"
+          accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+          (change)="onArchivoSeleccionado($event)"
+          [disabled]="loading()"
+        />
+      </div>
+    </div>
+
+    <div class="form-acciones">
+      <button
+        tuiButton
+        appearance="primary"
+        size="m"
+        type="button"
+        (click)="importar()"
+        [loading]="loading()"
+        [disabled]="loading() || !archivoSeleccionado || !periodoSeleccionado">
+        <tui-icon icon="@tui.upload" />
+        Procesar importación
+      </button>
+      <button
+        tuiButton
+        appearance="outline"
+        size="m"
+        type="button"
+        (click)="limpiar()"
+        [disabled]="loading()">
+        Limpiar
+      </button>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════
+       REPORTE DE RESULTADOS
+       ══════════════════════════════════════ -->
+  @if (reporte(); as r) {
+    <section class="card reporte-card">
+      <div class="seccion-titulo">
+        <span class="tile tile-rounded tile-soft-success seccion-icono">
+          <tui-icon icon="@tui.circle-check" />
+        </span>
+        <div>
+          <h3 class="seccion-nombre">Resultado del procesamiento</h3>
+          <p class="seccion-desc">Archivo: <strong>{{ r.archivoOrigen }}</strong> — Periodo: <strong>{{ r.periodo }}</strong></p>
+        </div>
+      </div>
+
+      <div class="resumen-grid">
+        <div class="kpi-mini">
+          <span class="kpi-mini-label">Total filas</span>
+          <strong class="kpi-mini-val">{{ r.totalFilas }}</strong>
+        </div>
+        <div class="kpi-mini kpi-success">
+          <span class="kpi-mini-label">Procesadas con éxito</span>
+          <strong class="kpi-mini-val text-success">{{ r.procesadas }}</strong>
+        </div>
+        <div class="kpi-mini kpi-error">
+          <span class="kpi-mini-label">Rechazadas / Con error</span>
+          <strong class="kpi-mini-val text-error">{{ r.rechazadas }}</strong>
+        </div>
+      </div>
+
+      @if (r.detalleRechazos.length > 0) {
+        <div class="rechazos-wrap">
+          <h4 class="rechazos-titulo">Detalle de inconsistencias y rechazos</h4>
+          <div class="tabla-card flush">
+            <div class="table-wrapper flush">
+              <table tuiTable>
+                <thead>
+                  <tr>
+                    <th tuiTh style="width: 80px;">Fila</th>
+                    <th tuiTh style="width: 140px;">Celular</th>
+                    <th tuiTh>Motivo del rechazo</th>
+                  </tr>
+                </thead>
+                <tbody tuiTbody>
+                  @for (f of r.detalleRechazos; track f.numeroFila) {
+                    <tr>
+                      <td tuiTd class="font-mono">#{{ f.numeroFila }}</td>
+                      <td tuiTd class="font-mono">{{ f.celular }}</td>
+                      <td tuiTd class="text-error-soft">{{ f.motivo }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      }
+    </section>
+  }
+</div>
+
+<ng-template #optTpl let-item>{{ item.label }}</ng-template>

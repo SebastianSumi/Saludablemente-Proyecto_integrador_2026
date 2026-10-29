@@ -1,0 +1,125 @@
+@if (modulo; as m) {
+  <section class="card modulo-hero" [style.--modulo-color]="colorDe(m.color)">
+    <a tuiButton appearance="flat" size="s" routerLink="/admin" [fragment]="'modulo-' + m.id" class="volver">
+      <tui-icon icon="@tui.arrow-left" />
+      Todos los módulos
+    </a>
+    <div class="modulo-hero-body">
+      <span
+        class="tile tile-circle tile-{{ m.color }} modulo-icono"
+        [style.view-transition-name]="m.id === 'alertas' ? 'modulo-icono-alertas' : null"
+      ><tui-icon [icon]="m.icono" /></span>
+      <div>
+        <h2>{{ m.titulo }}</h2>
+        <p class="hint">{{ m.descripcion }}</p>
+      </div>
+      <span class="flex-auto"></span>
+      <span class="pill pill-neutral">
+        {{ m.hijos.length }} {{ m.hijos.length === 1 ? 'función' : 'funciones' }}
+      </span>
+      @if (hayUso()) {
+        <button tuiButton appearance="outline" size="s" (click)="restablecerOrden()">
+          <tui-icon icon="@tui.rotate-ccw" />
+          Reordenar
+        </button>
+      }
+    </div>
+    @if (m.hijos.length > 3) {
+      <label class="buscador">
+        <tui-icon icon="@tui.search" />
+        <input
+          type="search"
+          placeholder="Filtrar funciones..."
+          [ngModel]="filtro()"
+          (ngModelChange)="filtro.set($event)"
+        />
+      </label>
+    }
+  </section>
+
+  @if (tieneDestacadas()) {
+    @if (destacadas().length > 0) {
+      <div class="destacadas-grid" [style.--modulo-color]="colorDe(m.color)">
+        @for (h of destacadas(); track h.ruta; let i = $index) {
+          <a class="card hija-grande" [routerLink]="h.ruta" (click)="registrarUso(h)" [style.animation-delay.ms]="i * 45">
+            @if (h.imagen) {
+              <img class="card-image" [src]="h.imagen" [alt]="h.titulo" loading="lazy" (error)="sinImagen($event)" />
+            }
+            <div class="hija-grande-top">
+              <span class="tile tile-circle tile-soft-{{ m.color }} modulo-icono lg"><tui-icon [icon]="h.icono" /></span>
+              @if (h.ruta === masUsadoDe(destacadas())) {
+                <span class="pill pill-uso"><tui-icon icon="@tui.flame" />Más usado</span>
+              } @else {
+                <span class="pill pill-neutral">Resaltado</span>
+              }
+            </div>
+            <strong class="hija-grande-titulo">{{ h.titulo }}</strong>
+            <span class="hint">{{ h.descripcion }}</span>
+            <span class="hija-grande-foot">
+              Abrir
+              <span class="tile arrow tile-soft-{{ m.color }}"><tui-icon icon="@tui.arrow-right" /></span>
+            </span>
+          </a>
+        }
+      </div>
+    }
+    @if (restantes().length > 0) {
+      <div class="reglas-grid" [style.--modulo-color]="colorDe(m.color)">
+        @for (h of restantes(); track h.ruta; let i = $index) {
+          <a class="card regla-card" [class.con-banner]="!!h.imagen" [routerLink]="h.ruta" (click)="registrarUso(h)" [style.animation-delay.ms]="(destacadas().length + i) * 45">
+            @if (h.imagen) {
+              <img class="regla-banner" [src]="h.imagen" [alt]="h.titulo" loading="lazy" (error)="sinImagen($event)" />
+            }
+            <div class="regla-top">
+              <span class="tile tile-circle tile-{{ m.color }}"><tui-icon [icon]="h.icono" [style.view-transition-name]="'regla-icono-' + slugDe(h.ruta)" /></span>
+              @if (h.ruta === masUsadoDe(restantes())) {
+                <span class="pill pill-uso"><tui-icon icon="@tui.flame" />Más usado</span>
+              }
+            </div>
+            <div class="regla-body">
+              <h4>{{ h.titulo }}</h4>
+              <p class="hint">{{ h.descripcion }}</p>
+              <span class="regla-foot">
+                Abrir
+                <span class="tile arrow tile-soft-{{ m.color }}"><tui-icon icon="@tui.arrow-right" /></span>
+              </span>
+            </div>
+          </a>
+        }
+      </div>
+    } @else if (hijas().length === 0) {
+      <section class="card">
+        <p class="empty">Sin coincidencias para ese filtro.</p>
+      </section>
+    }
+  } @else {
+    <div class="hijas">
+      @for (h of hijas(); track h.ruta; let i = $index) {
+          <a class="card hija" [routerLink]="h.ruta" [style.animation-delay.ms]="i * 45">
+            @if (h.imagen) {
+              <img class="card-image" [src]="h.imagen" [alt]="h.titulo" loading="lazy" (error)="sinImagen($event)" />
+            } @else {
+              <span class="tile tile-rounded tile-soft-{{ m.color }} modulo-icono sm"><tui-icon [icon]="h.icono" /></span>
+            }
+          <span class="hija-texto">
+            <strong>{{ h.titulo }}</strong>
+            <span class="hint">{{ h.descripcion }}</span>
+          </span>
+          <tui-icon icon="@tui.chevron-right" class="hija-flecha" />
+        </a>
+      } @empty {
+        <section class="card">
+          <p class="empty">Sin coincidencias para ese filtro.</p>
+        </section>
+      }
+    </div>
+  }
+} @else {
+  <section class="card">
+    <h2>Módulo no encontrado</h2>
+    <p class="hint">El módulo solicitado no existe.</p>
+    <div class="form-actions">
+      <a tuiButton appearance="primary" size="m" routerLink="/admin">Volver a módulos</a>
+    </div>
+  </section>
+}

@@ -1,0 +1,45 @@
+<div class="col-stack">
+  <div appearance="floating" tuiCardLarge>
+    <header tuiHeader>
+      <h1 tuiTitle>
+        Noticias
+        <span tuiSubtitle>
+          @if (loading()) { Cargando feed... }
+          @else { {{ items().length }} noticia(s) publicadas · solo lectura }
+        </span>
+      </h1>
+      <aside tuiAccessories><div appearance="secondary" tuiAvatar="@tui.newspaper"></div></aside>
+    </header>
+  </div>
+
+  @if (error()) {
+    <div appearance="floating" tuiCardLarge>
+      <header tuiHeader><h2 tuiTitle>No se pudo cargar las noticias<span tuiSubtitle>{{ error() }}</span></h2></header>
+    </div>
+  }
+
+  <div class="feed-grid">
+    @for (n of items(); track n.id) {
+      <div appearance="floating" tuiCardLarge>
+        <header tuiHeader>
+          <h2 tuiTitle>{{ n.titulo }}<span tuiSubtitle>{{ n.nombreCategoria ?? 'General' }} · {{ n.fechaPublicacion | date:'dd/MM/yyyy' }}</span></h2>
+        </header>
+        @if (n.subtitulo) { <section><div tuiSubtitle>{{ n.subtitulo }}</div></section> }
+        <footer>
+          <a tuiButton appearance="secondary" size="s" [routerLink]="['/colaborador/noticias', n.id]">
+            <tui-icon icon="@tui.eye" />
+            Leer
+          </a>
+        </footer>
+      </div>
+    } @empty {
+      @if (!loading() && !error()) {
+        <div appearance="floating" tuiCardLarge>
+          <header tuiHeader><h2 tuiTitle>Sin noticias<span tuiSubtitle>Aún no hay noticias publicadas.</span></h2></header>
+        </div>
+      }
+    }
+  </div>
+
+  <a tuiButton appearance="flat" size="s" routerLink="/colaborador" class="back">Volver a mi panel</a>
+</div>

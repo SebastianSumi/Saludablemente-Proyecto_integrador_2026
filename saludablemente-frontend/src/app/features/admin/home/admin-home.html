@@ -1,0 +1,165 @@
+<section class="dash-row reveal">
+  <article class="card dash-main">
+    <div class="dash-head">
+      <div>
+        <h3 class="card-title">Resumen general</h3>
+        <p class="card-subtitle">Personas, equipos, evaluaciones y alertas pendientes</p>
+      </div>
+      <a tuiButton appearance="flat" size="s" routerLink="/personal/reportes">Ver reportes</a>
+    </div>
+    @if (cargando()) {
+      <p class="hint">Cargando resumen...</p>
+    } @else if (graficosActivos()) {
+      <div echarts [options]="opcionesResumen()" class="chart"></div>
+    } @else {
+      <div class="resumen-numeros">
+        <div><strong>{{ resumen().personas }}</strong><span>Personas</span></div>
+        <div><strong>{{ resumen().equipos }}</strong><span>Equipos</span></div>
+        <div><strong>{{ resumen().evaluaciones }}</strong><span>Evaluaciones</span></div>
+        <div><strong>{{ resumen().alertasPendientes }}</strong><span>Alertas pend.</span></div>
+      </div>
+    }
+  </article>
+
+  <div class="dash-side">
+    <a class="card mini tint-blue" routerLink="/personal/personas">
+      <span class="tile tile-circle tile-primary"><tui-icon icon="@tui.users" /></span>
+      <div class="mini-body">
+        <strong class="mini-valor">{{ cargando() ? '—' : resumen().personas }}</strong>
+        <span class="mini-label">Personas · {{ cargando() ? '—' : resumen().personasActivas }} activas</span>
+      </div>
+    </a>
+    <a class="card mini tint-red" routerLink="/alertaclinica/alertas">
+      <span class="tile tile-circle tile-error"><tui-icon icon="@tui.bell" /></span>
+      <div class="mini-body">
+        <strong class="mini-valor">{{ cargando() ? '—' : resumen().alertasPendientes }}</strong>
+        <span class="mini-label">Alertas pendientes · {{ cargando() ? '—' : resumen().alertasCriticas }} críticas</span>
+      </div>
+    </a>
+    <article class="card mini-chart">
+      <h4 class="card-title">Severidad pendiente</h4>
+      @if (!cargando() && graficosActivos()) {
+        <div echarts [options]="opcionesSeveridad()" class="chart sm"></div>
+      } @else {
+        <p class="hint">Leves, moderadas y críticas de la bandeja actual.</p>
+      }
+    </article>
+  </div>
+</section>
+
+<section class="dash-row reveal">
+  <article class="card flush">
+    <div class="card-head dash-head">
+      <div>
+        <h3 class="card-title">Últimas alertas pendientes</h3>
+        <p class="card-subtitle">Lo más reciente de la bandeja clínica</p>
+      </div>
+      <a tuiButton appearance="flat" size="s" routerLink="/alertaclinica/alertas">Ver todas</a>
+    </div>
+    @if (cargando()) {
+      <p class="hint padded">Cargando alertas...</p>
+    } @else if (ultimasAlertas().length === 0) {
+      <p class="empty">Sin alertas pendientes. Todo bajo control.</p>
+    } @else {
+      <div class="table-wrapper flush">
+        <table>
+          <thead>
+            <tr><th>Alerta</th><th>Severidad</th><th>Puntaje</th><th>Generada</th></tr>
+          </thead>
+          <tbody>
+            @for (a of ultimasAlertas(); track a.idAlerta) {
+              <tr>
+                <td>
+                  <div class="celda-alerta">
+                    <span [class]="tileAlerta(a.nivelSeveridad)">{{ inicial(a.mensajeResumen) }}</span>
+                    <a [routerLink]="['/alertaclinica/alertas', a.idAlerta]" class="fila-nombre">
+                      {{ a.mensajeResumen }}
+                    </a>
+                  </div>
+                </td>
+                <td><span [class]="pillSeveridad(a.nivelSeveridad)">{{ a.nivelSeveridad }}</span></td>
+                <td>
+                  <strong>{{ a.puntajeTotal }}</strong>
+                  <span class="text-soft"> pts</span>
+                  <span class="minibar">
+                    <span [style.width.%]="maxPuntaje() > 0 ? (a.puntajeTotal / maxPuntaje()) * 100 : 0"></span>
+                  </span>
+                </td>
+                <td class="text-soft">{{ a.fechaGeneracion | date: 'dd/MM HH:mm' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </article>
+
+  <article class="card">
+    <div class="dash-head">
+      <div>
+        <h3 class="card-title">Actividad reciente</h3>
+        <p class="card-subtitle">Últimos movimientos clínicos</p>
+      </div>
+    </div>
+    @if (cargando()) {
+      <p class="hint">Cargando actividad...</p>
+    } @else if (ultimasAlertas().length === 0) {
+      <p class="empty">Sin actividad reciente.</p>
+    } @else {
+      <ol class="timeline">
+        @for (a of ultimasAlertas(); track a.idAlerta) {
+          <li>
+            <span
+              class="timeline-dot"
+              [class.critica]="a.nivelSeveridad === 'CRITICA'"
+              [class.moderada]="a.nivelSeveridad === 'MODERADA'"
+            ></span>
+            <div>
+              <p class="timeline-text">{{ a.mensajeResumen }}</p>
+              <span class="hint">{{ a.fechaGeneracion | date: 'dd/MM/yyyy HH:mm' }} · {{ a.tipoEvaluacionOrigen }}</span>
+            </div>
+          </li>
+        }
+      </ol>
+    }
+  </article>
+</section>
+
+<section class="admin-seccion">
+  <header class="admin-seccion-head">
+    <span class="tile tile-rounded tile-soft-primary"><tui-icon icon="@tui.layout-grid" /></span>
+    <div>
+      <h3>Módulos del sistema</h3>
+      <p class="hint">Cada tarjeta abre su módulo; dentro editas personas, reglas, registros y demás.</p>
+    </div>
+  </header>
+  <div class="modulos-grid">
+    @for (m of modulos; track m.id; let i = $index) {
+      <a
+        class="card modulo-card"
+        [routerLink]="['/admin/modulo', m.id]"
+        [attr.id]="'modulo-' + m.id"
+        [style.animation-delay.ms]="i * 45"
+      >
+        @if (m.imagen) {
+          <img class="card-image parallax" [src]="m.imagen" [alt]="m.titulo" loading="lazy" (error)="sinImagen($event)" />
+        }
+        <div class="modulo-top">
+          <span
+            class="tile tile-circle tile-{{ m.color }}"
+            [style.view-transition-name]="m.id === 'alertas' ? 'modulo-icono-alertas' : null"
+          ><tui-icon [icon]="m.icono" /></span>
+          <span class="pill pill-neutral">
+            {{ m.hijos.length }} {{ m.hijos.length === 1 ? 'función' : 'funciones' }}
+          </span>
+        </div>
+        <h4>{{ m.titulo }}</h4>
+        <p class="hint">{{ m.descripcion }}</p>
+        <span class="modulo-foot">
+          Abrir módulo
+          <span class="tile arrow tile-soft-{{ m.color }}"><tui-icon icon="@tui.arrow-right" /></span>
+        </span>
+      </a>
+    }
+  </div>
+</section>

@@ -1,0 +1,3670 @@
+﻿package upeu.edu.pe.Saludabemente.actividades.agenda.entity;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalTime;
+
+/**
+ * Cabecera de una actividad del programa de salud.
+ * Hibernate la crea/actualiza en SLB_ACTIVIDADES con ddl-auto: update.
+ */
+@Entity
+@Table(name = "ACTIVIDAD", schema = "SLB_ACTIVIDADES")
+@Getter
+@Setter
+@NoArgsConstructor
+public class Actividad {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "ID_ACTIVIDAD")
+    private Long idActividad;
+
+    @Column(name = "NOMBRE", nullable = false, length = 100)
+    private String nombre;
+
+    @Column(name = "DESCRIPCION", length = 300)
+    private String descripcion;
+
+    @Column(name = "FECHA_ACTIVIDAD", nullable = false)
+    private LocalDate fechaActividad;
+
+    @Column(name = "HORA_INICIO", nullable = false)
+    private LocalTime horaInicio;
+
+    @Column(name = "HORA_FIN", nullable = false)
+    private LocalTime horaFin;
+
+    @Column(name = "LUGAR", nullable = false, length = 100)
+    private String lugar;
+
+    @Column(name = "ESTADO", nullable = false, length = 20)
+    private String estado;   // PROGRAMADA / EN_CURSO / FINALIZADA / CANCELADA
+
+    @Column(name = "ID_USUARIO_CREADOR", nullable = false)
+    private Long idUsuarioCreador;
+
+    @Column(name = "ID_USUARIO_COORDINADOR", nullable = false)
+    private Long idUsuarioCoordinador;
+
+    @Column(name = "PUNTAJE_SALUD")
+    private Integer puntajeSalud;
+
+    // ============================================================
+    // Campos para Asistencias (FASE A)
+    // ============================================================
+
+    @Column(name = "LATITUD_OFICIAL", precision = 10, scale = 8)
+    private BigDecimal latitudOficial;
+
+    @Column(name = "LONGITUD_OFICIAL", precision = 11, scale = 8)
+    private BigDecimal longitudOficial;
+
+    @Column(name = "TOLERANCIA_GEOCERCA_METROS")
+    private Integer toleranciaGeocercaMetros;
+
+    @Column(name = "REQUIERE_CHECK_IN_OUT")
+    private Boolean requiereCheckInOut;
+
+    @Column(name = "DURACION_MINUTOS")
+    private Integer duracionMinutos;
+
+    @Column(name = "PERIODO", length = 10)
+    private String periodo;
+
+    @Column(name = "PERMITE_AUTOSERVICIO")
+    private Boolean permiteAutoservicio;
+
+    @Column(name = "PERMITE_ESCANEO_COORDINADOR")
+    private Boolean permiteEscaneoCoordinador;
+
+    @Column(name = "CIERRE_ASISTENCIAS_REALIZADO")
+    private Boolean cierreAsistenciasRealizado;
+}
+package upeu.edu.pe.Saludabemente.actividades.configuracion.entity;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Entity
+@Table(name = "ACTIVIDAD_MATERIAL", schema = "SLB_ACTIVIDADES")
+@Getter
+@Setter
+@NoArgsConstructor
+public class ActividadMaterial {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "ID_MATERIAL")
+    private Long idMaterial;
+
+    @Column(name = "ID_ACTIVIDAD", nullable = false)
+    private Long idActividad;
+
+    @Column(name = "DESCRIPCION", nullable = false, length = 200)
+    private String descripcion;
+
+    public ActividadMaterial(Long idActividad, String descripcion) {
+        this.idActividad = idActividad;
+        this.descripcion = descripcion;
+    }
+}
+package upeu.edu.pe.Saludabemente.actividades.configuracion.entity;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.IdClass;
+import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Entity
+@Table(name = "PUBLICO_OBJETIVO", schema = "SLB_ACTIVIDADES")
+@IdClass(PublicoObjetivoId.class)
+@Getter
+@Setter
+@NoArgsConstructor
+public class PublicoObjetivo {
+
+    @Id
+    @Column(name = "ID_ACTIVIDAD", nullable = false)
+    private Long idActividad;
+
+    @Id
+    @Column(name = "ID_TEAM", nullable = false)
+    private Long idEquipo;
+
+    public PublicoObjetivo(Long idActividad, Long idEquipo) {
+        this.idActividad = idActividad;
+        this.idEquipo = idEquipo;
+    }
+}
+package upeu.edu.pe.Saludabemente.actividades.inscripcion.entity;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.IdClass;
+import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.time.LocalDateTime;
+
+/**
+ * Persona inscrita a una actividad.
+ * Si la actividad no tiene inscritos explicitos, Asistencias asume
+ * que todos los activos estan inscritos.
+ */
+@Entity
+@Table(name = "ACTIVIDAD_INSCRITO", schema = "SLB_ACTIVIDADES")
+@IdClass(ActividadInscritoId.class)
+@Getter
+@Setter
+@NoArgsConstructor
+public class ActividadInscrito {
+
+    @Id
+    @Column(name = "ID_ACTIVIDAD", nullable = false)
+    private Long idActividad;
+
+    @Id
+    @Column(name = "ID_PERSONA", nullable = false)
+    private Long idPersona;
+
+    @Column(name = "FECHA_INSCRIPCION", nullable = false)
+    private LocalDateTime fechaInscripcion;
+
+    /**
+     * true si fue inscrito via "inscribir a todos".
+     * false si fue inscrito manualmente uno por uno.
+     */
+    @Column(name = "INSCRITO_POR_TODOS", nullable = false)
+    private Boolean inscritoPorTodos;
+
+    public ActividadInscrito(Long idActividad, Long idPersona, Boolean inscritoPorTodos) {
+        this.idActividad = idActividad;
+        this.idPersona = idPersona;
+        this.fechaInscripcion = LocalDateTime.now();
+        this.inscritoPorTodos = inscritoPorTodos;
+    }
+}
+package upeu.edu.pe.Saludabemente.actividades.operacion.entity;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.time.LocalDateTime;
+
+/**
+ * Hash rotativo que se proyecta como QR durante una actividad EN_CURSO
+ * para que los asistentes marquen su asistencia. NO es JWT ni tiene
+ * relacion con autenticacion.
+ */
+@Entity
+@Table(name = "TOKEN_ASISTENCIA", schema = "SLB_ACTIVIDADES")
+@Getter
+@Setter
+@NoArgsConstructor
+public class TokenAsistencia {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "ID_TOKEN")
+    private Long idToken;
+
+    @Column(name = "ID_ACTIVIDAD", nullable = false)
+    private Long idActividad;
+
+    @Column(name = "HASH", nullable = false, length = 256)
+    private String hash;
+
+    @Column(name = "FECHA_GENERACION", nullable = false)
+    private LocalDateTime fechaGeneracion;
+
+    @Column(name = "ACTIVO", nullable = false)
+    private Boolean activo;
+}
+package upeu.edu.pe.Saludabemente.alertaclinica.alerta.entity;
+
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+@Entity
+@Table(name = "alerta_clinica", schema = "SLB_ALERTAS")
+@Getter
+@Setter
+@NoArgsConstructor
+public class AlertaClinica {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private Long idAlerta;
+
+    @Column(name = "id_persona", nullable = false)
+    private Long personaId;
+
+    @Column(name = "id_evaluacion_origen", nullable = false)
+    private Long evaluacionOrigenId;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "tipo_evaluacion_origen", nullable = false, length = 20)
+    private TipoEvaluacionOrigen tipoEvaluacionOrigen;
+
+    @Column(name = "puntaje_total", nullable = false)
+    private Integer puntajeTotal;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "nivel_severidad", nullable = false, length = 15)
+    private SeveridadAlerta nivelSeveridad;
+
+    @Column(name = "mensaje_resumen", length = 300)
+    private String mensajeResumen;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "estado", nullable = false, length = 15)
+    private EstadoAlerta estado;
+
+    @Column(name = "fecha_generacion", nullable = false)
+    private LocalDateTime fechaGeneracion;
+
+    @Column(name = "fecha_atencion")
+    private LocalDateTime fechaAtencion;
+
+    @Column(name = "id_usuario_atiende")
+    private Long usuarioAtiendeId;
+
+    @Column(name = "observacion_atencion", length = 300)
+    private String observacionAtencion;
+
+    @OneToMany(mappedBy = "alerta", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<AlertaClinicaDetalle> detalles = new ArrayList<>();
+
+    @PrePersist
+    void prePersist() {
+        if (estado == null) {
+            estado = EstadoAlerta.PENDIENTE;
+        }
+        if (fechaGeneracion == null) {
+            fechaGeneracion = LocalDateTime.now();
+        }
+    }
+}
+package upeu.edu.pe.Saludabemente.alertaclinica.alerta.entity;
+
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.math.BigDecimal;
+
+@Entity
+@Table(name = "alerta_clinica_detalle", schema = "SLB_ALERTAS")
+@Getter
+@Setter
+@NoArgsConstructor
+public class AlertaClinicaDetalle {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private Long idDetalle;
+
+    @ManyToOne
+    @JoinColumn(name = "id_alerta", nullable = false)
+    private AlertaClinica alerta;
+
+    @Column(name = "tipo_indicador", nullable = false, length = 40)
+    private String tipoIndicador;
+
+    @Column(name = "valor_medido", nullable = false, precision = 10, scale = 2)
+    private BigDecimal valorMedido;
+
+    @Column(name = "valor_min", precision = 10, scale = 2)
+    private BigDecimal valorMin;
+
+    @Column(name = "valor_max", precision = 10, scale = 2)
+    private BigDecimal valorMax;
+
+    @Column(name = "clasificacion", nullable = false, length = 40)
+    private String clasificacion;
+
+    @Column(name = "puntos_riesgo", nullable = false)
+    private Integer puntosRiesgo;
+
+    @Column(name = "mensaje", length = 250)
+    private String mensaje;
+
+    @Column(name = "id_regla", nullable = false)
+    private Long reglaId;
+
+    @Column(name = "entidad_regla", nullable = false, length = 60)
+    private String entidadRegla;
+
+    @Column(name = "motor_detonante", nullable = false, length = 30)
+    private String motorDetonante;
+}
+package upeu.edu.pe.Saludabemente.alertaclinica.alerta.repository;
+
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.repository.EntityGraph;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import upeu.edu.pe.Saludabemente.alertaclinica.alerta.dto.AlertaAgregado;
+import upeu.edu.pe.Saludabemente.alertaclinica.alerta.dto.AlertaClinicaResumen;
+import upeu.edu.pe.Saludabemente.alertaclinica.alerta.entity.AlertaClinica;
+import upeu.edu.pe.Saludabemente.alertaclinica.alerta.entity.EstadoAlerta;
+import upeu.edu.pe.Saludabemente.alertaclinica.alerta.entity.SeveridadAlerta;
+import upeu.edu.pe.Saludabemente.alertaclinica.alerta.entity.TipoEvaluacionOrigen;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+
+public interface AlertaClinicaRepository extends JpaRepository<AlertaClinica, Long> {
+
+    @Override
+    @EntityGraph(attributePaths = "detalles")
+    Optional<AlertaClinica> findById(Long id);
+
+    /**
+     * Idempotencia: buscar si ya existe alerta para la misma evaluacion de origen.
+     *
+
+    /**
+     * Listado administrativo con filtros combinados.
+     */
+    @EntityGraph(attributePaths = "detalles")
+    @Query("""
+        SELECT a FROM AlertaClinica a
+        WHERE (:estado IS NULL OR a.estado = :estado)
+          AND (:severidad IS NULL OR a.nivelSeveridad = :severidad)
+          AND (:personaId IS NULL OR a.personaId = :personaId)
+          AND (:tipoOrigen IS NULL OR a.tipoEvaluacionOrigen = :tipoOrigen)
+          AND (:desde IS NULL OR a.fechaGeneracion >= :desde)
+          AND (:hasta IS NULL OR a.fechaGeneracion <= :hasta)
+        """)
+    List<AlertaClinica> buscar(
+            @Param("estado") EstadoAlerta estado,
+            @Param("severidad") SeveridadAlerta severidad,
+            @Param("personaId") Long personaId,
+            @Param("tipoOrigen") TipoEvaluacionOrigen tipoOrigen,
+            @Param("desde") LocalDateTime desde,
+            @Param("hasta") LocalDateTime hasta,
+            Sort sort
+    );
+
+    /**
+     * Proyeccion de resumen (mas liviana, sin cargar detalles).
+     */
+    @Query("""
+        SELECT new upeu.edu.pe.Saludabemente.alertaclinica.alerta.dto.AlertaClinicaResumen(
+            a.idAlerta, a.personaId, a.tipoEvaluacionOrigen, a.puntajeTotal,
+            a.nivelSeveridad, a.estado, a.fechaGeneracion, SIZE(a.detalles))
+        FROM AlertaClinica a
+        WHERE (:estado IS NULL OR a.estado = :estado)
+          AND (:desde IS NULL OR a.fechaGeneracion >= :desde)
+          AND (:hasta IS NULL OR a.fechaGeneracion <= :hasta)
+        """)
+    List<AlertaClinicaResumen> buscarResumen(
+            @Param("estado") EstadoAlerta estado,
+            @Param("desde") LocalDateTime desde,
+            @Param("hasta") LocalDateTime hasta,
+            Sort sort
+    );
+
+    /**
+     * Agregados para el reporte.
+     * COALESCE evita null cuando no hay filas.
+     */
+    @Query("""
+        SELECT new upeu.edu.pe.Saludabemente.alertaclinica.alerta.dto.AlertaAgregado(
+            COUNT(a),
+            COALESCE(SUM(CASE WHEN a.nivelSeveridad = 'CRITICA' THEN 1 ELSE 0 END), 0L),
+            COALESCE(SUM(CASE WHEN a.estado = 'ATENDIDA' THEN 1 ELSE 0 END), 0L))
+        FROM AlertaClinica a
+        WHERE (:desde IS NULL OR a.fechaGeneracion >= :desde)
+          AND (:hasta IS NULL OR a.fechaGeneracion <= :hasta)
+        """)
+    AlertaAgregado agregados(
+            @Param("desde") LocalDateTime desde,
+            @Param("hasta") LocalDateTime hasta
+    );
+
+    Optional<AlertaClinica> findByEvaluacionOrigenIdAndTipoEvaluacionOrigen(
+            Long evaluacionOrigenId, TipoEvaluacionOrigen tipo);
+
+    boolean existsByIdAlertaAndPersonaIdAndEstado(
+            Long idAlerta, Long personaId, EstadoAlerta estado);
+}
+package upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.aptitud_fisica.entity;
+
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.enums.DireccionRiesgo;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.enums.EstadoRegla;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.enums.SexoBiologico;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.enums.clasificaciones.ClasificacionPruebaFisica;
+
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "regla_abdominales", schema = "SLB_ALERTAS")
+@Getter
+@Setter
+@NoArgsConstructor
+public class ReglaAbdominales {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private Long idReglaAbdominales;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "sexo", nullable = false, length = 1)
+    private SexoBiologico sexo;
+
+    @Column(name = "edad_min", nullable = false)
+    private Integer edadMin;
+
+    @Column(name = "edad_max", nullable = false)
+    private Integer edadMax;
+
+    @Column(name = "repeticiones_min", nullable = false)
+    private Integer repeticionesMin;
+
+    @Column(name = "repeticiones_max", nullable = false)
+    private Integer repeticionesMax;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "direccion_riesgo", nullable = false, length = 15)
+    private DireccionRiesgo direccionRiesgo;
+
+    @Column(name = "puntos_riesgo", nullable = false)
+    private Integer puntosRiesgo;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "clasificacion", nullable = false, length = 30)
+    private ClasificacionPruebaFisica clasificacion;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "estado", nullable = false, length = 15)
+    private EstadoRegla estado;
+
+    @Column(name = "fecha_baja")
+    private LocalDateTime fechaBaja;
+
+    @PrePersist
+    void prePersist() {
+        if (estado == null) {
+            estado = EstadoRegla.ACTIVO;
+        }
+    }
+
+    @PreUpdate
+    void preUpdate() {
+        if (EstadoRegla.INACTIVO.equals(estado) && fechaBaja == null) {
+            fechaBaja = LocalDateTime.now();
+        }
+    }
+}
+package upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.aptitud_fisica.entity;
+
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.enums.DireccionRiesgo;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.enums.EstadoRegla;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.enums.SexoBiologico;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.enums.clasificaciones.ClasificacionCarrera400m;
+
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "regla_carrera_400m", schema = "SLB_ALERTAS")
+@Getter
+@Setter
+@NoArgsConstructor
+public class ReglaCarrera400m {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private Long idReglaCarrera;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "sexo", nullable = false, length = 1)
+    private SexoBiologico sexo;
+
+    @Column(name = "edad_min", nullable = false)
+    private Integer edadMin;
+
+    @Column(name = "edad_max", nullable = false)
+    private Integer edadMax;
+
+    @Column(name = "tiempo_segundos_min", nullable = false)
+    private Integer tiempoSegundosMin;
+
+    @Column(name = "tiempo_segundos_max", nullable = false)
+    private Integer tiempoSegundosMax;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "direccion_riesgo", nullable = false, length = 15)
+    private DireccionRiesgo direccionRiesgo;
+
+    @Column(name = "puntos_riesgo", nullable = false)
+    private Integer puntosRiesgo;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "clasificacion", nullable = false, length = 30)
+    private ClasificacionCarrera400m clasificacion;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "estado", nullable = false, length = 15)
+    private EstadoRegla estado;
+
+    @Column(name = "fecha_baja")
+    private LocalDateTime fechaBaja;
+
+    @PrePersist
+    void prePersist() {
+        if (estado == null) {
+            estado = EstadoRegla.ACTIVO;
+        }
+    }
+
+    @PreUpdate
+    void preUpdate() {
+        if (EstadoRegla.INACTIVO.equals(estado) && fechaBaja == null) {
+            fechaBaja = LocalDateTime.now();
+        }
+    }
+}
+package upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.aptitud_fisica.entity;
+
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.enums.DireccionRiesgo;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.enums.EstadoRegla;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.enums.SexoBiologico;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.enums.clasificaciones.ClasificacionPruebaFisica;
+
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "regla_planchas", schema = "SLB_ALERTAS")
+@Getter
+@Setter
+@NoArgsConstructor
+public class ReglaPlanchas {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private Long idReglaPlanchas;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "sexo", nullable = false, length = 1)
+    private SexoBiologico sexo;
+
+    @Column(name = "edad_min", nullable = false)
+    private Integer edadMin;
+
+    @Column(name = "edad_max", nullable = false)
+    private Integer edadMax;
+
+    @Column(name = "repeticiones_min", nullable = false)
+    private Integer repeticionesMin;
+
+    @Column(name = "repeticiones_max", nullable = false)
+    private Integer repeticionesMax;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "direccion_riesgo", nullable = false, length = 15)
+    private DireccionRiesgo direccionRiesgo;
+
+    @Column(name = "puntos_riesgo", nullable = false)
+    private Integer puntosRiesgo;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "clasificacion", nullable = false, length = 30)
+    private ClasificacionPruebaFisica clasificacion;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "estado", nullable = false, length = 15)
+    private EstadoRegla estado;
+
+    @Column(name = "fecha_baja")
+    private LocalDateTime fechaBaja;
+
+    @PrePersist
+    void prePersist() {
+        if (estado == null) {
+            estado = EstadoRegla.ACTIVO;
+        }
+    }
+
+    @PreUpdate
+    void preUpdate() {
+        if (EstadoRegla.INACTIVO.equals(estado) && fechaBaja == null) {
+            fechaBaja = LocalDateTime.now();
+        }
+    }
+}
+package upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.aptitud_fisica.entity;
+
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.enums.DireccionRiesgo;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.enums.EstadoRegla;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.enums.SexoBiologico;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.enums.clasificaciones.ClasificacionPruebaFisica;
+
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "regla_salta_soga", schema = "SLB_ALERTAS")
+@Getter
+@Setter
+@NoArgsConstructor
+public class ReglaSaltaSoga {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private Long idReglaSaltaSoga;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "sexo", nullable = false, length = 1)
+    private SexoBiologico sexo;
+
+    @Column(name = "edad_min", nullable = false)
+    private Integer edadMin;
+
+    @Column(name = "edad_max", nullable = false)
+    private Integer edadMax;
+
+    @Column(name = "saltos_min", nullable = false)
+    private Integer saltosMin;
+
+    @Column(name = "saltos_max", nullable = false)
+    private Integer saltosMax;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "direccion_riesgo", nullable = false, length = 15)
+    private DireccionRiesgo direccionRiesgo;
+
+    @Column(name = "puntos_riesgo", nullable = false)
+    private Integer puntosRiesgo;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "clasificacion", nullable = false, length = 30)
+    private ClasificacionPruebaFisica clasificacion;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "estado", nullable = false, length = 15)
+    private EstadoRegla estado;
+
+    @Column(name = "fecha_baja")
+    private LocalDateTime fechaBaja;
+
+    @PrePersist
+    void prePersist() {
+        if (estado == null) {
+            estado = EstadoRegla.ACTIVO;
+        }
+    }
+
+    @PreUpdate
+    void preUpdate() {
+        if (EstadoRegla.INACTIVO.equals(estado) && fechaBaja == null) {
+            fechaBaja = LocalDateTime.now();
+        }
+    }
+}
+package upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.aptitud_fisica.entity;
+
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.enums.DireccionRiesgo;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.enums.EstadoRegla;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.enums.SexoBiologico;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.enums.clasificaciones.ClasificacionPruebaFisica;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "regla_salto_sin_impulso", schema = "SLB_ALERTAS")
+@Getter
+@Setter
+@NoArgsConstructor
+public class ReglaSaltoSinImpulso {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private Long idReglaSalto;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "sexo", nullable = false, length = 1)
+    private SexoBiologico sexo;
+
+    @Column(name = "edad_min", nullable = false)
+    private Integer edadMin;
+
+    @Column(name = "edad_max", nullable = false)
+    private Integer edadMax;
+
+    @Column(name = "distancia_cm_min", nullable = false, precision = 5, scale = 2)
+    private BigDecimal distanciaCmMin;
+
+    @Column(name = "distancia_cm_max", nullable = false, precision = 5, scale = 2)
+    private BigDecimal distanciaCmMax;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "direccion_riesgo", nullable = false, length = 15)
+    private DireccionRiesgo direccionRiesgo;
+
+    @Column(name = "puntos_riesgo", nullable = false)
+    private Integer puntosRiesgo;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "clasificacion", nullable = false, length = 30)
+    private ClasificacionPruebaFisica clasificacion;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "estado", nullable = false, length = 15)
+    private EstadoRegla estado;
+
+    @Column(name = "fecha_baja")
+    private LocalDateTime fechaBaja;
+
+    @PrePersist
+    void prePersist() {
+        if (estado == null) {
+            estado = EstadoRegla.ACTIVO;
+        }
+    }
+
+    @PreUpdate
+    void preUpdate() {
+        if (EstadoRegla.INACTIVO.equals(estado) && fechaBaja == null) {
+            fechaBaja = LocalDateTime.now();
+        }
+    }
+}
+package upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.nutricional.entity;
+
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.enums.EstadoRegla;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.enums.SexoBiologico;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.enums.clasificaciones.ClasificacionColesterol;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "regla_colesterol", schema = "SLB_ALERTAS")
+@Getter
+@Setter
+@NoArgsConstructor
+public class ReglaColesterol {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private Long idReglaColesterol;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "sexo", nullable = false, length = 1)
+    private SexoBiologico sexo;
+
+    @Column(name = "edad_min", nullable = false)
+    private Integer edadMin;
+
+    @Column(name = "edad_max", nullable = false)
+    private Integer edadMax;
+
+    @Column(name = "colesterol_mg_dl_min", nullable = false, precision = 6, scale = 2)
+    private BigDecimal colesterolMgDlMin;
+
+    @Column(name = "colesterol_mg_dl_max", nullable = false, precision = 6, scale = 2)
+    private BigDecimal colesterolMgDlMax;
+
+    @Column(name = "puntos_riesgo", nullable = false)
+    private Integer puntosRiesgo;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "clasificacion", nullable = false, length = 30)
+    private ClasificacionColesterol clasificacion;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "estado", nullable = false, length = 15)
+    private EstadoRegla estado;
+
+    @Column(name = "fecha_baja")
+    private LocalDateTime fechaBaja;
+
+    @PrePersist
+    void prePersist() {
+        if (estado == null) {
+            estado = EstadoRegla.ACTIVO;
+        }
+    }
+
+    @PreUpdate
+    void preUpdate() {
+        if (EstadoRegla.INACTIVO.equals(estado) && fechaBaja == null) {
+            fechaBaja = LocalDateTime.now();
+        }
+    }
+}
+package upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.nutricional.entity;
+
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.enums.EstadoRegla;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.enums.SexoBiologico;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.enums.clasificaciones.ClasificacionGlucosa;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "regla_glucosa", schema = "SLB_ALERTAS")
+@Getter
+@Setter
+@NoArgsConstructor
+public class ReglaGlucosa {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private Long idReglaGlucosa;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "sexo", nullable = false, length = 1)
+    private SexoBiologico sexo;
+
+    @Column(name = "edad_min", nullable = false)
+    private Integer edadMin;
+
+    @Column(name = "edad_max", nullable = false)
+    private Integer edadMax;
+
+    @Column(name = "glucosa_mg_dl_min", nullable = false, precision = 6, scale = 2)
+    private BigDecimal glucosaMgDlMin;
+
+    @Column(name = "glucosa_mg_dl_max", nullable = false, precision = 6, scale = 2)
+    private BigDecimal glucosaMgDlMax;
+
+    @Column(name = "puntos_riesgo", nullable = false)
+    private Integer puntosRiesgo;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "clasificacion", nullable = false, length = 30)
+    private ClasificacionGlucosa clasificacion;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "estado", nullable = false, length = 15)
+    private EstadoRegla estado;
+
+    @Column(name = "fecha_baja")
+    private LocalDateTime fechaBaja;
+
+    @PrePersist
+    void prePersist() {
+        if (estado == null) {
+            estado = EstadoRegla.ACTIVO;
+        }
+    }
+
+    @PreUpdate
+    void preUpdate() {
+        if (EstadoRegla.INACTIVO.equals(estado) && fechaBaja == null) {
+            fechaBaja = LocalDateTime.now();
+        }
+    }
+}
+package upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.nutricional.entity;
+
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.enums.EstadoRegla;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.enums.SexoBiologico;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.enums.clasificaciones.ClasificacionGrasaVisceral;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "regla_grasa_visceral", schema = "SLB_ALERTAS")
+@Getter
+@Setter
+@NoArgsConstructor
+public class ReglaGrasaVisceral {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private Long idReglaVisceral;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "sexo", nullable = false, length = 1)
+    private SexoBiologico sexo;
+
+    @Column(name = "edad_min", nullable = false)
+    private Integer edadMin;
+
+    @Column(name = "edad_max", nullable = false)
+    private Integer edadMax;
+
+    @Column(name = "nivel_min", nullable = false, precision = 5, scale = 2)
+    private BigDecimal nivelMin;
+
+    @Column(name = "nivel_max", nullable = false, precision = 5, scale = 2)
+    private BigDecimal nivelMax;
+
+    @Column(name = "puntos_riesgo", nullable = false)
+    private Integer puntosRiesgo;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "clasificacion", nullable = false, length = 30)
+    private ClasificacionGrasaVisceral clasificacion;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "estado", nullable = false, length = 15)
+    private EstadoRegla estado;
+
+    @Column(name = "fecha_baja")
+    private LocalDateTime fechaBaja;
+
+    @PrePersist
+    void prePersist() {
+        if (estado == null) {
+            estado = EstadoRegla.ACTIVO;
+        }
+    }
+
+    @PreUpdate
+    void preUpdate() {
+        if (EstadoRegla.INACTIVO.equals(estado) && fechaBaja == null) {
+            fechaBaja = LocalDateTime.now();
+        }
+    }
+}
+package upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.nutricional.entity;
+
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.enums.EstadoRegla;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.enums.SexoBiologico;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.enums.clasificaciones.ClasificacionImc;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "regla_imc", schema = "SLB_ALERTAS")
+@Getter
+@Setter
+@NoArgsConstructor
+public class ReglaImc {
+
+    public static final String ESTADO_ACTIVO = "ACTIVO";
+    public static final String ESTADO_INACTIVO = "INACTIVO";
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private Long idReglaImc;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "sexo", nullable = false, length = 1)
+    private SexoBiologico sexo;
+
+    @Column(name = "edad_min", nullable = false)
+    private Integer edadMin;
+
+    @Column(name = "edad_max", nullable = false)
+    private Integer edadMax;
+
+    @Column(name = "imc_min", nullable = false, precision = 5, scale = 2)
+    private BigDecimal imcMin;
+
+    @Column(name = "imc_max", nullable = false, precision = 5, scale = 2)
+    private BigDecimal imcMax;
+
+    @Column(name = "puntos_riesgo", nullable = false)
+    private Integer puntosRiesgo;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "clasificacion", nullable = false, length = 30)
+    private ClasificacionImc clasificacion;
+
+    @Column(name = "fecha_baja")
+    private LocalDateTime fechaBaja;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "estado", nullable = false, length = 15)
+    private EstadoRegla estado;
+
+    @PrePersist
+    void prePersist() {
+        if (estado == null) {
+            estado = EstadoRegla.ACTIVO;
+        }
+    }
+
+    @PreUpdate
+    void preUpdate() {
+        if (EstadoRegla.INACTIVO.equals(estado) && fechaBaja == null) {
+            fechaBaja = LocalDateTime.now();
+        }
+    }
+}
+package upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.nutricional.entity;
+
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.enums.EstadoRegla;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.enums.SexoBiologico;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.enums.clasificaciones.ClasificacionMasaMuscular;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "regla_masa_muscular", schema = "SLB_ALERTAS")
+@Getter
+@Setter
+@NoArgsConstructor
+public class ReglaMasaMuscular {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private Long idReglaMusculo;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "sexo", nullable = false, length = 1)
+    private SexoBiologico sexo;
+
+    @Column(name = "edad_min", nullable = false)
+    private Integer edadMin;
+
+    @Column(name = "edad_max", nullable = false)
+    private Integer edadMax;
+
+    @Column(name = "porcentaje_min", nullable = false, precision = 5, scale = 2)
+    private BigDecimal porcentajeMin;
+
+    @Column(name = "porcentaje_max", nullable = false, precision = 5, scale = 2)
+    private BigDecimal porcentajeMax;
+
+    @Column(name = "puntos_riesgo", nullable = false)
+    private Integer puntosRiesgo;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "clasificacion", nullable = false, length = 30)
+    private ClasificacionMasaMuscular clasificacion;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "estado", nullable = false, length = 15)
+    private EstadoRegla estado;
+
+    @Column(name = "fecha_baja")
+    private LocalDateTime fechaBaja;
+
+    @PrePersist
+    void prePersist() {
+        if (estado == null) {
+            estado = EstadoRegla.ACTIVO;
+        }
+    }
+
+    @PreUpdate
+    void preUpdate() {
+        if (EstadoRegla.INACTIVO.equals(estado) && fechaBaja == null) {
+            fechaBaja = LocalDateTime.now();
+        }
+    }
+}
+package upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.nutricional.entity;
+
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.enums.EstadoRegla;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.enums.SexoBiologico;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.enums.clasificaciones.ClasificacionPerimetroAbdominal;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "regla_perimetro_abdominal", schema = "SLB_ALERTAS")
+@Getter
+@Setter
+@NoArgsConstructor
+public class ReglaPerimetroAbdominal {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private Long idReglaPerimetro;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "sexo", nullable = false, length = 1)
+    private SexoBiologico sexo;
+
+    @Column(name = "edad_min", nullable = false)
+    private Integer edadMin;
+
+    @Column(name = "edad_max", nullable = false)
+    private Integer edadMax;
+
+    @Column(name = "perimetro_cm_min", nullable = false, precision = 5, scale = 2)
+    private BigDecimal perimetroCmMin;
+
+    @Column(name = "perimetro_cm_max", nullable = false, precision = 5, scale = 2)
+    private BigDecimal perimetroCmMax;
+
+    @Column(name = "puntos_riesgo", nullable = false)
+    private Integer puntosRiesgo;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "clasificacion", nullable = false, length = 30)
+    private ClasificacionPerimetroAbdominal clasificacion;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "estado", nullable = false, length = 15)
+    private EstadoRegla estado;
+
+    @Column(name = "fecha_baja")
+    private LocalDateTime fechaBaja;
+
+    @PrePersist
+    void prePersist() {
+        if (estado == null) {
+            estado = EstadoRegla.ACTIVO;
+        }
+    }
+
+    @PreUpdate
+    void preUpdate() {
+        if (EstadoRegla.INACTIVO.equals(estado) && fechaBaja == null) {
+            fechaBaja = LocalDateTime.now();
+        }
+    }
+}
+package upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.nutricional.entity;
+
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.enums.EstadoRegla;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.enums.SexoBiologico;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.enums.clasificaciones.ClasificacionPorcentajeGrasa;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "regla_porcentaje_grasa", schema = "SLB_ALERTAS")
+@Getter
+@Setter
+@NoArgsConstructor
+public class ReglaPorcentajeGrasa {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private Long idReglaGrasa;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "sexo", nullable = false, length = 1)
+    private SexoBiologico sexo;
+
+    @Column(name = "edad_min", nullable = false)
+    private Integer edadMin;
+
+    @Column(name = "edad_max", nullable = false)
+    private Integer edadMax;
+
+    @Column(name = "porcentaje_min", nullable = false, precision = 5, scale = 2)
+    private BigDecimal porcentajeMin;
+
+    @Column(name = "porcentaje_max", nullable = false, precision = 5, scale = 2)
+    private BigDecimal porcentajeMax;
+
+    @Column(name = "puntos_riesgo", nullable = false)
+    private Integer puntosRiesgo;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "clasificacion", nullable = false, length = 30)
+    private ClasificacionPorcentajeGrasa clasificacion;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "estado", nullable = false, length = 15)
+    private EstadoRegla estado;
+
+    @Column(name = "fecha_baja")
+    private LocalDateTime fechaBaja;
+
+    @PrePersist
+    void prePersist() {
+        if (estado == null) {
+            estado = EstadoRegla.ACTIVO;
+        }
+    }
+
+    @PreUpdate
+    void preUpdate() {
+        if (EstadoRegla.INACTIVO.equals(estado) && fechaBaja == null) {
+            fechaBaja = LocalDateTime.now();
+        }
+    }
+}
+package upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.nutricional.entity;
+
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.enums.EstadoRegla;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.enums.SexoBiologico;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.enums.clasificaciones.ClasificacionPresionArterial;
+
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "regla_presion_arterial", schema = "SLB_ALERTAS")
+@Getter
+@Setter
+@NoArgsConstructor
+public class ReglaPresionArterial {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private Long idReglaPresion;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "sexo", nullable = false, length = 1)
+    private SexoBiologico sexo;
+
+    @Column(name = "edad_min", nullable = false)
+    private Integer edadMin;
+
+    @Column(name = "edad_max", nullable = false)
+    private Integer edadMax;
+
+    @Column(name = "sistolica_mm_hg_min", nullable = false)
+    private Integer sistolicaMmHgMin;
+
+    @Column(name = "sistolica_mm_hg_max", nullable = false)
+    private Integer sistolicaMmHgMax;
+
+    @Column(name = "diastolica_mm_hg_min", nullable = false)
+    private Integer diastolicaMmHgMin;
+
+    @Column(name = "diastolica_mm_hg_max", nullable = false)
+    private Integer diastolicaMmHgMax;
+
+    @Column(name = "puntos_riesgo", nullable = false)
+    private Integer puntosRiesgo;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "clasificacion", nullable = false, length = 30)
+    private ClasificacionPresionArterial clasificacion;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "estado", nullable = false, length = 15)
+    private EstadoRegla estado;
+
+    @Column(name = "fecha_baja")
+    private LocalDateTime fechaBaja;
+
+    @PrePersist
+    void prePersist() {
+        if (estado == null) {
+            estado = EstadoRegla.ACTIVO;
+        }
+    }
+
+    @PreUpdate
+    void preUpdate() {
+        if (EstadoRegla.INACTIVO.equals(estado) && fechaBaja == null) {
+            fechaBaja = LocalDateTime.now();
+        }
+    }
+}
+package upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.nutricional.entity;
+
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.enums.EstadoRegla;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.enums.SexoBiologico;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.enums.clasificaciones.ClasificacionTrigliceridos;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "regla_trigliceridos", schema = "SLB_ALERTAS")
+@Getter
+@Setter
+@NoArgsConstructor
+public class ReglaTrigliceridos {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private Long idReglaTrigliceridos;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "sexo", nullable = false, length = 1)
+    private SexoBiologico sexo;
+
+    @Column(name = "edad_min", nullable = false)
+    private Integer edadMin;
+
+    @Column(name = "edad_max", nullable = false)
+    private Integer edadMax;
+
+    @Column(name = "trigliceridos_mg_dl_min", nullable = false, precision = 6, scale = 2)
+    private BigDecimal trigliceridosMgDlMin;
+
+    @Column(name = "trigliceridos_mg_dl_max", nullable = false, precision = 6, scale = 2)
+    private BigDecimal trigliceridosMgDlMax;
+
+    @Column(name = "puntos_riesgo", nullable = false)
+    private Integer puntosRiesgo;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "clasificacion", nullable = false, length = 30)
+    private ClasificacionTrigliceridos clasificacion;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "estado", nullable = false, length = 15)
+    private EstadoRegla estado;
+
+    @Column(name = "fecha_baja")
+    private LocalDateTime fechaBaja;
+
+    @PrePersist
+    void prePersist() {
+        if (estado == null) {
+            estado = EstadoRegla.ACTIVO;
+        }
+    }
+
+    @PreUpdate
+    void preUpdate() {
+        if (EstadoRegla.INACTIVO.equals(estado) && fechaBaja == null) {
+            fechaBaja = LocalDateTime.now();
+        }
+    }
+}
+package upeu.edu.pe.Saludabemente.aptitudfisica.cardio.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+import upeu.edu.pe.Saludabemente.aptitudfisica.evaluacion.entity.EvaluacionAptitud;
+import upeu.edu.pe.Saludabemente.shared.entity.AuditableEntity;
+
+/**
+ * Detalle de las 2 pruebas cardiovasculares (Excel):
+ * salto de soga 30s y carrera 400m.
+ */
+@Entity
+@Table(name = "CARDIO", schema = "SLB_APTITUD_FISICA")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class DetalleCardiovascular extends AuditableEntity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_cardio")
+    private Long id;
+
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "id_evaluacion", nullable = false, unique = true)
+    private EvaluacionAptitud evaluacion;
+
+    // ---- MÃ©tricas crudas (Excel) ----
+    @Column(name = "repeticiones_soga_30s", nullable = false,
+            columnDefinition = "NUMBER(3)")
+    private Integer repeticionesSoga30s;
+
+    @Column(name = "tiempo_carrera_400m_seg", nullable = false,
+            columnDefinition = "NUMBER(4)")
+    private Integer tiempoCarrera400mSeg;
+
+    // ---- DiagnÃ³stico calculado por MetricasAptitud ----
+    @Column(name = "dx_cardiovascular", length = 50, nullable = false)
+    private String dxCardiovascular;
+}
+package upeu.edu.pe.Saludabemente.aptitudfisica.evaluacion.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+import upeu.edu.pe.Saludabemente.aptitudfisica.cardio.entity.DetalleCardiovascular;
+import upeu.edu.pe.Saludabemente.aptitudfisica.evaluacion.enums.DictamenGlobal;
+import upeu.edu.pe.Saludabemente.aptitudfisica.evaluacion.enums.EstadoEvaluacion;
+import upeu.edu.pe.Saludabemente.aptitudfisica.fuerza.entity.DetalleFuerzaResistencia;
+import upeu.edu.pe.Saludabemente.shared.entity.AuditableEntity;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+
+/**
+ * Cabecera transaccional del mÃ³dulo Aptitud FÃ­sica.
+ * Contiene el snapshot inmutable de la persona al momento de iniciar la prueba.
+ * Los diagnÃ³sticos se calculan en {@code MetricasAptitud} y se persisten aquÃ­.
+ */
+@Entity
+@Table(name = "EVALUACION", schema = "SLB_APTITUD_FISICA")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class EvaluacionAptitud extends AuditableEntity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_evaluacion")
+    private Long id;
+
+    // ---- Hard-IDs (sin FK fÃ­sica â€” patrÃ³n Modulith) ----
+    @Column(name = "id_persona", nullable = false)
+    private Long idPersona;
+
+    @Column(name = "id_periodo", nullable = false)
+    private Long idPeriodo;
+
+    // ---- Snapshot inmutable (copiado de PersonaSnapshotClinicoDTO) ----
+    @Column(name = "documento_identidad_al_momento", length = 15, nullable = false)
+    private String documentoIdentidadAlMomento;
+
+    @Column(name = "nombres_completos_al_momento", length = 150, nullable = false)
+    private String nombresCompletosAlMomento;
+
+    @Column(name = "edad_al_momento", nullable = false, columnDefinition = "NUMBER(3)")
+    private Integer edadAlMomento;
+
+    @Column(name = "sexo_al_momento", length = 1, nullable = false)
+    private String sexoAlMomento;
+
+    @Column(name = "area_trabajo_al_momento", length = 100)
+    private String areaTrabajoAlMomento;
+
+    // ---- Ciclo de vida ----
+    @Column(name = "fecha_evaluacion", nullable = false)
+    private LocalDate fechaEvaluacion;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "estado_evaluacion", length = 30, nullable = false)
+    @Builder.Default
+    private EstadoEvaluacion estadoEvaluacion = EstadoEvaluacion.PENDIENTE;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "dictamen_global", length = 50)
+    private DictamenGlobal dictamenGlobal;
+
+    @Column(name = "observaciones_restricciones", length = 500)
+    private String observacionesRestricciones;
+
+    @Column(name = "fitness_score", precision = 5, scale = 2)
+    private BigDecimal fitnessScore;
+
+    // ---- Relaciones satÃ©lite 1:1 (mismo mÃ³dulo) ----
+    @OneToOne(mappedBy = "evaluacion", fetch = FetchType.LAZY,
+            cascade = CascadeType.ALL, orphanRemoval = true)
+    private DetalleFuerzaResistencia detalleFuerza;
+
+    @OneToOne(mappedBy = "evaluacion", fetch = FetchType.LAZY,
+            cascade = CascadeType.ALL, orphanRemoval = true)
+    private DetalleCardiovascular detalleCardio;
+}
+package upeu.edu.pe.Saludabemente.aptitudfisica.evaluacion.repository;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import upeu.edu.pe.Saludabemente.aptitudfisica.evaluacion.dto.resumen.AptitudAgregadoDto;
+import upeu.edu.pe.Saludabemente.aptitudfisica.evaluacion.entity.EvaluacionAptitud;
+import upeu.edu.pe.Saludabemente.aptitudfisica.evaluacion.enums.EstadoEvaluacion;
+
+import java.util.List;
+import java.util.Optional;
+
+public interface EvaluacionAptitudRepository extends JpaRepository<EvaluacionAptitud, Long> {
+
+    /** Evita N+1: trae cabecera + fuerza + cardio en una sola query LEFT JOIN. */
+    @EntityGraph(attributePaths = {"detalleFuerza", "detalleCardio"})
+    @Query("SELECT e FROM EvaluacionAptitud e WHERE e.id = :id")
+    Optional<EvaluacionAptitud> findByIdConDetalle(@Param("id") Long id);
+
+    boolean existsByIdPersonaAndIdPeriodo(Long idPersona, Long idPeriodo);
+
+    @EntityGraph(attributePaths = {"detalleFuerza", "detalleCardio"})
+    List<EvaluacionAptitud> findByIdPersonaOrderByFechaEvaluacionDesc(Long idPersona);
+
+    /** BÃºsqueda dinÃ¡mica: todos los filtros son opcionales. */
+    @Query("""
+            SELECT e FROM EvaluacionAptitud e
+            WHERE (:idPeriodo IS NULL OR e.idPeriodo = :idPeriodo)
+              AND (:estado    IS NULL OR e.estadoEvaluacion = :estado)
+              AND (:area      IS NULL OR LOWER(e.areaTrabajoAlMomento) LIKE LOWER(CONCAT('%', :area, '%')))
+              AND (:texto     IS NULL OR LOWER(e.nombresCompletosAlMomento) LIKE LOWER(CONCAT('%', :texto, '%'))
+                                      OR LOWER(e.documentoIdentidadAlMomento) LIKE LOWER(CONCAT('%', :texto, '%')))
+            """)
+    Page<EvaluacionAptitud> buscar(
+            @Param("idPeriodo") Long idPeriodo,
+            @Param("estado") EstadoEvaluacion estado,
+            @Param("area") String area,
+            @Param("texto") String texto,
+            Pageable pageable);
+
+    /**
+     * MÃ©tricas agregadas por perÃ­odo para el dashboard.
+     * Una sola query â€” evita 6 COUNT separados.
+     */
+    @Query("""
+            SELECT new upeu.edu.pe.Saludabemente.aptitudfisica.evaluacion.dto.resumen.AptitudAgregadoDto(
+                COUNT(e),
+                COUNT(CASE WHEN e.estadoEvaluacion = upeu.edu.pe.Saludabemente.aptitudfisica.evaluacion.enums.EstadoEvaluacion.PENDIENTE THEN 1 END),
+                COUNT(CASE WHEN e.estadoEvaluacion = upeu.edu.pe.Saludabemente.aptitudfisica.evaluacion.enums.EstadoEvaluacion.COMPLETA  THEN 1 END),
+                COUNT(CASE WHEN e.estadoEvaluacion = upeu.edu.pe.Saludabemente.aptitudfisica.evaluacion.enums.EstadoEvaluacion.ANULADA   THEN 1 END),
+                COUNT(CASE WHEN e.dictamenGlobal = upeu.edu.pe.Saludabemente.aptitudfisica.evaluacion.enums.DictamenGlobal.APTO THEN 1 END),
+                COUNT(CASE WHEN e.dictamenGlobal = upeu.edu.pe.Saludabemente.aptitudfisica.evaluacion.enums.DictamenGlobal.APTO_CON_RESTRICCIONES THEN 1 END),
+                COUNT(CASE WHEN e.dictamenGlobal = upeu.edu.pe.Saludabemente.aptitudfisica.evaluacion.enums.DictamenGlobal.NO_APTO THEN 1 END)
+            )
+            FROM EvaluacionAptitud e
+            WHERE e.idPeriodo = :idPeriodo
+            """)
+    AptitudAgregadoDto obtenerAgregados(@Param("idPeriodo") Long idPeriodo);
+}
+package upeu.edu.pe.Saludabemente.aptitudfisica.fuerza.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+import upeu.edu.pe.Saludabemente.aptitudfisica.evaluacion.entity.EvaluacionAptitud;
+import upeu.edu.pe.Saludabemente.shared.entity.AuditableEntity;
+
+import java.math.BigDecimal;
+
+/**
+ * Detalle de las 3 pruebas de fuerza y resistencia (Excel):
+ * abdominales 30s, planchas y salto sin impulso.
+ */
+@Entity
+@Table(name = "FUERZA", schema = "SLB_APTITUD_FISICA")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class DetalleFuerzaResistencia extends AuditableEntity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_fuerza")
+    private Long id;
+
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "id_evaluacion", nullable = false, unique = true)
+    private EvaluacionAptitud evaluacion;
+
+    // ---- MÃ©tricas crudas (Excel) ----
+    @Column(name = "repeticiones_abdominales", nullable = false,
+            columnDefinition = "NUMBER(3)")
+    private Integer repeticionesAbdominales;
+
+    @Column(name = "repeticiones_flexion_brazo", nullable = false,
+            columnDefinition = "NUMBER(3)")
+    private Integer repeticionesFlexionBrazo;
+
+    @Column(name = "salto_longitud_cm", nullable = false,
+            precision = 5, scale = 1)
+    private BigDecimal saltoLongitudCm;
+
+    // ---- DiagnÃ³sticos calculados por MetricasAptitud ----
+    @Column(name = "dx_core", length = 50, nullable = false)
+    private String dxCore;
+
+    @Column(name = "dx_tren_superior", length = 50, nullable = false)
+    private String dxTrenSuperior;
+
+    @Column(name = "dx_tren_inferior", length = 50, nullable = false)
+    private String dxTrenInferior;
+
+    @Column(name = "dx_fuerza_global", length = 50, nullable = false)
+    private String dxFuerzaGlobal;
+}
+package upeu.edu.pe.Saludabemente.asistencias.cuarentena.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+import upeu.edu.pe.Saludabemente.asistencias.enums.*;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
+@Entity
+@Table(
+        name = "ASISTENCIA_CUARENTENA",
+        schema = "SLB_ASISTENCIAS",
+        uniqueConstraints = {
+                @UniqueConstraint(name = "uq_cuarentena_id_local", columnNames = "id_local")
+        }
+)
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class AsistenciaCuarentena {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_cuarentena")
+    private Long idCuarentena;
+
+    @Column(name = "id_local", nullable = false, length = 36, unique = true)
+    private String idLocal;
+
+    @Column(name = "id_actividad", nullable = false)
+    private Long idActividad;
+
+    @Column(name = "id_persona", nullable = false)
+    private Long idPersona;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "tipo_asistencia", length = 15)
+    private TipoAsistencia tipoAsistencia;
+
+    @Column(name = "hora_marcado")
+    private LocalDateTime horaMarcado;
+
+    @Column(name = "latitud", precision = 10, scale = 7)
+    private BigDecimal latitud;
+
+    @Column(name = "longitud", precision = 10, scale = 7)
+    private BigDecimal longitud;
+
+    @Column(name = "distancia_geocerca_m", precision = 8, scale = 2)
+    private BigDecimal distanciaGeocercaM;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "motivo", nullable = false, length = 40)
+    private MotivoCuarentena motivo;
+
+    @Lob
+    @Column(name = "payload_json")
+    private String payloadJson;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "estado", nullable = false, length = 15)
+    private EstadoCuarentena estado;
+
+    @Column(name = "observaciones", length = 300)
+    private String observaciones;
+
+    @Column(name = "id_usuario_resuelve")
+    private Long idUsuarioResuelve;
+
+    @Column(name = "fecha_creacion", nullable = false, updatable = false)
+    private LocalDateTime fechaCreacion;
+
+    @Column(name = "fecha_resolucion")
+    private LocalDateTime fechaResolucion;
+
+    @PrePersist
+    public void prePersist() {
+        if (fechaCreacion == null) fechaCreacion = LocalDateTime.now();
+        if (estado == null) estado = EstadoCuarentena.PENDIENTE;
+    }
+}
+package upeu.edu.pe.Saludabemente.asistencias.exoneracion.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+import upeu.edu.pe.Saludabemente.asistencias.enums.EstadoJustificacion;
+
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "JUSTIFICACION", schema = "SLB_ASISTENCIAS")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class Justificacion {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_justificacion")
+    private Long idJustificacion;
+
+    @Column(name = "id_actividad", nullable = false)
+    private Long idActividad;
+
+    @Column(name = "id_persona", nullable = false)
+    private Long idPersona;
+
+    @Column(name = "motivo", nullable = false, length = 300)
+    private String motivo;
+
+    @Column(name = "url_documento", length = 250)
+    private String urlDocumento;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "estado", nullable = false, length = 15)
+    private EstadoJustificacion estado;
+
+    @Column(name = "observaciones", length = 300)
+    private String observaciones;
+
+    @Column(name = "id_usuario_dictamina")
+    private Long idUsuarioDictamina;
+
+    @Column(name = "fecha_solicitud", nullable = false, updatable = false)
+    private LocalDateTime fechaSolicitud;
+
+    @Column(name = "fecha_dictamen")
+    private LocalDateTime fechaDictamen;
+
+    @PrePersist
+    public void prePersist() {
+        if (fechaSolicitud == null) fechaSolicitud = LocalDateTime.now();
+        if (estado == null) estado = EstadoJustificacion.PENDIENTE;
+    }
+}
+package upeu.edu.pe.Saludabemente.asistencias.qr.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+
+import java.time.LocalDateTime;
+
+@Entity
+@Table(
+        name = "QR_ACTIVIDAD",
+        schema = "SLB_ASISTENCIAS",
+        uniqueConstraints = {
+                @UniqueConstraint(name = "uq_qr_actividad_codigo", columnNames = "codigo_qr"),
+                @UniqueConstraint(name = "uq_qr_actividad_version", columnNames = {"id_actividad", "version"})
+        }
+)
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class QrActividad {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_qr_actividad")
+    private Long idQrActividad;
+
+    @Column(name = "id_actividad", nullable = false)
+    private Long idActividad;
+
+    @Column(name = "version", nullable = false)
+    private Integer version;
+
+    @Column(name = "codigo_qr", nullable = false, length = 80)
+    private String codigoQr;
+
+    @Column(name = "ventana_inicio", nullable = false)
+    private LocalDateTime ventanaInicio;
+
+    @Column(name = "ventana_fin", nullable = false)
+    private LocalDateTime ventanaFin;
+
+    @Column(name = "activo", nullable = false)
+    private Boolean activo;
+
+    @Column(name = "generado_en", nullable = false, updatable = false)
+    private LocalDateTime generadoEn;
+
+    @Column(name = "generado_por")
+    private Long generadoPor;
+
+    @PrePersist
+    public void prePersist() {
+        if (generadoEn == null) generadoEn = LocalDateTime.now();
+        if (activo == null) activo = true;
+    }
+}
+package upeu.edu.pe.Saludabemente.asistencias.registro.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+import upeu.edu.pe.Saludabemente.asistencias.enums.*;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.UUID;
+
+@Entity
+@Table(
+        name = "ASISTENCIA",
+        schema = "SLB_ASISTENCIAS",
+        uniqueConstraints = {
+                @UniqueConstraint(name = "uq_asistencia_id_local", columnNames = "id_local"),
+                @UniqueConstraint(name = "uq_asistencia_actividad_persona_tipo",
+                        columnNames = {"id_actividad", "id_persona", "tipo_asistencia"})
+        }
+)
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class Asistencia {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_asistencia")
+    private Long idAsistencia;
+
+    @Column(name = "id_local", nullable = false, length = 36, unique = true)
+    private String idLocal;
+
+    @Column(name = "id_actividad", nullable = false)
+    private Long idActividad;
+
+    @Column(name = "id_persona", nullable = false)
+    private Long idPersona;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "tipo_asistencia", nullable = false, length = 15)
+    private TipoAsistencia tipoAsistencia;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "metodo_registro", nullable = false, length = 25)
+    private MetodoRegistro metodoRegistro;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "escaneado_por", length = 15)
+    private EscaneadoPor escaneadoPor;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "estado", nullable = false, length = 15)
+    private EstadoAsistencia estado;
+
+    @Column(name = "hora_marcado", nullable = false)
+    private LocalDateTime horaMarcado;
+
+    @Column(name = "hora_check_in")
+    private LocalDateTime horaCheckIn;
+
+    @Column(name = "hora_check_out")
+    private LocalDateTime horaCheckOut;
+
+    @Column(name = "latitud", precision = 10, scale = 7)
+    private BigDecimal latitud;
+
+    @Column(name = "longitud", precision = 10, scale = 7)
+    private BigDecimal longitud;
+
+    @Column(name = "distancia_geocerca_m", precision = 8, scale = 2)
+    private BigDecimal distanciaGeocercaM;
+
+    @Column(name = "flag_sospechoso", nullable = false)
+    private Boolean flagSospechoso;
+
+    @Column(name = "dispositivo_id", length = 60)
+    private String dispositivoId;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "sync_status", nullable = false, length = 10)
+    private SyncStatus syncStatus;
+
+    @Column(name = "retry_count", nullable = false)
+    private Integer retryCount;
+
+    @Column(name = "last_sync_attempt")
+    private LocalDateTime lastSyncAttempt;
+
+    @Column(name = "sync_error", length = 255)
+    private String syncError;
+
+    @Column(name = "id_usuario_registro")
+    private Long idUsuarioRegistro;
+
+    @Column(name = "id_qr_actividad")
+    private Long idQrActividad;
+
+    @Column(name = "codigo_qr_usado", length = 80)
+    private String codigoQrUsado;
+
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    @Column(name = "updated_at", nullable = false)
+    private LocalDateTime updatedAt;
+
+    @PrePersist
+    public void prePersist() {
+        LocalDateTime now = LocalDateTime.now();
+        if (idLocal == null) {
+            idLocal = UUID.randomUUID().toString();
+        }
+        if (createdAt == null) createdAt = now;
+        updatedAt = now;
+        if (flagSospechoso == null) flagSospechoso = false;
+        if (retryCount == null) retryCount = 0;
+        if (syncStatus == null) syncStatus = SyncStatus.SYNCED;
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
+}
+package upeu.edu.pe.Saludabemente.catalogo.area.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+import upeu.edu.pe.Saludabemente.shared.entity.AuditableEntity;
+
+@Entity
+@Table(name = "CAT_AREA_TRABAJO", schema = "SLB_CATALOGO")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class AreaTrabajo extends AuditableEntity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_area")
+    private Long id;
+
+    @Column(name = "nombre", length = 100, unique = true, nullable = false)
+    private String nombre;
+
+    @Column(name = "descripcion", length = 255)
+    private String descripcion;
+
+    @Column(name = "activo", nullable = false)
+    @Builder.Default
+    private Boolean activo = true;
+}
+package upeu.edu.pe.Saludabemente.catalogo.periodo.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+import upeu.edu.pe.Saludabemente.catalogo.periodo.dto.EstadoPeriodo;
+import upeu.edu.pe.Saludabemente.shared.entity.AuditableEntity;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "CAT_PERIODO", schema = "SLB_CATALOGO")
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+public class Periodo extends AuditableEntity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_periodo")
+    private Long id;
+
+    @Column(name = "codigo", length = 10, unique = true, nullable = false)
+    private String codigo;
+
+    @Column(name = "descripcion", length = 100, nullable = false)
+    private String descripcion;
+
+    @Column(name = "fecha_inicio", nullable = false)
+    private LocalDate fechaInicio;
+
+    @Column(name = "fecha_fin", nullable = false)
+    private LocalDate fechaFin;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "estado", length = 20, nullable = false)
+    @Builder.Default
+    private EstadoPeriodo estado = EstadoPeriodo.PLANIFICADO;
+
+    // Solo negocio: no es auditorÃ­a, es un evento de dominio.
+    @Column(name = "cerrado_en")
+    private LocalDateTime cerradoEn;
+
+    @Column(name = "cerrado_por", length = 50)
+    private String cerradoPor;
+}
+package upeu.edu.pe.Saludabemente.metas.meta.entity;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.ForeignKey;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "check_in", schema = "SLB_METAS")
+@Getter
+@Setter
+@NoArgsConstructor
+public class CheckInEntity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "id_meta", nullable = false,
+            foreignKey = @ForeignKey(name = "fk_checkin_meta"))
+    private MetaEntity meta;
+
+    @Column(name = "fecha", nullable = false)
+    private LocalDate fecha;
+
+    @Column(name = "valor_reportado", precision = 10, scale = 2, nullable = false)
+    private BigDecimal valorReportado;
+
+    @Column(name = "logrado")
+    private Boolean logrado;
+
+    @Column(name = "nota", length = 300)
+    private String nota;
+
+    @Column(name = "evidencia_url", length = 300)
+    private String evidenciaUrl;
+
+    @Column(name = "fecha_registro", nullable = false)
+    private LocalDateTime fechaRegistro;
+
+    @PrePersist
+    void prePersist() {
+        if (fecha == null) {
+            fecha = LocalDate.now();
+        }
+        if (fechaRegistro == null) {
+            fechaRegistro = LocalDateTime.now();
+        }
+    }
+}
+package upeu.edu.pe.Saludabemente.metas.meta.entity;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
+import jakarta.persistence.Table;
+import jakarta.persistence.Version;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import upeu.edu.pe.Saludabemente.metas.shared.enums.EstadoMeta;
+import upeu.edu.pe.Saludabemente.metas.shared.enums.ModalidadMeta;
+import upeu.edu.pe.Saludabemente.metas.shared.enums.PilarBienestar;
+import upeu.edu.pe.Saludabemente.metas.shared.enums.TipoCalculo;
+import upeu.edu.pe.Saludabemente.metas.shared.enums.TipoOrigen;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+@Entity
+@Table(name = "meta", schema = "SLB_METAS")
+@Getter
+@Setter
+@NoArgsConstructor
+public class MetaEntity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private Long id;
+
+    @Column(name = "id_persona", nullable = false)
+    private Long idPersona;
+
+    @Column(name = "id_evaluacion_origen")
+    private Long idEvaluacionOrigen;
+
+    @Column(name = "id_alerta_origen")
+    private Long idAlertaOrigen;
+
+    @Column(name = "id_profesional_prescriptor")
+    private Long idProfesionalPrescriptor;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "pilar", nullable = false, length = 30)
+    private PilarBienestar pilar;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "modalidad", nullable = false, length = 20)
+    private ModalidadMeta modalidad;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "tipo_origen", nullable = false, length = 20)
+    private TipoOrigen tipoOrigen;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "tipo_calculo", nullable = false, length = 20)
+    private TipoCalculo tipoCalculo;
+
+    @Column(name = "indicador", nullable = false, length = 60)
+    private String indicador;
+
+    @Column(name = "unidad", length = 20)
+    private String unidad;
+
+    @Column(name = "descripcion", nullable = false, length = 200)
+    private String descripcion;
+
+    @Column(name = "valor_inicial", precision = 10, scale = 2)
+    private BigDecimal valorInicial;
+
+    @Column(name = "valor_objetivo", precision = 10, scale = 2, nullable = false)
+    private BigDecimal valorObjetivo;
+
+    @Column(name = "valor_actual", precision = 10, scale = 2, nullable = false)
+    private BigDecimal valorActual = BigDecimal.ZERO;
+
+    @Column(name = "fecha_inicio", nullable = false)
+    private LocalDate fechaInicio;
+
+    @Column(name = "fecha_objetivo", nullable = false)
+    private LocalDate fechaObjetivo;
+
+    @Column(name = "fecha_cierre")
+    private LocalDateTime fechaCierre;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "estado", nullable = false, length = 20)
+    private EstadoMeta estado;
+
+    @Version
+    @Column(name = "version")
+    private Long version;
+
+    @Column(name = "creado_por", length = 60)
+    private String creadoPor;
+
+    @Column(name = "creado_en")
+    private LocalDateTime creadoEn;
+
+    @Column(name = "modificado_por", length = 60)
+    private String modificadoPor;
+
+    @Column(name = "modificado_en")
+    private LocalDateTime modificadoEn;
+
+    @OneToMany(mappedBy = "meta", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CheckInEntity> checkIns = new ArrayList<>();
+
+    @PrePersist
+    void prePersist() {
+        if (estado == null) {
+            estado = EstadoMeta.ACTIVA;
+        }
+        if (valorActual == null) {
+            valorActual = BigDecimal.ZERO;
+        }
+        if (creadoEn == null) {
+            creadoEn = LocalDateTime.now();
+        }
+    }
+
+    @PreUpdate
+    void preUpdate() {
+        modificadoEn = LocalDateTime.now();
+    }
+}
+package upeu.edu.pe.Saludabemente.noticias.categoria.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+import upeu.edu.pe.Saludabemente.shared.entity.AuditableEntity;
+
+@Entity
+@Table(name = "CATEGORIA", schema = "SLB_NOTICIAS")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class CategoriaEntity extends AuditableEntity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "ID_CATEGORIA")
+    private Long id;
+
+    @Column(name = "NOMBRE", length = 60, nullable = false, unique = true)
+    private String nombre;
+
+    @Column(name = "DESCRIPCION", length = 200)
+    private String descripcion;
+
+    @Column(name = "COLOR_HEX", length = 7)
+    private String colorHex;
+
+    @Column(name = "ICONO", length = 60)
+    private String icono;
+
+    @Column(name = "ORDEN", nullable = false)
+    @Builder.Default
+    private Integer orden = 0;
+
+    @Column(name = "ES_SISTEMA", nullable = false)
+    @Builder.Default
+    private Boolean esSistema = false;
+
+    @Column(name = "ACTIVO", nullable = false)
+    @Builder.Default
+    private Boolean activo = true;
+}
+package upeu.edu.pe.Saludabemente.noticias.noticia.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+import upeu.edu.pe.Saludabemente.noticias.shared.enums.EstadoNoticia;
+import upeu.edu.pe.Saludabemente.shared.entity.AuditableEntity;
+
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "NOTICIA", schema = "SLB_NOTICIAS")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class NoticiaEntity extends AuditableEntity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "ID_NOTICIA")
+    private Long id;
+
+    @Column(name = "TITULO", length = 150, nullable = false)
+    private String titulo;
+
+    @Column(name = "SUBTITULO", length = 200)
+    private String subtitulo;
+
+    @Lob
+    @Column(name = "CONTENIDO", nullable = false)
+    private String contenido;
+
+    @Column(name = "IMAGEN_URL", length = 250)
+    private String imagenUrl;
+
+    @Column(name = "ID_CATEGORIA", nullable = false)
+    private Long idCategoria;
+
+    @Column(name = "ID_AREA")
+    private Long idArea;
+
+    @Column(name = "ID_USUARIO_AUTOR", nullable = false)
+    private Long idUsuarioAutor;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "ESTADO", length = 20, nullable = false)
+    @Builder.Default
+    private EstadoNoticia estado = EstadoNoticia.BORRADOR;
+
+    @Column(name = "FECHA_PUBLICACION")
+    private LocalDateTime fechaPublicacion;
+}
+package upeu.edu.pe.Saludabemente.noticias.noticia.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+
+import java.io.Serializable;
+import java.util.Objects;
+
+@Entity
+@Table(name = "NOTICIA_TEAM", schema = "SLB_NOTICIAS")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@IdClass(NoticiaTeamEntity.NoticiaTeamId.class)
+public class NoticiaTeamEntity {
+
+    @Id
+    @Column(name = "ID_NOTICIA")
+    private Long idNoticia;
+
+    @Id
+    @Column(name = "ID_TEAM")
+    private Long idTeam;
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class NoticiaTeamId implements Serializable {
+        private Long idNoticia;
+        private Long idTeam;
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof NoticiaTeamId that)) return false;
+            return Objects.equals(idNoticia, that.idNoticia)
+                    && Objects.equals(idTeam, that.idTeam);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(idNoticia, idTeam);
+        }
+    }
+}
+package upeu.edu.pe.Saludabemente.notificaciones.notificacion.entity;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Lob;
+import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import upeu.edu.pe.Saludabemente.notificaciones.shared.enums.CanalNotificacion;
+import upeu.edu.pe.Saludabemente.notificaciones.shared.enums.EstadoDelivery;
+import upeu.edu.pe.Saludabemente.notificaciones.shared.enums.EstadoLectura;
+
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "NOTIFICACION", schema = "SLB_NOTIFICACION")
+@Getter
+@Setter
+@NoArgsConstructor
+public class Notificacion {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "ID_NOTIFICACION")
+    private Long idNotificacion;
+
+    @Column(name = "ID_PERSONA", nullable = false)
+    private Long idPersona;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "CANAL", nullable = false, length = 20)
+    private CanalNotificacion canal;
+
+    @Column(name = "TITULO", length = 200)
+    private String titulo;
+
+    @Lob
+    @Column(name = "MENSAJE")
+    private String mensaje;
+
+    @Column(name = "ORIGEN_MODULO", length = 40)
+    private String origenModulo;
+
+    @Column(name = "ID_ORIGEN_REFERENCIA")
+    private Long idOrigenReferencia;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "ESTADO_LECTURA", nullable = false, length = 20)
+    private EstadoLectura estadoLectura;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "ESTADO_DELIVERY", nullable = false, length = 20)
+    private EstadoDelivery estadoDelivery;
+
+    @Column(name = "FECHA_ENVIO", nullable = false)
+    private LocalDateTime fechaEnvio;
+}
+package upeu.edu.pe.Saludabemente.notificaciones.notificacion.entity;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Lob;
+import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "NOTIFICACION_DLQ", schema = "SLB_NOTIFICACION")
+@Getter
+@Setter
+@NoArgsConstructor
+public class NotificacionDlq {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "ID_DLQ")
+    private Long idDlq;
+
+    @Column(name = "ID_NOTIFICACION")
+    private Long idNotificacion;
+
+    @Column(name = "DESTINATARIO", length = 120)
+    private String destinatario;
+
+    @Column(name = "CODIGO_EVENTO", length = 60)
+    private String codigoEvento;
+
+    @Lob
+    @Column(name = "PAYLOAD")
+    private String payload;
+
+    @Column(name = "ERROR", length = 500)
+    private String error;
+
+    @Column(name = "INTENTOS", nullable = false)
+    private Integer intentos;
+
+    @Column(name = "PROXIMO_INTENTO")
+    private LocalDateTime proximoIntento;
+
+    @Column(name = "FECHA_CREACION", nullable = false)
+    private LocalDateTime fechaCreacion;
+
+    @Column(name = "RESUELTO", nullable = false)
+    private Boolean resuelto;
+}
+package upeu.edu.pe.Saludabemente.notificaciones.notificacion.entity;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Lob;
+import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import upeu.edu.pe.Saludabemente.notificaciones.shared.enums.CanalNotificacion;
+
+@Entity
+@Table(name = "PLANTILLA_MENSAJE", schema = "SLB_NOTIFICACION")
+@Getter
+@Setter
+@NoArgsConstructor
+public class PlantillaMensaje {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "ID_PLANTILLA")
+    private Long idPlantilla;
+
+    @Column(name = "CODIGO_EVENTO", nullable = false, unique = true, length = 60)
+    private String codigoEvento;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "CANAL", nullable = false, length = 20)
+    private CanalNotificacion canal;
+
+    @Column(name = "ASUNTO", length = 200)
+    private String asunto;
+
+    @Lob
+    @Column(name = "CUERPO_HTML", nullable = false)
+    private String cuerpoHtml;
+
+    @Column(name = "ACTIVO", nullable = false)
+    private Boolean activo;
+}
+package upeu.edu.pe.Saludabemente.nutricional.antropometrico.entity;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import upeu.edu.pe.Saludabemente.nutricional.evaluacion.entity.EvaluacionNutricional;
+import upeu.edu.pe.Saludabemente.shared.entity.AuditableEntity;
+
+import java.math.BigDecimal;
+
+@Entity
+@Table(name = "detalle_antropometrico", schema = "SLB_NUTRICIONAL")
+@Getter
+@Setter
+@NoArgsConstructor
+public class DetalleAntropometrico extends AuditableEntity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_antropometrico")
+    private Long idAntropometrico;
+
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "id_evaluacion", nullable = false, unique = true)
+    private EvaluacionNutricional evaluacion;
+
+    // ---- Medidas crudas ----
+    @Column(name = "estatura_cm", precision = 5, scale = 1)
+    private BigDecimal estaturaCm;
+
+    @Column(name = "peso_kg", precision = 5, scale = 1)
+    private BigDecimal pesoKg;
+
+    @Column(name = "perimetro_abdominal_cm", precision = 5, scale = 1)
+    private BigDecimal perimetroAbdominalCm;
+
+    // ---- Medidas calculadas ----
+    @Column(name = "imc", precision = 4, scale = 1)
+    private BigDecimal imc;
+
+    @Column(name = "porcentaje_grasa", precision = 4, scale = 1)
+    private BigDecimal porcentajeGrasa;
+
+    @Column(name = "porcentaje_masa_muscular", precision = 4, scale = 1)
+    private BigDecimal porcentajeMasaMuscular;
+
+    @Column(name = "porcentaje_grasa_visceral", precision = 4, scale = 1)
+    private BigDecimal porcentajeGrasaVisceral;
+
+    // ---- DiagnÃ³sticos OMRON ----
+    @Column(name = "dx_imc", length = 30)
+    private String dxImc;
+
+    @Column(name = "dx_perimetro_abdominal", length = 30)
+    private String dxPerimetroAbdominal;
+
+    @Column(name = "dx_grasa", length = 30)
+    private String dxGrasa;
+
+    @Column(name = "dx_masa_muscular", length = 30)
+    private String dxMasaMuscular;
+
+    @Column(name = "dx_grasa_visceral", length = 30)
+    private String dxGrasaVisceral;
+}
+package upeu.edu.pe.Saludabemente.nutricional.bioquimico.entity;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import upeu.edu.pe.Saludabemente.nutricional.evaluacion.entity.EvaluacionNutricional;
+import upeu.edu.pe.Saludabemente.shared.entity.AuditableEntity;
+
+import java.math.BigDecimal;
+
+@Entity
+@Table(name = "detalle_bioquimico", schema = "SLB_NUTRICIONAL")
+@Getter
+@Setter
+@NoArgsConstructor
+public class DetalleBioquimico extends AuditableEntity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_bioquimico")
+    private Long idBioquimico;
+
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "id_evaluacion", nullable = false, unique = true)
+    private EvaluacionNutricional evaluacion;
+
+    // ---- Marcadores ----
+    @Column(name = "glucosa", precision = 6, scale = 1)
+    private BigDecimal glucosa;
+
+    @Column(name = "colesterol", precision = 6, scale = 1)
+    private BigDecimal colesterol;
+
+    @Column(name = "trigliceridos", precision = 6, scale = 1)
+    private BigDecimal trigliceridos;
+
+    @Column(name = "presion_sistolica")
+    private Integer presionSistolica;
+
+    @Column(name = "presion_diastolica")
+    private Integer presionDiastolica;
+
+    // ---- DiagnÃ³stico global ----
+    @Column(name = "dx_bioquimico", length = 200)
+    private String dxBioquimico;
+
+    // ---- Trazabilidad de importaciÃ³n ----
+    @Column(name = "archivo_origen", length = 255)
+    private String archivoOrigen;
+
+    @Column(name = "id_usuario_importador")
+    private Long idUsuarioImportador;
+}
+package upeu.edu.pe.Saludabemente.nutricional.evaluacion.entity;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import upeu.edu.pe.Saludabemente.nutricional.antropometrico.entity.DetalleAntropometrico;
+import upeu.edu.pe.Saludabemente.nutricional.bioquimico.entity.DetalleBioquimico;
+import upeu.edu.pe.Saludabemente.nutricional.evaluacion.enums.EstadoEvaluacion;
+import upeu.edu.pe.Saludabemente.shared.entity.AuditableEntity;
+
+import java.time.LocalDate;
+
+@Entity
+@Table(name = "evaluacion_nutricional", schema = "SLB_NUTRICIONAL")
+@Getter
+@Setter
+@NoArgsConstructor
+public class EvaluacionNutricional extends AuditableEntity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_evaluacion")
+    private Long idEvaluacion;
+
+    @Column(name = "id_persona", nullable = false)
+    private Long idPersona;
+
+    @Column(name = "id_periodo", nullable = false, length = 10)
+    private String idPeriodo;
+
+    // ---- Snapshot clÃ­nico congelado al iniciar ----
+    @Column(name = "documento_identidad", length = 8, nullable = false)
+    private String documentoIdentidad;
+
+    @Column(name = "nombres_completos", length = 200)
+    private String nombresCompletos;
+
+    @Column(name = "edad_al_momento")
+    private Integer edadAlMomento;
+
+    @Column(name = "sexo_al_momento", length = 1)
+    private String sexoAlMomento;
+
+    @Column(name = "area_trabajo_al_momento", length = 100)
+    private String areaTrabajoAlMomento;
+
+    // ---- Ciclo de vida ----
+    @Column(name = "fecha_evaluacion", nullable = false)
+    private LocalDate fechaEvaluacion;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "estado_evaluacion", nullable = false, length = 20)
+    private EstadoEvaluacion estadoEvaluacion;
+
+    @Column(name = "observaciones", length = 500)
+    private String observaciones;
+
+    // ---- Detalles (FK vive en los detalles) ----
+    @OneToOne(mappedBy = "evaluacion", cascade = CascadeType.ALL,
+            orphanRemoval = true, fetch = FetchType.LAZY)
+    private DetalleAntropometrico detalleAntropometrico;
+
+    @OneToOne(mappedBy = "evaluacion", cascade = CascadeType.ALL,
+            orphanRemoval = true, fetch = FetchType.LAZY)
+    private DetalleBioquimico detalleBioquimico;
+
+    // ---- Helpers de consistencia bidireccional ----
+    public void asignarAntropometrico(DetalleAntropometrico detalle) {
+        if (detalle != null) {
+            detalle.setEvaluacion(this);
+        }
+        this.detalleAntropometrico = detalle;
+    }
+
+    public void asignarBioquimico(DetalleBioquimico detalle) {
+        if (detalle != null) {
+            detalle.setEvaluacion(this);
+        }
+        this.detalleBioquimico = detalle;
+    }
+
+    @PrePersist
+    void inicializarDefaults() {
+        if (fechaEvaluacion == null) {
+            fechaEvaluacion = LocalDate.now();
+        }
+        if (estadoEvaluacion == null) {
+            estadoEvaluacion = EstadoEvaluacion.PENDIENTE;
+        }
+    }
+}
+package upeu.edu.pe.Saludabemente.nutricional.evaluacion.repository;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import upeu.edu.pe.Saludabemente.nutricional.evaluacion.entity.EvaluacionNutricional;
+import upeu.edu.pe.Saludabemente.nutricional.evaluacion.enums.EstadoEvaluacion;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+
+public interface EvaluacionRepository extends JpaRepository<EvaluacionNutricional, Long> {
+
+    // ===================================================================
+    // Consultas puntuales
+    // ===================================================================
+
+    @Override
+    @EntityGraph(attributePaths = {"detalleAntropometrico", "detalleBioquimico"})
+    Optional<EvaluacionNutricional> findById(Long id);
+
+    // ===================================================================
+    // BÃºsqueda paginada con filtros tolerantes a nulos
+    // ===================================================================
+
+    @EntityGraph(attributePaths = {"detalleAntropometrico"})
+    @Query("""
+            SELECT e FROM EvaluacionNutricional e
+            WHERE (:estado IS NULL OR e.estadoEvaluacion = :estado)
+              AND (:periodo IS NULL OR e.idPeriodo = :periodo)
+              AND (:idPersona IS NULL OR e.idPersona = :idPersona)
+            """)
+    Page<EvaluacionNutricional> buscar(
+            @Param("estado") EstadoEvaluacion estado,
+            @Param("periodo") String periodo,
+            @Param("idPersona") Long idPersona,
+            Pageable pageable);
+
+    // ===================================================================
+    // Historial por persona
+    // ===================================================================
+
+    @EntityGraph(attributePaths = {"detalleAntropometrico", "detalleBioquimico"})
+    List<EvaluacionNutricional> findByIdPersonaOrderByFechaEvaluacionDesc(Long idPersona);
+
+    // ===================================================================
+    // Unicidad semestral
+    // ===================================================================
+
+    @Query("""
+            SELECT COUNT(e) > 0 FROM EvaluacionNutricional e
+            WHERE e.idPersona = :idPersona
+              AND e.idPeriodo = :idPeriodo
+              AND e.estadoEvaluacion IN :estados
+            """)
+    boolean existsActivaPorPersonaYPeriodo(
+            @Param("idPersona") Long idPersona,
+            @Param("idPeriodo") String idPeriodo,
+            @Param("estados") Collection<EstadoEvaluacion> estados);
+
+    // ===================================================================
+    // Evaluaciones incompletas
+    // ===================================================================
+
+    @EntityGraph(attributePaths = {"detalleAntropometrico", "detalleBioquimico"})
+    @Query("""
+            SELECT e FROM EvaluacionNutricional e
+            WHERE e.idPeriodo = :periodo
+              AND e.estadoEvaluacion = :estado
+            """)
+    List<EvaluacionNutricional> findIncompletasByPeriodo(
+            @Param("periodo") String periodo,
+            @Param("estado") EstadoEvaluacion estado);
+
+    // ===================================================================
+    // Conteos y mutaciones
+    // ===================================================================
+
+    long countByEstadoEvaluacion(EstadoEvaluacion estado);
+
+    @Modifying(clearAutomatically = true)
+    @Query("""
+            UPDATE EvaluacionNutricional e
+               SET e.estadoEvaluacion = :estado
+             WHERE e.idEvaluacion = :id
+            """)
+    int softDelete(@Param("id") Long id,
+                   @Param("estado") EstadoEvaluacion estado);
+
+    // ===================================================================
+    // Reportes
+    // ===================================================================
+
+    @EntityGraph(attributePaths = {"detalleBioquimico"})
+    @Query("""
+            SELECT e FROM EvaluacionNutricional e
+             JOIN e.detalleBioquimico b
+            WHERE e.idPeriodo = :periodo
+              AND b.dxBioquimico LIKE 'ALTERADO%'
+            """)
+    List<EvaluacionNutricional> findBioquimicosAlteradosByPeriodo(
+            @Param("periodo") String periodo);
+
+    @Query("""
+        SELECT e.idEvaluacion, e.idPersona, e.documentoIdentidad, e.nombresCompletos,
+               e.areaTrabajoAlMomento, e.idPeriodo, e.fechaEvaluacion,
+               e.estadoEvaluacion, a.imc, a.dxImc, b.dxBioquimico
+          FROM EvaluacionNutricional e
+          LEFT JOIN e.detalleAntropometrico a
+          LEFT JOIN e.detalleBioquimico b
+         WHERE e.idPeriodo = :periodo
+        """)
+    List<Object[]> findResumenConsolidadoByPeriodo(@Param("periodo") String periodo);
+
+    // ===================================================================
+    // Agregados para dashboard
+    // ===================================================================
+
+    @Query("""
+        SELECT COUNT(e),
+               AVG(a.imc),
+               AVG(a.porcentajeGrasa),
+               AVG(a.porcentajeMasaMuscular)
+          FROM EvaluacionNutricional e
+          LEFT JOIN e.detalleAntropometrico a
+         WHERE (:periodo IS NULL OR e.idPeriodo = :periodo)
+           AND e.estadoEvaluacion <> :estadoExcluido
+        """)
+    List<Object[]> agregados(@Param("periodo") String periodo,
+                             @Param("estadoExcluido") EstadoEvaluacion estadoExcluido);
+
+    // ===================================================================
+    // BÃºsqueda por persona + periodo (importaciÃ³n bioquÃ­mica)
+    // ===================================================================
+
+    @EntityGraph(attributePaths = {"detalleAntropometrico", "detalleBioquimico"})
+    @Query("""
+        SELECT e FROM EvaluacionNutricional e
+        WHERE e.idPersona = :idPersona
+          AND e.idPeriodo = :idPeriodo
+          AND e.estadoEvaluacion = :estado
+        """)
+    Optional<EvaluacionNutricional> findPendientePorPersonaYPeriodo(
+            @Param("idPersona") Long idPersona,
+            @Param("idPeriodo") String idPeriodo,
+            @Param("estado") EstadoEvaluacion estado);
+}
+package upeu.edu.pe.Saludabemente.nutricional.evaluacion.service;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import upeu.edu.pe.Saludabemente.catalogo.periodo.dto.response.PeriodoResponse;
+import upeu.edu.pe.Saludabemente.nutricional.evaluacion.dto.reporte.EvaluacionAgregado;
+import upeu.edu.pe.Saludabemente.nutricional.evaluacion.dto.request.EvaluacionInitRequest;
+import upeu.edu.pe.Saludabemente.nutricional.evaluacion.dto.response.EvaluacionResponse;
+import upeu.edu.pe.Saludabemente.nutricional.evaluacion.dto.response.EvaluacionResumen;
+import upeu.edu.pe.Saludabemente.nutricional.evaluacion.entity.EvaluacionNutricional;
+import upeu.edu.pe.Saludabemente.nutricional.evaluacion.enums.EstadoEvaluacion;
+
+import java.util.List;
+
+/**
+ * OrquestaciÃ³n del ciclo de vida de la cabecera de evaluaciÃ³n nutricional.
+ * Cubre las funciones 7-14 de PLANIFICACION.docx.
+ *
+ * <p>Este servicio es <b>interno al mÃ³dulo nutricional</b>. Los subdominios
+ * {@code antropometrico} y {@code bioquimico} lo consumen para validar la
+ * existencia de la cabecera y disparar la transiciÃ³n a COMPLETA.</p>
+ *
+ * <p>Consume dos contratos externos:</p>
+ * <ul>
+ *   <li>{@code PersonaService.obtenerSnapshotClinico(id)} â€” datos demogrÃ¡ficos
+ *       congelados al momento de la evaluaciÃ³n.</li>
+ *   <li>{@code PeriodoService.obtenerPorCodigo(codigo)} â€” valida que el periodo
+ *       exista y no estÃ© CERRADO antes de abrir la evaluaciÃ³n.</li>
+ * </ul>
+ *
+ * <p>La exposiciÃ³n hacia otros mÃ³dulos (Alertas ClÃ­nicas, Recomendaciones IA)
+ * se decide en Fase 9 con un {@code @NamedInterface} explÃ­cito.</p>
+ */
+public interface EvaluacionService {
+
+    // -------------------------------------------------------------------
+    // Consultas
+    // -------------------------------------------------------------------
+
+    Page<EvaluacionResumen> buscar(EstadoEvaluacion estado,
+                                   String periodo,
+                                   Long idPersona,
+                                   Pageable pageable);
+
+    EvaluacionAgregado agregados(String periodo);
+
+    EvaluacionResponse obtener(Long id);
+
+    List<EvaluacionResumen> historialPorPersona(Long idPersona);
+
+    List<EvaluacionResumen> incompletasPorPeriodo(String periodo);
+
+    // -------------------------------------------------------------------
+    // Comandos
+    // -------------------------------------------------------------------
+
+    EvaluacionResponse iniciar(EvaluacionInitRequest request);
+
+    EvaluacionResponse actualizarObservaciones(Long id, String observaciones);
+
+    void anular(Long id);
+
+    // -------------------------------------------------------------------
+    // API interna para subdominios del propio mÃ³dulo
+    // -------------------------------------------------------------------
+
+    /**
+     * Devuelve la cabecera con ambos detalles cargados vÃ­a @EntityGraph.
+     * Lanza ResourceNotFoundException si no existe.
+     */
+    EvaluacionNutricional obtenerOFallar(Long id);
+
+    /**
+     * Verifica si existen ambos detalles. Si es asÃ­, transiciona a COMPLETA
+     * y dispara las integraciones (Alertas ClÃ­nicas, Recomendaciones IA).
+     */
+    void evaluarCompletitudYDisparar(Long idEvaluacion);
+
+    List<PeriodoResponse> listarPeriodosDisponibles();
+}
+package upeu.edu.pe.Saludabemente.personal.credencial.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+import upeu.edu.pe.Saludabemente.personal.persona.entity.Persona;
+
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "CREDENCIAL_PROGRAMA", schema = "SLB_PERSONAL")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class CredencialPrograma {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_credencial")
+    private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "id_persona", nullable = false)
+    private Persona persona;
+
+    @Column(name = "codigo_qr_hash", length = 255, unique = true, nullable = false)
+    private String codigoQrHash;
+
+    @Column(name = "fecha_emision", nullable = false)
+    private LocalDateTime fechaEmision;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "estado", length = 20, nullable = false)
+    private EstadoCredencial estado;
+}
+package upeu.edu.pe.Saludabemente.personal.persona.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+import upeu.edu.pe.Saludabemente.catalogo.area.entity.AreaTrabajo;
+import upeu.edu.pe.Saludabemente.teams.entity.Team;
+
+import java.time.LocalDate;
+
+@Entity
+@Table(name = "PERSONA", schema = "SLB_PERSONAL")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class Persona {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_persona")
+    private Long id;
+
+    @Column(name = "nombres", nullable = false, length = 100)
+    private String nombres;
+
+    @Column(name = "apellido_paterno", nullable = false, length = 100)
+    private String apellidoPaterno;
+
+    @Column(name = "apellido_materno", length = 100)
+    private String apellidoMaterno;
+
+    @Column(name = "celular", length = 15, unique = true)
+    private String celular;
+
+    @Column(name = "fecha_nacimiento", nullable = false)
+    private LocalDate fechaNacimiento;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "sexo", length = 1, nullable = false)
+    private Sexo sexo;
+
+    @Column(name = "email", length = 120)
+    private String email;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_area")
+    private AreaTrabajo areaTrabajo;
+
+    @Column(name = "talla_polo", length = 5)
+    private String tallaPolo;
+
+    @Column(name = "estado_civil", length = 20)
+    private String estadoCivil;
+
+    @Column(name = "nivel_educativo", length = 30)
+    private String nivelEducativo;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_equipo")
+    private Team equipo;
+
+    @Column(name = "activo", nullable = false)
+    @Builder.Default
+    private Boolean activo = true;
+
+    @Column(name = "documento_identidad", length = 15, unique = true, nullable = false)
+    private String documentoIdentidad;
+}
+package upeu.edu.pe.Saludabemente.personal.persona.repository;
+
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.repository.EntityGraph;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import upeu.edu.pe.Saludabemente.personal.persona.dto.PersonalAgregado;
+import upeu.edu.pe.Saludabemente.personal.persona.entity.Persona;
+import upeu.edu.pe.Saludabemente.personal.persona.entity.Sexo;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
+public interface PersonaRepository extends JpaRepository<Persona, Long> {
+
+    @Override
+    @EntityGraph(attributePaths = {"equipo", "areaTrabajo"})
+    Optional<Persona> findById(Long id);
+
+    @EntityGraph(attributePaths = {"equipo", "areaTrabajo"})
+    @Query("""
+        SELECT p FROM Persona p
+        WHERE (:estado IS NULL OR p.activo = :estado)
+          AND (:sexo IS NULL OR p.sexo = :sexo)
+          AND (:areaTrabajoId IS NULL OR p.areaTrabajo.id = :areaTrabajoId)
+          AND (:equipoId IS NULL OR p.equipo.id = :equipoId)
+        """)
+    List<Persona> buscar(
+            @Param("estado") Boolean estado,
+            @Param("sexo") Sexo sexo,
+            @Param("areaTrabajoId") Long areaTrabajoId,
+            @Param("equipoId") Long equipoId,
+            Sort sort
+    );
+
+    @Query("""
+        SELECT new upeu.edu.pe.Saludabemente.personal.persona.dto.PersonalAgregado(
+            COUNT(p),
+            COALESCE(SUM(CASE WHEN p.activo = true THEN 1 ELSE 0 END), 0),
+            COALESCE(SUM(CASE WHEN p.sexo = 'M' THEN 1 ELSE 0 END), 0),
+            COALESCE(SUM(CASE WHEN p.sexo = 'F' THEN 1 ELSE 0 END), 0)
+        )
+        FROM Persona p
+        """)
+    PersonalAgregado agregados();
+
+    boolean existsByCelularAndActivoTrue(String celular);
+
+    boolean existsByDocumentoIdentidad(String documentoIdentidad);
+
+    boolean existsByEquipoIdAndActivoTrue(Long idEquipo);
+
+    /**
+     * Valida si hay personas activas en un area de trabajo.
+     * Se usa para bloquear la inactivacion de un area con personal activo.
+     */
+    boolean existsByAreaTrabajoIdAndActivoTrue(Long idArea);
+
+    @EntityGraph(attributePaths = {"equipo", "areaTrabajo"})
+    List<Persona> findByEquipoId(Long idEquipo);
+    /**
+     * Proyeccion para resolver un lote de celulares a ids de persona
+     * en una sola consulta. Uso interno entre modulos.
+     */
+    interface CelularIdProjection {
+        String getCelular();
+        Long getIdPersona();
+    }
+
+    /**
+     * Resolucion batch de celulares a ids de persona.
+     * Se usa en importaciones masivas para evitar N+1: una sola consulta
+     * para todos los celulares del archivo.
+     *
+     * <p>Solo devuelve personas ACTIVAS. Las inactivas no se incluyen
+     * en el mapa, y el consumidor las trata como "no encontradas".</p>
+     */
+    @Query("""
+        SELECT p.celular AS celular, p.id AS idPersona
+        FROM Persona p
+        WHERE p.celular IN :celulares
+          AND p.activo = true
+        """)
+    List<CelularIdProjection> findIdsByCelulares(@Param("celulares") Set<String> celulares);
+
+    /**
+     * Cuenta personas activas de un equipo. Se usa en la API publica de
+     * Equipo para el reporte de participacion.
+     */
+    long countByEquipoIdAndActivoTrue(Long idEquipo);
+
+    /**
+     * Lista todas las personas activas, ordenables.
+     * Uso: API publica para Asistencias (listarPersonalActivo).
+     */
+    @EntityGraph(attributePaths = {"equipo", "areaTrabajo"})
+    List<Persona> findByActivoTrue(Sort sort);
+
+    /**
+     * Lista personas activas de un equipo especifico.
+     * Uso: API publica para Asistencias (listarPorTeam).
+     */
+    @EntityGraph(attributePaths = {"equipo", "areaTrabajo"})
+    List<Persona> findByEquipoIdAndActivoTrue(Long idEquipo);
+
+    /**
+     * IDs de todas las personas activas, ordenados ascendentemente por id.
+     * Uso: API publica para Actividades (listarPersonasActivasIds).
+     * No usa @EntityGraph porque solo proyecta el id, no carga la entidad.
+     */
+    @Query("SELECT p.id FROM Persona p WHERE p.activo = true ORDER BY p.id")
+    List<Long> findIdsByActivoTrue();
+
+    /**
+     * Indica si existe una persona con el id dado y activo = true.
+     * Uso: contrato Noticias.
+     */
+    boolean existsByIdAndActivoTrue(Long id);
+
+    /**
+     * Indica si la persona existe, esta activa y pertenece al area indicada.
+     * Uso: contrato Noticias.
+     */
+    boolean existsByIdAndAreaTrabajoIdAndActivoTrue(Long id, Long idArea);
+
+    /**
+     * Lista personas activas de un area, ordenables.
+     * Uso: contrato Noticias.
+     */
+    @EntityGraph(attributePaths = {"equipo", "areaTrabajo"})
+    List<Persona> findByAreaTrabajoIdAndActivoTrue(Long idArea, Sort sort);
+
+    /**
+     * Cuenta personas activas de un area.
+     * Uso: contrato Noticias.
+     */
+    long countByAreaTrabajoIdAndActivoTrue(Long idArea);
+
+
+    /**
+     * Indica si la persona existe, esta activa y pertenece al team indicado.
+     * Uso: contrato Noticias.
+     */
+    boolean existsByIdAndEquipoIdAndActivoTrue(Long id, Long idTeam);
+
+    /**
+     * Lista personas activas de un team, ordenables.
+     * Uso: contrato Noticias.
+     */
+    @EntityGraph(attributePaths = {"equipo", "areaTrabajo"})
+    List<Persona> findByEquipoIdAndActivoTrue(Long idTeam, Sort sort);
+}
+package upeu.edu.pe.Saludabemente.personal.preferencia.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+import upeu.edu.pe.Saludabemente.personal.persona.entity.Persona;
+
+import java.time.LocalTime;
+
+@Entity
+@Table(name = "PREFERENCIA_COMUNICACION", schema = "SLB_PERSONAL")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class PreferenciaComunicacion {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_preferencia")
+    private Long id;
+
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "id_persona", unique = true, nullable = false)
+    private Persona persona;
+
+    @Column(name = "canal_preferido", length = 30)
+    private String canalPreferido;
+
+    @Column(name = "horario_contacto_inicio")
+    private LocalTime horarioContactoInicio;
+
+    @Column(name = "horario_contacto_fin")
+    private LocalTime horarioContactoFin;
+
+    @Column(name = "acepta_recordatorios", nullable = false)
+    @Builder.Default
+    private Boolean aceptaRecordatorios = true;
+}
+package upeu.edu.pe.Saludabemente.seguridad.rol.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+
+/**
+ * Rol de negocio del catÃ¡logo SLB_SEGURIDAD.ROL.
+ *
+ * <p>CatÃ¡logo estÃ¡tico: los roles base (Administrador, Evaluador,
+ * Coordinador, Colaborador) se insertan vÃ­a {@code RolSeeder} en DEV,
+ * y vÃ­a script DDL en PROD. ROOT se agrega en Sub-fase 2.</p>
+ */
+@Entity
+@Table(name = "ROL", schema = "SLB_SEGURIDAD")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class Rol {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_rol")
+    private Long id;
+
+    @Column(name = "nombre", nullable = false, unique = true, length = 40)
+    private String nombre;
+
+    @Column(name = "descripcion", length = 150)
+    private String descripcion;
+}
+package upeu.edu.pe.Saludabemente.seguridad.usuario.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+import upeu.edu.pe.Saludabemente.seguridad.rol.entity.Rol;
+
+import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
+
+/**
+ * Cuenta digital del sistema Saludablemente.
+ *
+ * <p><b>Snapshot de identidad:</b> los campos con sufijo {@code *Snapshot}
+ * son copias desnormalizadas del mÃ³dulo Personal, capturadas en el momento
+ * del alta. Son inmutables por diseÃ±o (capa anticorrupciÃ³n). Personal nunca
+ * se consulta de nuevo para este usuario, salvo una operaciÃ³n explÃ­cita
+ * de refresh (fuera de esta fase).</p>
+ *
+ * <p><b>Roles:</b> relaciÃ³n N:M con {@link Rol} a travÃ©s de la tabla
+ * {@code SLB_SEGURIDAD.USUARIO_ROL}. Sin columnas extra en la puente.</p>
+ */
+@Entity
+@Table(name = "USUARIO", schema = "SLB_SEGURIDAD")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class Usuario {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_usuario")
+    private Long id;
+
+    // -------------------------------------------------------------------
+    // Campos propios del mÃ³dulo Seguridad
+    // -------------------------------------------------------------------
+
+    @Column(name = "email", nullable = false, unique = true, length = 120)
+    private String email;
+
+    @Column(name = "password_hash", nullable = false, length = 255)
+    private String passwordHash;
+
+    @Column(name = "activo", nullable = false)
+    @Builder.Default
+    private Boolean activo = true;
+
+    @Column(name = "fecha_creacion", nullable = false, updatable = false)
+    @Builder.Default
+    private LocalDateTime fechaCreacion = LocalDateTime.now();
+
+    // -------------------------------------------------------------------
+    // Snapshot de identidad (capa anticorrupciÃ³n hacia Personal)
+    // -------------------------------------------------------------------
+
+    @Column(name = "id_persona", nullable = false, unique = true)
+    private Long idPersonaSnapshot;
+
+    @Column(name = "documento_identidad", nullable = false, length = 15)
+    private String documentoIdentidadSnapshot;
+
+    @Column(name = "nombres", nullable = false, length = 100)
+    private String nombresSnapshot;
+
+    @Column(name = "apellido_paterno", nullable = false, length = 100)
+    private String apellidoPaternoSnapshot;
+
+    @Column(name = "apellido_materno", length = 100)
+    private String apellidoMaternoSnapshot;
+
+    @Column(name = "area_trabajo", length = 100)
+    private String areaTrabajoSnapshot;
+
+    @Column(name = "activo_persona", nullable = false)
+    private Boolean activoPersonaSnapshot;
+
+    @Column(name = "snapshot_fecha", nullable = false)
+    private LocalDateTime snapshotFecha;
+
+    // -------------------------------------------------------------------
+    // Roles (N:M)
+    // -------------------------------------------------------------------
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "USUARIO_ROL",
+            schema = "SLB_SEGURIDAD",
+            joinColumns = @JoinColumn(name = "id_usuario"),
+            inverseJoinColumns = @JoinColumn(name = "id_rol")
+    )
+    @Builder.Default
+    private Set<Rol> roles = new HashSet<>();
+
+    // -------------------------------------------------------------------
+    // Helpers de dominio (no exponen la colecciÃ³n mutable directamente)
+    // -------------------------------------------------------------------
+
+    public void addRol(Rol rol) {
+        this.roles.add(rol);
+    }
+
+    public void removeRol(Rol rol) {
+        this.roles.remove(rol);
+    }
+
+    public boolean tieneRol(String nombreRol) {
+        return roles.stream().anyMatch(r -> nombreRol.equals(r.getNombre()));
+    }
+}
+package upeu.edu.pe.Saludabemente.seguridad.usuario.repository;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import upeu.edu.pe.Saludabemente.seguridad.usuario.entity.Usuario;
+
+import java.util.List;
+import java.util.Optional;
+
+public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
+
+    /**
+     * findById con roles precargados en un solo query.
+     * Evita el problema N+1 al armar el perfil 360Â°.
+     */
+    @EntityGraph(attributePaths = {"roles"})
+    Optional<Usuario> findById(Long id);
+
+    /**
+     * ValidaciÃ³n ultrarrÃ¡pida de unicidad de email.
+     */
+    boolean existsByEmail(String email);
+
+    /**
+     * Garante de la regla 1:1 (una persona = una cuenta).
+     */
+    boolean existsByIdPersonaSnapshot(Long idPersonaSnapshot);
+
+    /**
+     * BÃºsqueda paginada con filtros dinÃ¡micos.
+     *
+     * <p>El parÃ¡metro {@code excluirRoot} se usa cuando el solicitante
+     * NO es ROOT: la consulta excluye cualquier cuenta que tenga el rol
+     * ROOT. En Sub-fase 1 siempre se pasa {@code false} porque ROOT aÃºn
+     * no existe; en Sub-fase 2 se activa el filtro fantasma.</p>
+     *
+     * <p>No se precargan roles en la lista (evita N+1 con paginaciÃ³n).
+     * El {@code UsuarioResponse} del listado expone datos resumidos;
+     * los roles se cargan solo en {@code GET /usuarios/{id}}.</p>
+     */
+    @Query("""
+        SELECT u FROM Usuario u
+        WHERE (:email IS NULL OR LOWER(u.email) LIKE LOWER(CONCAT('%', :email, '%')))
+          AND (:activo IS NULL OR u.activo = :activo)
+          AND (:excluirRoot = false OR NOT EXISTS (
+                SELECT 1 FROM u.roles r WHERE r.nombre = 'ROOT'
+          ))
+    """)
+    Page<Usuario> buscarDinamico(
+            @Param("email") String email,
+            @Param("activo") Boolean activo,
+            @Param("excluirRoot") boolean excluirRoot,
+            Pageable pageable
+    );
+
+    /**
+     * Â¿El usuario indicado tiene el rol ROOT?
+     * Usado por el filtro fantasma y por las guard clauses de Sub-fase 2.
+     */
+    @Query("""
+        SELECT COUNT(u) > 0 FROM Usuario u
+        JOIN u.roles r
+        WHERE u.id = :idUsuario AND r.nombre = 'ROOT'
+    """)
+    boolean esRoot(@Param("idUsuario") Long idUsuario);
+
+    /**
+     * Lista usuarios activos que tengan el rol indicado.
+     * Usado por el contrato pÃºblico hacia Actividades (combo de coordinadores).
+     *
+     * <p>El nombre del rol se compara case-insensitive para evitar errores
+     * del frontend ("coordinador" vs "Coordinador").</p>
+     */
+    @Query("""
+    SELECT DISTINCT u FROM Usuario u
+    JOIN u.roles r
+    WHERE LOWER(r.nombre) = LOWER(:nombreRol)
+      AND u.activo = true
+""")
+    List<Usuario> findActivosByRolNombre(@Param("nombreRol") String nombreRol);
+
+    /**
+     * Busca un usuario por email exacto.
+     * Usado por el contrato hacia Noticias (obtenerPorEmail).
+     *
+     * <p>ComparaciÃ³n case-sensitive: los emails se normalizan a minÃºsculas
+     * al crear la cuenta (ver UsuarioServiceImpl.crear).</p>
+     */
+    @EntityGraph(attributePaths = {"roles"})
+    Optional<Usuario> findByEmail(String email);
+
+    /**
+     * Busca un usuario por su vÃ­nculo lÃ³gico a Persona.
+     * Usado por el contrato hacia Noticias (obtenerPorIdPersona).
+     */
+    @EntityGraph(attributePaths = {"roles"})
+    Optional<Usuario> findByIdPersonaSnapshot(Long idPersonaSnapshot);
+}
+package upeu.edu.pe.Saludabemente.teams.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+
+@Entity
+@Table(name = "EQUIPO", schema = "SLB_PERSONAL")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class Team {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_equipo")
+    private Long id;
+
+    @Column(name = "nombre", nullable = false, length = 100)
+    private String nombre;
+
+    @Column(name = "descripcion", length = 255)
+    private String descripcion;
+
+    @Column(name = "activo", nullable = false)
+    @Builder.Default
+    private Boolean activo = true;
+}
+

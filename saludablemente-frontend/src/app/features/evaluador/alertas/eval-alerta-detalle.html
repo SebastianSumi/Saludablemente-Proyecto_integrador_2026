@@ -1,0 +1,144 @@
+@if (loading()) {
+  <div class="card estado-caja">
+    <p class="hint">Cargando alerta clínica…</p>
+  </div>
+}
+
+@if (error()) {
+  <div class="card error-caja">
+    <tui-icon icon="@tui.triangle-alert" class="icono-alerta" />
+    <p class="error-msg">{{ error() }}</p>
+  </div>
+}
+
+@if (alerta(); as a) {
+  <div class="detail-nav">
+    <a tuiButton appearance="flat" size="s" routerLink="/evaluador/alertas">
+      <tui-icon icon="@tui.arrow-left" />
+      Volver a alertas
+    </a>
+    <a tuiButton appearance="outline" size="s" [routerLink]="['/evaluador/colaboradores', a.personaId]">
+      <tui-icon icon="@tui.user" />
+      Ver ficha del colaborador
+    </a>
+  </div>
+
+  <section class="hero-card card">
+    <span class="tile tile-rounded tile-soft-error page-banner-icon">
+      <tui-icon icon="@tui.bell" />
+    </span>
+    <div class="hero-body">
+      <div class="hero-meta">
+        <span [class]="pillSeveridad(a.nivelSeveridad)">{{ a.nivelSeveridad }}</span>
+        <span [class]="pillEstado(a.estado)">{{ a.estado }}</span>
+        <span class="pill pill-primary">{{ a.tipoEvaluacionOrigen }}</span>
+      </div>
+      <h2 class="card-title">{{ a.mensajeResumen }}</h2>
+      <p class="card-subtitle">
+        Puntaje total: <strong>{{ a.puntajeTotal }}</strong> · Generada el
+        {{ a.fechaGeneracion | date: 'dd/MM/yyyy HH:mm' }}
+        @if (a.fechaAtencion) {
+          · Atendida el {{ a.fechaAtencion | date: 'dd/MM/yyyy HH:mm' }}
+        }
+      </p>
+    </div>
+  </section>
+
+  <section class="card tabla-card flush">
+    <div class="lista-head">
+      <h3 class="card-title">Detalle de indicadores</h3>
+      <span class="pill pill-neutral">{{ a.detalles.length }}</span>
+    </div>
+    <div class="table-wrapper flush">
+      <table>
+        <thead>
+          <tr>
+            <th>Indicador</th>
+            <th>Valor medido</th>
+            <th>Rango</th>
+            <th>Clasificación</th>
+            <th>Puntos</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (d of a.detalles; track d.idDetalle) {
+            <tr>
+              <td class="fw-bold">{{ d.tipoIndicador }}</td>
+              <td class="text-soft font-mono">{{ d.valorMedido }}</td>
+              <td class="text-soft">
+                {{ d.valorMin ?? '—' }} – {{ d.valorMax ?? '—' }}
+              </td>
+              <td>
+                <span class="pill pill-secondary">{{ d.clasificacion }}</span>
+              </td>
+              <td class="text-soft font-mono">{{ d.puntosRiesgo }}</td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="5" class="empty">Sin indicadores detallados.</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  @if (mensajeExito()) {
+    <div class="card exito-caja">
+      <tui-icon icon="@tui.circle-check" class="icono-exito" />
+      <p class="exito-msg">{{ mensajeExito() }}</p>
+    </div>
+  }
+
+  @if (atenderError()) {
+    <div class="card error-caja">
+      <tui-icon icon="@tui.triangle-alert" class="icono-alerta" />
+      <p class="error-msg">{{ atenderError() }}</p>
+    </div>
+  }
+
+  <section class="card">
+    <div class="seccion-titulo">
+      <span class="tile tile-rounded tile-soft-success seccion-icono">
+        <tui-icon icon="@tui.clipboard-check" />
+      </span>
+      <div>
+        <h3 class="seccion-nombre">Atención de la alerta</h3>
+        <p class="seccion-desc">Registra la observación de la atención clínica</p>
+      </div>
+    </div>
+
+    @if (a.estado === 'PENDIENTE') {
+      <label tuiLabel class="field campo-full">
+        <span class="field-label">Observación de atención</span>
+        <tui-textfield>
+          <textarea
+            tuiTextarea
+            rows="4"
+            [ngModel]="observacion()"
+            (ngModelChange)="observacion.set($event)"
+            placeholder="Detalle de la atención brindada al colaborador…"
+          ></textarea>
+        </tui-textfield>
+      </label>
+      <div class="form-acciones">
+        <button
+          tuiButton
+          appearance="primary"
+          size="m"
+          type="button"
+          [loading]="atenderLoading()"
+          (click)="atender()"
+        >
+          <tui-icon icon="@tui.circle-check" />
+          Marcar como atendida
+        </button>
+      </div>
+    } @else {
+      <div class="metric-card">
+        <span class="metric-label">Observación de atención</span>
+        <span class="metric-value">{{ a.observacionAtencion || 'Sin observación registrada.' }}</span>
+      </div>
+    }
+  </section>
+}

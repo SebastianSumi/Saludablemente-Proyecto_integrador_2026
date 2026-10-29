@@ -1,0 +1,89 @@
+.tarjeta-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+}
+
+.tarjeta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  padding: 0.875rem;
+  border-radius: 1rem;
+  border: 1px solid var(--sal-line, #e2e8f0);
+  background: var(--sal-card, #ffffff);
+}
+
+.tarjeta--modificada {
+  border-color: var(--sal-warning, #ffae1f);
+  box-shadow: 0 0 0 1px var(--sal-warning, #ffae1f);
+}
+
+.tarjeta-head {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+.tarjeta-texto {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+}
+
+.tarjeta-texto strong {
+  font-size: 0.875rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tarjeta-sub {
+  font-size: 0.75rem;
+  color: var(--sal-ink-soft, #5a6b7c);
+}
+
+.font-mono {
+  font-family: ui-monospace, Menlo, Monaco, Consolas, monospace;
+}
+
+.tarjeta-segmento {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.375rem;
+}
+
+.tarjeta-segmento button {
+  justify-content: center;
+}
+
+.seg-tarde--activo {
+  border-color: #d97706;
+  background: rgba(217, 119, 6, 0.14);
+  color: #d97706;
+}
+
+.dot-sin-guardar {
+  display: inline-block;
+  width: 0.5rem;
+  height: 0.5rem;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--sal-warning, #ffae1f);
+}
+
+.tarjeta-vacio {
+  grid-column: 1 / -1;
+  text-align: center;
+  color: var(--sal-ink-soft, #5a6b7c);
+  font-style: italic;
+  padding: 1.5rem 0;
+}
+
+@media (max-width: 768px) {
+  .tarjeta-grid {
+    grid-template-columns: 1fr;
+  }
+}

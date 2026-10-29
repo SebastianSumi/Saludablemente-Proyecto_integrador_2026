@@ -1,0 +1,34 @@
+<div class="compacta-lista" role="list">
+  @for (f of filas(); track f.idPersona) {
+    <div class="compacta-fila" role="listitem" [class.compacta-fila--modificada]="f.modificado">
+      <span tuiAvatar size="s" [round]="true">{{ f.nombre.slice(0, 2).toUpperCase() }}</span>
+      <span class="compacta-texto">
+        <strong>{{ f.nombre }}</strong>
+        <span class="compacta-sub font-mono">#{{ f.idPersona }}</span>
+      </span>
+      @if (siguienteMarcaDe(f.visible); as sig) {
+        <button
+          tuiButton
+          appearance="outline"
+          size="s"
+          type="button"
+          class="compacta-btn"
+          [class.compacta-btn--presente]="f.visible === 'ASISTIO'"
+          [class.compacta-btn--tarde]="f.visible === 'TARDE'"
+          [class.compacta-btn--falta]="f.visible === 'AUSENTE'"
+          [disabled]="deshabilitado()"
+          [attr.aria-label]="f.nombre + ': ' + metaDe(f.visible).etiqueta + '. Tocar para ' + etiquetaSiguiente(f).toLowerCase()"
+          [title]="etiquetaSiguiente(f)"
+          (click)="accionar(f)"
+        >
+          <tui-icon [icon]="iconoBoton(f.visible)" />
+        </button>
+      }
+      @if (f.modificado) {
+        <span class="dot-sin-guardar" title="Sin guardar"></span>
+      }
+    </div>
+  } @empty {
+    <p class="compacta-vacio">Sin personas para mostrar.</p>
+  }
+</div>

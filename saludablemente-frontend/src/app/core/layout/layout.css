@@ -1,0 +1,356 @@
+/* Shell estilo plantilla: topbar blanca + contenido encajonado 1200px. Sin sidebar. */
+
+.body {
+  display: block;
+}
+
+.content {
+  width: 100%;
+  /* Ancho cómodo y centrado para todo el sitio (responsive: se encoge con la
+     ventana). La portada se abre a pantalla completa más abajo. */
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1.5rem clamp(1rem, 4vw, 2rem) 3rem;
+  overflow-x: hidden;
+  color: var(--tui-text-primary);
+}
+
+/* La portada sí aprovecha el ancho completo (hasta un tope amplio). */
+.content:has(app-inicio) {
+  max-width: none;
+}
+
+/* ==== Topbar ==== */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 70px;
+  padding: 0.6rem clamp(1rem, 4vw, 2rem);
+  background: var(--sal-card);
+  border-bottom: 1px solid var(--sal-line);
+  box-shadow: 0 2px 12px rgb(17 28 45 / 0.06);
+}
+
+.branding {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  text-decoration: none;
+  color: var(--sal-ink);
+  font-weight: 800;
+  font-size: 1.1rem;
+  white-space: nowrap;
+}
+
+.branding-nombre {
+  letter-spacing: -0.01em;
+}
+
+.topbar-sep {
+  width: 1px;
+  height: 1.6rem;
+  background: var(--sal-line);
+}
+
+.migas {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.85rem;
+  color: var(--sal-ink-soft);
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.migas a {
+  color: var(--sal-ink-soft);
+  text-decoration: none;
+}
+
+.migas a:hover {
+  color: var(--sal-primary);
+}
+
+.migas-sep {
+  opacity: 0.5;
+}
+
+.migas-actual {
+  color: var(--sal-ink);
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.flex-auto {
+  flex: 1 1 auto;
+}
+
+.theme-toggle,
+.noti-boton {
+  position: relative;
+  white-space: nowrap;
+}
+
+.noti-boton [tuiBadge] {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+}
+
+/* ==== Dropdown campana ==== */
+.dropdown-campana {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+  min-width: 330px;
+  max-width: 370px;
+}
+
+.campana-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0 0.25rem 0.25rem;
+}
+
+.campana-item {
+  display: flex;
+  gap: 0.65rem;
+  align-items: flex-start;
+  width: 100%;
+  text-align: left;
+  background: var(--sal-hover);
+  border: 1px solid transparent;
+  border-radius: 14px;
+  padding: 0.65rem 0.75rem;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+}
+
+.campana-item:hover {
+  border-color: var(--sal-line);
+}
+
+.campana-item.leida {
+  background: transparent;
+  opacity: 0.75;
+}
+
+.campana-punto {
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 50%;
+  margin-top: 0.3rem;
+  flex-shrink: 0;
+  background: var(--sal-danger);
+}
+
+.campana-punto.leida {
+  background: var(--sal-line);
+}
+
+.campana-icono {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 50%;
+  flex-shrink: 0;
+  font-size: 1rem;
+}
+
+.campana-icono.alerta {
+  color: #dc2626;
+  background: rgba(220, 38, 38, 0.12);
+}
+
+.campana-texto {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.campana-texto strong {
+  font-size: 0.85rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.campana-texto .hint {
+  margin: 0;
+  font-size: 0.78rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.campana-tiempo {
+  font-size: 0.72rem;
+  color: var(--sal-ink-soft);
+}
+
+.campana-todas {
+  width: 100%;
+  justify-content: center;
+  margin-top: 0.25rem;
+}
+
+.user-chip-wrapper {
+  margin-left: 0.25rem;
+}
+
+.user-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.25rem 0.75rem 0.25rem 0.25rem;
+  background: transparent;
+  border: 1px solid var(--sal-line);
+  border-radius: 999px;
+  cursor: pointer;
+  color: inherit;
+  font-family: inherit;
+}
+
+.user-chip-name {
+  font-weight: 500;
+  font-size: 0.875rem;
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.user-chip-caret {
+  font-size: 1rem;
+  opacity: 0.7;
+  display: inline-flex;
+}
+
+/* Iconos alineados con el texto */
+.dropdown-perfil-dato span,
+.dropdown-perfil-chips,
+.perfil-hero-email {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.dropdown-perfil-dato {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85rem;
+  gap: 0.75rem;
+}
+
+.dropdown-perfil-dato span {
+  color: var(--tui-text-secondary);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.dropdown-perfil-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  align-items: center;
+  color: var(--tui-text-secondary);
+}
+
+.dropdown-perfil {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  padding: 1.25rem;
+  min-width: 340px;
+  max-width: 360px;
+}
+
+/* Credencial: avatar + nombre centrados */
+.dropdown-perfil-credencial {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.45rem;
+  padding: 1.1rem 0.75rem 1rem;
+  border-radius: 24px;
+  background: var(--sal-hover);
+  border-top: 3px solid var(--sal-primary);
+}
+
+.dropdown-perfil-avatar {
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px var(--sal-primary),
+    0 6px 16px color-mix(in srgb, var(--sal-ink) 18%, transparent);
+  margin-bottom: 0.3rem;
+}
+
+.dropdown-perfil-nombre {
+  font-size: 1.05rem;
+  line-height: 1.3;
+}
+
+.dropdown-perfil-email {
+  margin: 0;
+  font-size: 0.8rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dropdown-perfil-separator {
+  border: none;
+  border-top: 1px solid var(--sal-line);
+  margin: 0;
+}
+
+.dropdown-perfil-acciones {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.dropdown-perfil-acciones a,
+.dropdown-perfil-acciones button {
+  width: 100%;
+  justify-content: flex-start;
+}
+
+@media (max-width: 768px) {
+  .content {
+    padding: 1rem 1rem 2.5rem;
+  }
+
+  .user-chip-name,
+  .branding-nombre,
+  .topbar-sep {
+    display: none;
+  }
+
+  .migas {
+    font-size: 0.78rem;
+  }
+}
+
+.col-nav { display: flex; flex-wrap: wrap; gap: 0.375rem; align-items: center; max-width: 1200px; margin: 0 auto; padding: 0.75rem clamp(1rem, 4vw, 2rem) 0; }
+.col-nav-link { text-decoration: none; }
+@media (max-width: 768px) { .col-nav { gap: 0.25rem; } }
+

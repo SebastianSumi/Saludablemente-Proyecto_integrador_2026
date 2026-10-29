@@ -1,0 +1,273 @@
+@if (loading()) {
+  <div class="card estado-caja">
+    <p class="hint">Cargando ficha del colaborador…</p>
+  </div>
+}
+
+@if (error()) {
+  <div class="card error-caja">
+    <tui-icon icon="@tui.triangle-alert" class="icono-alerta" />
+    <p class="error-msg">{{ error() }}</p>
+  </div>
+}
+
+@if (persona(); as p) {
+  <div class="detail-nav">
+    <a tuiButton appearance="flat" size="s" routerLink="/evaluador/colaboradores">
+      <tui-icon icon="@tui.arrow-left" />
+      Volver a colaboradores
+    </a>
+  </div>
+
+  <!-- ══════════ Hero ══════════ -->
+  <section class="card hero-card">
+    <app-avatar [foto]="fotoDe(p)" [iniciales]="iniciales(p)" size="xl" />
+    <div class="hero-body">
+      <h2 class="card-title">{{ nombreCompleto(p) }}</h2>
+      <div class="hero-meta">
+        <span class="pill pill-neutral">{{ p.documentoIdentidad }}</span>
+        @if (p.areaTrabajo?.nombre) {
+          <span class="pill pill-primary">{{ p.areaTrabajo?.nombre }}</span>
+        }
+        @if (p.equipo?.nombre) {
+          <span class="pill pill-secondary">{{ p.equipo?.nombre }}</span>
+        }
+        <span class="pill pill-neutral">{{ p.edad }} años</span>
+        <span class="pill pill-neutral">{{ p.sexo === 'M' ? 'Masculino' : 'Femenino' }}</span>
+        <span class="pill pill-neutral">{{ p.celular }}</span>
+      </div>
+    </div>
+    <div class="hero-actions">
+      <a
+        tuiButton
+        appearance="primary"
+        size="m"
+        [routerLink]="['/evaluador/nutricional/nueva']"
+        [queryParams]="{ persona: p.id }"
+      >
+        <tui-icon icon="@tui.apple" />
+        Evaluación nutricional
+      </a>
+      <a
+        tuiButton
+        appearance="secondary"
+        size="m"
+        [routerLink]="['/evaluador/aptitud/nueva']"
+        [queryParams]="{ persona: p.id }"
+      >
+        <tui-icon icon="@tui.activity" />
+        Aptitud física
+      </a>
+    </div>
+  </section>
+
+  <!-- ══════════ Evaluaciones nutricionales ══════════ -->
+  <section class="card flush">
+    <div class="card-head lista-head">
+      <h3 class="card-title">Historial nutricional</h3>
+      <span class="pill pill-neutral">{{ evaluacionesNut().length }}</span>
+    </div>
+    @if (evaluacionesNut().length === 0) {
+      <p class="empty">Sin evaluaciones nutricionales registradas.</p>
+    } @else {
+      <div class="table-wrapper flush">
+        <table>
+          <thead>
+            <tr>
+              <th>Periodo</th>
+              <th>Área</th>
+              <th>Fecha</th>
+              <th>Estado</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (e of evaluacionesNut(); track e.idEvaluacion) {
+              <tr>
+                <td class="font-mono text-soft">{{ e.idPeriodo }}</td>
+                <td class="text-soft">{{ e.areaTrabajoAlMomento || '—' }}</td>
+                <td class="text-soft">{{ e.fechaEvaluacion | date: 'dd/MM/yyyy' }}</td>
+                <td>
+                  <span
+                    class="pill"
+                    [class.pill-success]="e.estadoEvaluacion === 'COMPLETA'"
+                    [class.pill-warning]="e.estadoEvaluacion === 'PENDIENTE'"
+                    [class.pill-neutral]="e.estadoEvaluacion === 'ANULADA'"
+                  >
+                    {{ e.estadoEvaluacion }}
+                  </span>
+                </td>
+                <td class="td-acciones">
+                  <a
+                    tuiButton
+                    appearance="flat"
+                    size="s"
+                    [routerLink]="['/evaluador/nutricional', e.idEvaluacion]"
+                  >
+                    <tui-icon icon="@tui.eye" />
+                    Ver
+                  </a>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+
+  <!-- ══════════ Evaluaciones de aptitud ══════════ -->
+  <section class="card flush">
+    <div class="card-head lista-head">
+      <h3 class="card-title">Historial de aptitud física</h3>
+      <span class="pill pill-neutral">{{ evaluacionesApt().length }}</span>
+    </div>
+    @if (evaluacionesApt().length === 0) {
+      <p class="empty">Sin evaluaciones de aptitud registradas.</p>
+    } @else {
+      <div class="table-wrapper flush">
+        <table>
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Dictamen</th>
+              <th>Fitness score</th>
+              <th>Estado</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (e of evaluacionesApt(); track e.id) {
+              <tr>
+                <td class="text-soft">{{ e.fechaEvaluacion }}</td>
+                <td>
+                  @if (e.dictamenGlobal) {
+                    <span class="pill pill-primary">{{ e.dictamenGlobal }}</span>
+                  } @else {
+                    <span class="text-soft">—</span>
+                  }
+                </td>
+                <td class="text-soft">{{ e.fitnessScore ?? '—' }}</td>
+                <td>
+                  <span
+                    class="pill"
+                    [class.pill-success]="e.estadoEvaluacion === 'COMPLETA'"
+                    [class.pill-warning]="e.estadoEvaluacion === 'PENDIENTE'"
+                    [class.pill-neutral]="e.estadoEvaluacion === 'ANULADA'"
+                  >
+                    {{ e.estadoEvaluacion }}
+                  </span>
+                </td>
+                <td class="td-acciones">
+                  <a
+                    tuiButton
+                    appearance="flat"
+                    size="s"
+                    [routerLink]="['/evaluador/aptitud', e.id]"
+                  >
+                    <tui-icon icon="@tui.eye" />
+                    Ver
+                  </a>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+
+  <!-- ══════════ Alertas ══════════ -->
+  <section class="card flush">
+    <div class="card-head lista-head">
+      <h3 class="card-title">Alertas clínicas</h3>
+      <span class="pill pill-neutral">{{ alertas().length }}</span>
+    </div>
+    @if (alertas().length === 0) {
+      <p class="empty">Sin alertas clínicas registradas.</p>
+    } @else {
+      <div class="table-wrapper flush">
+        <table>
+          <thead>
+            <tr>
+              <th>Origen</th>
+              <th>Resumen</th>
+              <th>Puntaje</th>
+              <th>Severidad</th>
+              <th>Estado</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (a of alertas(); track a.idAlerta) {
+              <tr>
+                <td class="text-soft">{{ a.tipoEvaluacionOrigen }}</td>
+                <td>{{ a.mensajeResumen }}</td>
+                <td class="text-soft">{{ a.puntajeTotal }}</td>
+                <td>
+                  <span [class]="pillSeveridad(a.nivelSeveridad)">{{ a.nivelSeveridad }}</span>
+                </td>
+                <td>
+                  <span
+                    class="pill"
+                    [class.pill-warning]="a.estado === 'PENDIENTE'"
+                    [class.pill-success]="a.estado === 'ATENDIDA'"
+                    [class.pill-neutral]="a.estado === 'ANULADA'"
+                  >
+                    {{ a.estado }}
+                  </span>
+                </td>
+                <td class="td-acciones">
+                  <a
+                    tuiButton
+                    appearance="flat"
+                    size="s"
+                    [routerLink]="['/evaluador/alertas', a.idAlerta]"
+                  >
+                    <tui-icon icon="@tui.eye" />
+                    Ver
+                  </a>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+
+  <!-- ══════════ Metas ══════════ -->
+  <section class="card">
+    <div class="card-head lista-head">
+      <h3 class="card-title">Metas de bienestar</h3>
+      <a
+        tuiButton
+        appearance="outline"
+        size="s"
+        [routerLink]="['/evaluador/metas/nueva']"
+        [queryParams]="{ persona: p.id }"
+      >
+        <tui-icon icon="@tui.plus" />
+        Prescribir meta
+      </a>
+    </div>
+    @if (metas().length === 0) {
+      <p class="empty">Sin metas registradas.</p>
+    } @else {
+      <ul class="metas-lista">
+        @for (m of metas(); track m.id) {
+          <li>
+            <a class="meta-row" [routerLink]="['/evaluador/metas', m.id]">
+              <span class="meta-cuerpo">
+                <span class="meta-titulo">{{ m.descripcion }}</span>
+                <span class="hint">{{ m.pilar }} · {{ m.tipoOrigen }}</span>
+              </span>
+              <span class="meta-pct">{{ porcentajeMeta(m) }}%</span>
+              <span class="pill pill-neutral">{{ m.estado }}</span>
+            </a>
+          </li>
+        }
+      </ul>
+    }
+  </section>
+}

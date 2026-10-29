@@ -1,0 +1,200 @@
+<app-clinica-nav /><!-- ══════════════════════════════════════
+     CABECERA + FILTROS
+     ══════════════════════════════════════ -->
+<div class="page-banner card card-dashboard">
+  <div class="page-banner-body">
+    <div class="page-banner-icon tile tile-rounded tile-soft-error">
+      <tui-icon icon="@tui.heart-pulse" />
+    </div>
+    <div>
+      <h2 class="card-title">Dashboard de Alertas Clínicas</h2>
+      <p class="card-subtitle">
+        @if (loading()) {
+          Cargando dashboard clínico...
+        } @else {
+          {{ total() }} alerta(s) en el periodo · {{ tasa() }}% atendidas
+        }
+      </p>
+    </div>
+  </div>
+  <img [src]="portada" alt="Dashboard clínico" loading="lazy" />
+  <a tuiButton appearance="primary" size="m" routerLink="/alertaclinica/alertas">
+    <tui-icon icon="@tui.bell" />
+    Ver todas las alertas
+  </a>
+</div>
+
+<div class="card filtros-card">
+  <div class="filtros-linea">
+    <div class="filtro-item">
+      <span class="filtros-etiqueta">Periodo</span>
+      <tui-textfield tuiChevron class="periodo-combo">
+        <input tuiComboBox [formControl]="periodoCtrl" [strict]="true" placeholder="— Todos —" />
+        <tui-data-list-wrapper *tuiDropdown [items]="periodoOpts() | tuiFilterByInput" [itemContent]="opt" />
+      </tui-textfield>
+    </div>
+    <div class="filtro-item filtro-item--grow">
+      <span class="filtros-etiqueta">Rango</span>
+      <tui-textfield tuiChevron class="rango-combo">
+        <input
+          tuiInputDateRange
+          [formControl]="rangoCtrl"
+          placeholder="— Selecciona rango —"
+        />
+        <tui-calendar-range *tuiDropdown />
+      </tui-textfield>
+    </div>
+    <div class="filtro-item filtro-item--grow">
+      <span class="filtros-etiqueta">Severidad</span>
+      <tui-segmented size="l" [activeItemIndex]="idxSeveridad()" (activeItemIndexChange)="elegirSeveridadPorIndice($event)">
+        @for (s of severidades; track s.id) {
+          <button type="button">{{ s.label }}</button>
+        }
+      </tui-segmented>
+    </div>
+    <div class="filtro-item filtro-item--grow">
+      <span class="filtros-etiqueta">Origen</span>
+      <tui-segmented size="l" [activeItemIndex]="idxOrigen()" (activeItemIndexChange)="elegirOrigenPorIndice($event)">
+        @for (o of origenes; track o.id) {
+          <button type="button">{{ o.label }}</button>
+        }
+      </tui-segmented>
+    </div>
+  </div>
+</div>
+
+@if (error()) {
+  <div class="card error-caja">
+    <tui-icon icon="@tui.triangle-alert" class="icono-alerta" />
+    <p class="error-msg">{{ error() }}</p>
+  </div>
+}
+
+<ng-template #opt let-item>{{ item.label }}</ng-template>
+
+<!-- ══════════════════════════════════════
+     KPIs estilo total-followers
+     ══════════════════════════════════════ -->
+<div class="kpi-grid">
+  <article class="card mini tint-blue">
+    <span class="tile tile-circle tile-primary"><tui-icon icon="@tui.bell" /></span>
+    <div class="mini-body">
+      <strong class="mini-valor">{{ loading() ? '—' : total() }}</strong>
+      <span class="mini-label">Alertas en el periodo</span>
+    </div>
+  </article>
+  <article class="card mini tint-red">
+    <span class="tile tile-circle tile-error"><tui-icon icon="@tui.triangle-alert" /></span>
+    <div class="mini-body">
+      <strong class="mini-valor">{{ loading() ? '—' : criticasPendientes() }}</strong>
+      <span class="mini-label">Críticas pendientes</span>
+    </div>
+  </article>
+  <article class="card mini tint-amber">
+    <span class="tile tile-circle tile-warning"><tui-icon icon="@tui.hourglass" /></span>
+    <div class="mini-body">
+      <strong class="mini-valor">{{ loading() ? '—' : pendientes() }}</strong>
+      <span class="mini-label">Pendientes totales</span>
+    </div>
+  </article>
+  <article class="card mini tint-green">
+    <span class="tile tile-circle tile-success"><tui-icon icon="@tui.circle-check" /></span>
+    <div class="mini-body">
+      <strong class="mini-valor">{{ loading() ? '—' : tasa() }}%</strong>
+      <span class="mini-label">Tasa de atención · {{ atendidas() }} atendidas</span>
+    </div>
+  </article>
+</div>
+
+<!-- ══════════════════════════════════════
+     GRÁFICOS
+     ══════════════════════════════════════ -->
+<div class="dash-row">
+  <section class="card chart-card">
+    <div class="card-head">
+      <h3 class="card-title">Tendencia de alertas</h3>
+      <p class="card-subtitle">Barras apiladas por severidad</p>
+    </div>
+    @if (graficosActivos() && !loading()) {
+      <div echarts [options]="opcionesTendencia()" class="chart"></div>
+    } @else {
+      <p class="hint padded">Cargando gráfico...</p>
+    }
+  </section>
+
+  <div class="dash-side">
+    <section class="card chart-card sm">
+      <div class="card-head">
+        <h3 class="card-title">Por severidad</h3>
+      </div>
+      @if (graficosActivos() && !loading()) {
+        <div echarts [options]="opcionesSeveridad()" class="chart sm"></div>
+      } @else {
+        <p class="hint padded">Cargando gráfico...</p>
+      }
+    </section>
+    <section class="card chart-card sm">
+      <div class="card-head">
+        <h3 class="card-title">Por origen</h3>
+      </div>
+      @if (graficosActivos() && !loading()) {
+        <div echarts [options]="opcionesOrigen()" class="chart xs"></div>
+      } @else {
+        <p class="hint padded">Cargando gráfico...</p>
+      }
+    </section>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     TOP 8 EN RIESGO estilo earning-reports
+     ══════════════════════════════════════ -->
+<section class="card top-card">
+  <div class="card-head dash-head">
+    <div>
+      <h3 class="card-title">Top 8 en riesgo</h3>
+      <p class="card-subtitle">
+        @if (loading()) {
+          Personas con más alertas pendientes
+        } @else {
+          {{ top8().length }} persona(s) con alertas pendientes
+        }
+      </p>
+    </div>
+    <a tuiButton appearance="flat" size="s" routerLink="/alertaclinica/alertas">Ver todas</a>
+  </div>
+  @if (!loading()) {
+    <ul class="top-list">
+      @for (t of top8(); track t.personaId) {
+        <li>
+          <a class="top-row" [routerLink]="['/alertaclinica/alertas', t.idAlertaReciente]">
+            <span
+              class="tile tile-circle top-avatar"
+              [class.tile-soft-error]="avatarAppearance(t) === 'negative'"
+              [class.tile-soft-warning]="avatarAppearance(t) === 'neutral'"
+              [class.tile-soft-success]="avatarAppearance(t) === 'positive'"
+            >
+              {{ iniciales(t.nombre) }}
+            </span>
+            <span class="top-texto">
+              <strong>{{ t.nombre }}</strong>
+              <span class="hint">
+                {{ t.total }} pendiente(s) · {{ t.criticas }} crítica(s) · {{ t.ultimaFecha | date:'dd/MM/yyyy' }}
+              </span>
+            </span>
+            <span class="top-badge">
+              <span tuiBadge appearance="primary" size="s">{{ t.maxPuntaje }} pts</span>
+            </span>
+          </a>
+        </li>
+      } @empty {
+        <li><p class="empty">Sin pendientes en este periodo. Todo bajo control.</p></li>
+      }
+    </ul>
+  } @else {
+    <p class="hint padded">Cargando top en riesgo...</p>
+  }
+</section>
+
+<app-etiqueta-dashboard-card />
+

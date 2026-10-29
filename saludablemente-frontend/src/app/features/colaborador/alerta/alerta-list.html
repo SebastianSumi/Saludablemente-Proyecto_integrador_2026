@@ -1,0 +1,322 @@
+<div class="col-stack">
+  <!-- ════════════ HERO ════════════ -->
+  <div class="card card-alerta page-banner">
+    <div class="page-banner-body">
+      <span class="tile tile-rounded tile-soft-error page-banner-icon">
+        <tui-icon icon="@tui.bell" />
+      </span>
+      <div class="page-banner-info">
+        <h1 class="card-title hero-titulo">Mis alertas</h1>
+        <p class="card-subtitle">
+          @if (loading()) {
+            Cargando tus alertas…
+          } @else {
+            {{ conteos().total }} alerta(s) propias · solo lectura
+          }
+        </p>
+        <div class="hero-chips">
+          <span class="pill pill-warning">Pendientes: {{ conteos().pendientes }}</span>
+          <span class="pill pill-error">Críticas: {{ conteos().criticas }}</span>
+          <span class="pill pill-success">Atendidas: {{ conteos().atendidas }}</span>
+          <span class="pill pill-secondary">
+            <tui-icon icon="@tui.apple" class="pill-icono" />
+            {{ conteos().nutricional }}
+          </span>
+          <span class="pill pill-violet">
+            <tui-icon icon="@tui.activity" class="pill-icono" />
+            {{ conteos().aptitud }}
+          </span>
+        </div>
+      </div>
+    </div>
+    <img [src]="portada" alt="Alertas clínicas" loading="lazy" />
+  </div>
+
+  <!-- ════════════ FILTROS ════════════ -->
+  <div class="card filtros-card">
+    <div class="filtros-linea">
+      <div class="filtro-item">
+        <span class="filtro-etiqueta">Estado</span>
+        <div class="seg" role="tablist" aria-label="Estado">
+          <button type="button" [class.seg-activo]="filtroEstado() === ''" (click)="filtrarEstado('')">
+            Todas ({{ conteos().total }})
+          </button>
+          <button type="button" [class.seg-activo]="filtroEstado() === 'PENDIENTE'" (click)="filtrarEstado('PENDIENTE')">
+            Pendientes ({{ conteos().pendientes }})
+          </button>
+          <button type="button" [class.seg-activo]="filtroEstado() === 'ATENDIDA'" (click)="filtrarEstado('ATENDIDA')">
+            Atendidas ({{ conteos().atendidas }})
+          </button>
+          <button type="button" [class.seg-activo]="filtroEstado() === 'ANULADA'" (click)="filtrarEstado('ANULADA')">
+            Anuladas ({{ conteos().anuladas }})
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="filtros-linea">
+      <div class="filtro-item">
+        <span class="filtro-etiqueta">Severidad</span>
+        <div class="seg" role="tablist" aria-label="Severidad">
+          <button type="button" [class.seg-activo]="filtroSeveridad() === ''" (click)="filtrarSeveridad('')">
+            Todas
+          </button>
+          <button type="button" [class.seg-activo]="filtroSeveridad() === 'LEVE'" (click)="filtrarSeveridad('LEVE')">
+            Leve ({{ conteos().leves }})
+          </button>
+          <button type="button" [class.seg-activo]="filtroSeveridad() === 'MODERADA'" (click)="filtrarSeveridad('MODERADA')">
+            Moderada ({{ conteos().moderadas }})
+          </button>
+          <button type="button" [class.seg-activo]="filtroSeveridad() === 'CRITICA'" (click)="filtrarSeveridad('CRITICA')">
+            Crítica ({{ conteos().criticas }})
+          </button>
+        </div>
+      </div>
+
+      <div class="filtro-item">
+        <span class="filtro-etiqueta">Origen</span>
+        <div class="seg" role="tablist" aria-label="Origen">
+          <button type="button" [class.seg-activo]="filtroTipo() === ''" (click)="filtrarTipo('')">Todos</button>
+          <button type="button" [class.seg-activo]="filtroTipo() === 'NUTRICIONAL'" (click)="filtrarTipo('NUTRICIONAL')">
+            <tui-icon icon="@tui.apple" />
+            Nutricional
+          </button>
+          <button type="button" [class.seg-activo]="filtroTipo() === 'APTITUD_FISICA'" (click)="filtrarTipo('APTITUD_FISICA')">
+            <tui-icon icon="@tui.activity" />
+            Aptitud
+          </button>
+        </div>
+      </div>
+
+      <div class="filtro-item">
+        <span class="filtro-etiqueta">Ordenar por</span>
+        <div class="seg" role="tablist" aria-label="Orden">
+          <button type="button" [class.seg-activo]="orden() === 'fecha'" (click)="setOrden('fecha')">Fecha</button>
+          <button type="button" [class.seg-activo]="orden() === 'puntaje'" (click)="setOrden('puntaje')">Puntaje</button>
+          <button type="button" [class.seg-activo]="orden() === 'severidad'" (click)="setOrden('severidad')">Severidad</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="filtros-linea">
+      <div class="filtro-item filtro-fecha">
+        <span class="filtro-etiqueta">Desde</span>
+        <tui-textfield>
+          <input tuiInput type="date" [value]="filtroDesde()" (input)="filtroDesde.set($any($event.target).value)" />
+        </tui-textfield>
+      </div>
+      <div class="filtro-item filtro-fecha">
+        <span class="filtro-etiqueta">Hasta</span>
+        <tui-textfield>
+          <input tuiInput type="date" [value]="filtroHasta()" (input)="filtroHasta.set($any($event.target).value)" />
+        </tui-textfield>
+      </div>
+      <label class="filtro-item filtro-etiquetas"><span class="filtro-etiqueta">Etiqueta clínica</span>
+        <select class="etiqueta-select" [value]="filtroEtiqueta()" (change)="filtroEtiqueta.set($any($event.target).value)">
+          <option value="">Todas mis etiquetas</option>
+          @for (e of etiquetasDisponibles(); track e.codigo) { <option [value]="e.codigo">{{ e.nombre }} ({{ e.cantidad }})</option> }
+        </select>
+      </label>
+      <div class="filtro-item filtro-buscar">
+        <span class="filtro-etiqueta">Buscar</span>
+        <tui-textfield>
+          <tui-icon icon="@tui.search" />
+          <input tuiInput [formControl]="textoCtrl" placeholder="Mensaje, indicador o etiqueta" />
+        </tui-textfield>
+      </div>
+      <div class="filtro-item">
+        <span class="filtro-etiqueta">Vista</span>
+        <div class="seg" role="tablist" aria-label="Modo de vista">
+          <button type="button" [class.seg-activo]="modo() === 'tarjetas'" (click)="modo.set('tarjetas')">
+            <tui-icon icon="@tui.grid" />
+            Tarjetas
+          </button>
+          <button type="button" [class.seg-activo]="modo() === 'lista'" (click)="modo.set('lista')">
+            <tui-icon icon="@tui.list" />
+            Lista
+          </button>
+        </div>
+      </div>
+      <button tuiButton appearance="outline" size="m" type="button" class="btn-limpiar" (click)="limpiarFiltros()">
+        <tui-icon icon="@tui.filter-x" />
+        Limpiar
+      </button>
+    </div>
+  </div>
+
+  <!-- ════════════ ERROR ════════════ -->
+  @if (error()) {
+    <div class="card error-caja" role="alert">
+      <span class="tile tile-rounded tile-soft-error">
+        <tui-icon icon="@tui.triangle-alert" class="icono-alerta" />
+      </span>
+      <div class="error-body">
+        <p class="error-title">No se pudo cargar tus alertas</p>
+        <p class="error-msg">{{ error() }}</p>
+      </div>
+      <button tuiButton appearance="secondary" size="m" type="button" (click)="cargar()">
+        <tui-icon icon="@tui.refresh-cw" />
+        Reintentar
+      </button>
+    </div>
+  }
+
+  <!-- ════════════ CONTENIDO ════════════ -->
+  @if (loading()) {
+    <div class="card">
+      <div class="sk sk-line sk-line-lg"></div>
+      <div class="sk sk-line"></div>
+      <div class="sk sk-line"></div>
+      <div class="sk sk-line"></div>
+    </div>
+  } @else if (modo() === 'tarjetas') {
+    <div class="grid-alertas">
+      @for (a of ordenadas(); track a.idAlerta) {
+        <article
+          class="card alerta-card"
+          [class.sev-critica]="a.nivelSeveridad === 'CRITICA'"
+          [class.sev-moderada]="a.nivelSeveridad === 'MODERADA'"
+          [class.sev-leve]="a.nivelSeveridad === 'LEVE'"
+        >
+          <div class="alerta-card-top">
+            <span [class]="pillOrigen(a.tipoEvaluacionOrigen)">
+              <tui-icon [icon]="iconoOrigen(a.tipoEvaluacionOrigen)" class="pill-icono" />
+              {{ etiquetaOrigen(a.tipoEvaluacionOrigen) }}
+            </span>
+            <span [class]="pillSeveridad(a.nivelSeveridad)">
+              <tui-icon [icon]="iconoSeveridad(a.nivelSeveridad)" class="pill-icono" />
+              {{ etiquetaSeveridad(a.nivelSeveridad) }}
+            </span>
+          </div>
+          <h3 class="alerta-card-titulo">Alerta #{{ a.idAlerta }}</h3>
+          @if (a.mensajeResumen) {
+            <p class="alerta-card-resumen">{{ a.mensajeResumen }}</p>
+          }
+          <div class="alerta-card-datos">
+            <span class="pill pill-neutral">
+              <tui-icon icon="@tui.flame" class="pill-icono" />
+              {{ a.puntajeTotal }} pts
+            </span>
+            <span class="pill pill-neutral">
+              <tui-icon icon="@tui.clipboard-list" class="pill-icono" />
+              {{ a.detalles.length }} indicador(es)
+            </span>
+            <span [class]="pillEstado(a.estado)">{{ etiquetaEstado(a.estado) }}</span>
+          </div>
+          <app-etiquetas-clinicas [etiquetas]="a.etiquetas || []" />
+          <p class="alerta-card-fecha">
+            <tui-icon icon="@tui.calendar" class="pill-icono" />
+            {{ a.fechaGeneracion | date:'dd/MM/yyyy HH:mm' }}
+          </p>
+          <div class="alerta-card-pie">
+            <a tuiButton appearance="flat" size="s" [routerLink]="['/colaborador/mis-alertas', a.idAlerta]">
+              <tui-icon icon="@tui.eye" />
+              Ver detalle
+            </a>
+            <a tuiButton appearance="flat" size="s" [routerLink]="rutaEvaluacion(a)">
+              <tui-icon icon="@tui.external-link" />
+              Ver evaluación
+            </a>
+          </div>
+        </article>
+      } @empty {
+        <div class="card empty">No tienes alertas con esos filtros.</div>
+      }
+    </div>
+  } @else {
+    <div class="card tabla-card">
+      <div class="table-scroll">
+        <table tuiTable>
+          <thead>
+            <tr>
+              <th tuiTh class="th-expandir"><span class="sr-only">Expandir</span></th>
+              <th tuiTh>ID</th>
+              <th tuiTh>Origen</th>
+              <th tuiTh>Indicadores</th>
+              <th tuiTh>Puntaje</th>
+              <th tuiTh>Severidad</th>
+              <th tuiTh>Estado</th>
+              <th tuiTh>Etiquetas clínicas</th>
+              <th tuiTh>Fecha</th>
+              <th tuiTh class="th-acciones"><span class="sr-only">Acciones</span></th>
+            </tr>
+          </thead>
+          <tbody tuiTbody>
+            @for (a of ordenadas(); track a.idAlerta) {
+              <tr>
+                <td tuiTd class="td-expandir">
+                  <button
+                    type="button"
+                    class="expander"
+                    [class.abierto]="expandido() === a.idAlerta"
+                    [attr.aria-expanded]="expandido() === a.idAlerta"
+                    [attr.aria-label]="expandido() === a.idAlerta ? 'Ocultar indicadores' : 'Ver indicadores'"
+                    (click)="toggleExpandir(a.idAlerta)"
+                  >
+                    <tui-icon icon="@tui.chevron-down" />
+                  </button>
+                </td>
+                <td tuiTd class="font-mono">#{{ a.idAlerta }}</td>
+                <td tuiTd>
+                  <span [class]="pillOrigen(a.tipoEvaluacionOrigen)">
+                    <tui-icon [icon]="iconoOrigen(a.tipoEvaluacionOrigen)" class="pill-icono" />
+                    {{ etiquetaOrigen(a.tipoEvaluacionOrigen) }}
+                  </span>
+                </td>
+                <td tuiTd class="text-soft">{{ a.detalles.length }}</td>
+                <td tuiTd><span class="puntaje-val">{{ a.puntajeTotal }}</span> pts</td>
+                <td tuiTd>
+                  <span [class]="pillSeveridad(a.nivelSeveridad)">
+                    <tui-icon [icon]="iconoSeveridad(a.nivelSeveridad)" class="pill-icono" />
+                    {{ etiquetaSeveridad(a.nivelSeveridad) }}
+                  </span>
+                </td>
+                <td tuiTd><span [class]="pillEstado(a.estado)">{{ etiquetaEstado(a.estado) }}</span></td>
+                <td tuiTd class="etiquetas-columna"><app-etiquetas-clinicas [etiquetas]="a.etiquetas || []" /></td>
+                <td tuiTd class="text-soft font-mono">{{ a.fechaGeneracion | date:'dd/MM/yyyy HH:mm' }}</td>
+                <td tuiTd class="td-acciones">
+                  <div class="row-actions">
+                    <a tuiButton appearance="flat" size="s" [routerLink]="['/colaborador/mis-alertas', a.idAlerta]">
+                      <tui-icon icon="@tui.eye" />
+                      Ver detalle
+                    </a>
+                    <a tuiButton appearance="flat" size="s" [routerLink]="rutaEvaluacion(a)">
+                      <tui-icon icon="@tui.external-link" />
+                      Evaluación
+                    </a>
+                  </div>
+                </td>
+              </tr>
+              @if (expandido() === a.idAlerta) {
+                <tr class="fila-detalle">
+                  <td tuiTd [attr.colspan]="10">
+                    @if (a.detalles.length) {
+                      <div class="indicadores-lista">
+                        @for (d of a.detalles; track d.idDetalle) {
+                          <div class="indicador-chip">
+                            <b>{{ d.tipoIndicador }}</b>
+                            <span>{{ d.clasificacion }} · medido {{ d.valorMedido }} (rango {{ rango(d.valorMin) }}–{{ rango(d.valorMax) }})</span>
+                            <span>{{ d.mensaje }}</span>
+                          </div>
+                        }
+                      </div>
+                    } @else {
+                      <span class="text-soft">Esta alerta no tiene detalles registrados.</span>
+                    }
+                  </td>
+                </tr>
+              }
+            } @empty {
+              <tr>
+                <td tuiTd colspan="10" class="empty">No tienes alertas con esos filtros.</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      <footer class="tabla-foot">
+        <a tuiButton appearance="flat" size="s" routerLink="/colaborador">Volver a mi panel</a>
+      </footer>
+    </div>
+  }
+</div>

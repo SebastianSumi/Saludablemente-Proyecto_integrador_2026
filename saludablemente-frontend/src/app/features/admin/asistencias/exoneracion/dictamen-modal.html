@@ -1,0 +1,30 @@
+<form [formGroup]="form" (ngSubmit)="dictaminar()">
+  @if (error()) {
+    <p class="error">{{ error() }}</p>
+  }
+
+  <label tuiLabel class="field">
+    Dictamen
+    <tui-textfield tuiChevron>
+      <input tuiComboBox formControlName="estado" />
+      <tui-data-list-wrapper *tuiDropdown [items]="estados | tuiFilterByInput" />
+    </tui-textfield>
+    <tui-error formControlName="estado" />
+  </label>
+
+  <label tuiLabel class="field">
+    Observaciones (opcional)
+    <tui-textfield>
+      <input tuiInput type="text" formControlName="observaciones" maxlength="300" />
+    </tui-textfield>
+  </label>
+
+  <div class="form-actions">
+    <button tuiButton appearance="primary" size="m" type="submit" [loading]="guardando()">
+      Dictaminar
+    </button>
+    <button tuiButton appearance="outline" size="m" type="button" (click)="cancelar()">
+      Cancelar
+    </button>
+  </div>
+</form>

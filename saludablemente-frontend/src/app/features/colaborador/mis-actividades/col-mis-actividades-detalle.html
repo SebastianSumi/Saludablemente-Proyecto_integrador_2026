@@ -1,0 +1,212 @@
+<div class="col-detalle-shell">
+  <!-- BANNER NAVEGACIÓN -->
+  <div class="card page-banner">
+    <div class="page-banner-body">
+      <div class="page-banner-icon tile tile-rounded tile-soft-primary">
+        <tui-icon icon="@tui.calendar" />
+      </div>
+      <div>
+        <h2 class="card-title">
+          {{ actividad() ? actividad()!.nombre : 'Actividad #' + idActividad() }}
+        </h2>
+        <p class="card-subtitle">
+          @if (loading()) {
+            Cargando información de la sesión…
+          } @else if (actividad(); as a) {
+            {{ a.fechaActividad | date:'EEEE dd \'de\' MMMM \'de\' yyyy' }} · {{ a.lugar }}
+          } @else {
+            Detalle de actividad
+          }
+        </p>
+      </div>
+    </div>
+    <div class="page-banner-actions">
+      <a tuiButton appearance="outline" size="m" routerLink="/colaborador/mis-actividades">
+        <tui-icon icon="@tui.arrow-left" />
+        Volver a mis actividades
+      </a>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="card estado-caja">
+      <p class="text-soft">Cargando los datos de la actividad…</p>
+    </div>
+  }
+
+  @if (error()) {
+    <div class="card error-caja">
+      <tui-icon icon="@tui.triangle-alert" class="icono-alerta" />
+      <p class="error-msg">{{ error() }}</p>
+    </div>
+  }
+
+  @if (actividad(); as a) {
+    <!-- TARJETA PRINCIPAL (HERO) CON LOGO -->
+    <div class="card hero-card">
+      <div class="hero-body">
+        <div class="hero-info">
+          @if (a.logoUrl) {
+            <div class="hero-logo-box">
+              <img [src]="resolverUrl(a.logoUrl)" [alt]="'Logo ' + a.nombre" class="hero-logo-img" />
+            </div>
+          } @else {
+            <div class="tile tile-circle tile-soft-primary hero-icono">
+              <tui-icon icon="@tui.calendar" />
+            </div>
+          }
+          <div class="hero-textos">
+            <div class="badges-row">
+              @if (a.estado === 'PROGRAMADA') {
+                <span class="pill pill-soft-primary">Programada</span>
+              } @else if (a.estado === 'EN_CURSO') {
+                <span class="pill pill-soft-warning">En curso</span>
+              } @else if (a.estado === 'FINALIZADA' || a.estado === 'CERRADA') {
+                <span class="pill pill-soft-success">Finalizada</span>
+              } @else {
+                <span class="pill pill-soft-neutral">{{ a.estado }}</span>
+              }
+              <span class="pill pill-soft-secondary font-mono">{{ a.fechaActividad }}</span>
+              @if (a.puntajeSalud != null) {
+                <span class="pill pill-soft-success">+{{ a.puntajeSalud }} pts</span>
+              }
+            </div>
+            <h1 class="hero-titulo">{{ a.nombre }}</h1>
+            <p class="hero-meta">
+              <span><strong>Horario:</strong> {{ a.horaInicio }} – {{ a.horaFin }}</span>
+              <span class="hero-sep">·</span>
+              <span><strong>Ubicación:</strong> {{ a.lugar }}</span>
+              <span class="hero-sep">·</span>
+              <span><strong>Coordinador:</strong> {{ a.nombreCoordinador ?? 'Sin asignar' }}</span>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GRID DE INFORMACIÓN -->
+    <div class="col-grid-info">
+      <!-- PARÁMETROS DE LA SESIÓN -->
+      <section class="card">
+        <div class="section-title">
+          <div class="section-title-left">
+            <span class="tile tile-rounded tile-soft-primary seccion-icono">
+              <tui-icon icon="@tui.info" />
+            </span>
+            <div>
+              <h3>Información de la actividad</h3>
+              <p class="seccion-desc">Detalles e instrucciones generales</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="detalle-contenido">
+          <div class="info-bloque">
+            <h4 class="bloque-titulo">Descripción</h4>
+            <p class="bloque-texto">{{ a.descripcion || 'Sin descripción detallada registrada para esta actividad.' }}</p>
+          </div>
+
+          <dl class="info-dl">
+            <div class="dl-item">
+              <dt>Duración estimada</dt>
+              <dd>{{ a.duracionMinutos ?? '—' }} minutos</dd>
+            </div>
+            <div class="dl-item">
+              <dt>Control de asistencia</dt>
+              <dd>
+                <span [class]="a.requiereCheckInOut ? 'pill pill-soft-success' : 'pill pill-soft-neutral'">
+                  {{ a.requiereCheckInOut ? 'Check-in y Check-out requeridos' : 'Registro simple' }}
+                </span>
+              </dd>
+            </div>
+            <div class="dl-item">
+              <dt>Modalidad de marcación</dt>
+              <dd>
+                {{ a.permiteAutoservicio ? 'Autoservicio QR habilitado' : 'Registro por coordinador' }}
+              </dd>
+            </div>
+          </dl>
+
+          @if (a.materiales && a.materiales.length > 0) {
+            <div class="materiales-caja">
+              <h4 class="bloque-titulo">Materiales requeridos</h4>
+              <ul class="materiales-lista">
+                @for (m of a.materiales; track m) {
+                  <li>
+                    <tui-icon icon="@tui.check" class="check-icon" />
+                    {{ m }}
+                  </li>
+                }
+              </ul>
+            </div>
+          }
+        </div>
+      </section>
+
+      <!-- GALERÍA DE FOTOS Y EVIDENCIAS -->
+      <section class="card">
+        <div class="section-title">
+          <div class="section-title-left">
+            <span class="tile tile-rounded tile-soft-primary seccion-icono">
+              <tui-icon icon="@tui.images" />
+            </span>
+            <div>
+              <h3>Galería multimedia</h3>
+              <p class="seccion-desc">Fotos, recuerdos y afiches del evento</p>
+            </div>
+          </div>
+          <span class="pill pill-soft-primary font-mono">
+            {{ a.imagenes?.length ?? 0 }} foto(s)
+          </span>
+        </div>
+
+        @if (a.imagenes && a.imagenes.length > 0) {
+          <div class="galeria-col-grid">
+            @for (img of a.imagenes; track img.idImagen) {
+              <div class="foto-col-item" (click)="abrirFoto(img)" [title]="img.descripcion || 'Ver fotografía'">
+                <img [src]="resolverUrl(img.url)" [alt]="img.descripcion || 'Foto de actividad'" loading="lazy" />
+                <div class="foto-col-hover">
+                  <span class="pill-zoom">
+                    <tui-icon icon="@tui.zoom-in" />
+                    Ampliar
+                  </span>
+                </div>
+                @if (img.descripcion) {
+                  <span class="foto-col-desc">{{ img.descripcion }}</span>
+                }
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="galeria-vacia">
+            <div class="galeria-vacia-icono tile tile-circle tile-soft-neutral">
+              <tui-icon icon="@tui.camera" />
+            </div>
+            <h4>Sin imágenes todavía</h4>
+            <p class="text-soft">Las fotografías y afiches de esta sesión aparecerán aquí cuando el coordinador las comparta.</p>
+          </div>
+        }
+      </section>
+    </div>
+  }
+</div>
+
+<!-- LIGHTBOX MODAL PARA COLABORADOR -->
+@if (fotoSeleccionada(); as foto) {
+  <div class="lightbox-backdrop" (click)="cerrarFoto()">
+    <div class="lightbox-container" (click)="$event.stopPropagation()">
+      <div class="lightbox-header">
+        <div class="lightbox-info">
+          <span class="pill pill-soft-primary">Foto #{{ foto.orden }}</span>
+          <span class="lightbox-desc">{{ foto.descripcion || 'Sin descripción' }}</span>
+        </div>
+        <button tuiButton appearance="flat" size="s" type="button" (click)="cerrarFoto()" aria-label="Cerrar">
+          <tui-icon icon="@tui.x" />
+        </button>
+      </div>
+      <div class="lightbox-body">
+        <img [src]="resolverUrl(foto.url)" [alt]="foto.descripcion || 'Imagen ampliada'" class="lightbox-img" />
+      </div>
+    </div>
+  </div>
+}

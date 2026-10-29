@@ -1,0 +1,481 @@
+
+> saludablemente-frontend@0.0.0 build
+> ng build
+
+> Building...
+√ Building...
+Initial chunk files | Names                 |  Raw size | Estimated transfer size
+main-HQOAGZLK.js    | main                  | 726.32 kB |               202.19 kB
+chunk-CWBG5RIQ.js   | -                     | 226.10 kB |                65.63 kB
+styles-XCCCZB3F.css | styles                |  93.44 kB |                 6.31 kB
+chunk-B2FCU5X7.js   | -                     |  72.76 kB |                18.02 kB
+
+                    | Initial total         |   1.12 MB |               292.15 kB
+
+Lazy chunk files    | Names                 |  Raw size | Estimated transfer size
+chunk-CPv3obM4.js   | -                     |  55.41 kB |                 8.66 kB
+chunk-3arM4qfH.js   | actividad-detail      |  32.17 kB |                 8.15 kB
+chunk-Bn2aEo_h.js   | -                     |  29.37 kB |                 5.85 kB
+chunk-B1greFzM2.js  | evaluacion-detail     |  23.24 kB |                 5.67 kB
+chunk-DcNEXq3_.js   | -                     |  22.09 kB |                 5.15 kB
+chunk-B7MyRdca.js   | -                     |  19.82 kB |                 5.88 kB
+chunk-h1OF6jRh.js   | -                     |  19.41 kB |                 4.07 kB
+chunk-DphpyLW82.js  | evaluacion-list       |  19.13 kB |                 5.32 kB
+chunk-BGqhRDMl2.js  | alerta-clinica-detail |  18.59 kB |                 4.92 kB
+chunk-CarRI9T9.js   | -                     |  18.18 kB |                 3.07 kB
+chunk-4s2vsuQr.js   | persona-detail        |  18.15 kB |                 5.25 kB
+chunk-Dsnn9Oaw.js   | exoneracion-list      |  18.08 kB |                 5.17 kB
+chunk-VQHP-r8-2.js  | persona-list          |  17.86 kB |                 4.92 kB
+chunk-BZu5wgLw.js   | evaluacion-detail     |  17.50 kB |                 4.67 kB
+chunk-lWmXE8NV.js   | cuarentena-list       |  16.66 kB |                 5.03 kB
+...and 123 more lazy chunks files. Use "--verbose" to show all the files.
+
+Application bundle generation complete. [17.586 seconds] - 2026-10-09T13:43:02.062Z
+
+▲ [WARNING] NG8113: TuiAvatar is not used within the template of ActividadDetail [plugin angular-compiler]
+
+    src/app/features/admin/actividades/agenda/actividad-detail.ts:46:4:
+      46 │     TuiAvatar,
+         ╵     ~~~~~~~~~
+
+
+▲ [WARNING] NG8113: TuiBadge is not used within the template of ActividadDetail [plugin angular-compiler]
+
+    src/app/features/admin/actividades/agenda/actividad-detail.ts:47:4:
+      47 │     TuiBadge,
+         ╵     ~~~~~~~~
+
+
+▲ [WARNING] NG8113: TuiBadge is not used within the template of ActividadList [plugin angular-compiler]
+
+    src/app/features/admin/actividades/agenda/actividad-list.ts:12:24:
+      12 │   imports: [RouterLink, TuiBadge, TuiButton, TuiIcon, TuiTable],
+         ╵                         ~~~~~~~~
+
+
+▲ [WARNING] NG8113: TuiBadge is not used within the template of AlertaClinicaDetail [plugin angular-compiler]
+
+    src/app/features/admin/alertaclinica/alerta/alerta-clinica-detail.ts:15:80:
+      15 │ ...uiButton, TuiButtonLoading, TuiBadge, TuiIcon, TuiLabel, TuiTex...
+         ╵                                ~~~~~~~~
+
+
+▲ [WARNING] NG8113: TuiLabel is not used within the template of AlertaClinicaDetail [plugin angular-compiler]
+
+    src/app/features/admin/alertaclinica/alerta/alerta-clinica-detail.ts:15:99:
+      15 │ ...nLoading, TuiBadge, TuiIcon, TuiLabel, TuiTextfield, TuiTextarea],
+         ╵                                 ~~~~~~~~
+
+
+▲ [WARNING] NG8113: TuiBadge is not used within the template of AlertaClinicaList [plugin angular-compiler]
+
+    src/app/features/admin/alertaclinica/alerta/alerta-clinica-list.ts:26:93:
+      26 │ ...tiveFormsModule, TuiButton, TuiBadge, TuiChevron, TuiComboBox, ...
+         ╵                                ~~~~~~~~
+
+
+▲ [WARNING] NG8113: TuiLabel is not used within the template of AlertaClinicaList [plugin angular-compiler]
+
+    src/app/features/admin/alertaclinica/alerta/alerta-clinica-list.ts:26:202:
+      26 │ ... TuiFilterByInputPipe, TuiIcon, TuiInput, TuiLabel, TuiTextfield],
+         ╵                                              ~~~~~~~~
+
+
+▲ [WARNING] NG8113: TuiBadge is not used within the template of Dashboard [plugin angular-compiler]
+
+    src/app/features/admin/alertaclinica/dashboard/dashboard.ts:13:49:
+      13 │   imports: [CommonModule, RouterLink, TuiButton, TuiBadge, TuiIcon],
+         ╵                                                  ~~~~~~~~
+
+
+▲ [WARNING] NG8113: RouterLink is not used within the template of ReglaColesterolForm [plugin angular-compiler]
+
+    src/app/features/admin/alertaclinica/reglas/colesterol/regla-colesterol-form.ts:41:4:
+      41 │     RouterLink,
+         ╵     ~~~~~~~~~~
+
+
+▲ [WARNING] NG8113: RouterLink is not used within the template of ReglaGlucosaForm [plugin angular-compiler]
+
+    src/app/features/admin/alertaclinica/reglas/glucosa/regla-glucosa-form.ts:41:4:
+      41 │     RouterLink,
+         ╵     ~~~~~~~~~~
+
+
+▲ [WARNING] NG8113: RouterLink is not used within the template of ReglaGrasaVisceralForm [plugin angular-compiler]
+
+    src/app/features/admin/alertaclinica/reglas/grasa-visceral/regla-grasa-visceral-form.ts:41:4:
+      41 │     RouterLink,
+         ╵     ~~~~~~~~~~
+
+
+▲ [WARNING] NG8113: RouterLink is not used within the template of ReglaImcForm [plugin angular-compiler]
+
+    src/app/features/admin/alertaclinica/reglas/imc/regla-imc-form.ts:41:4:
+      41 │     RouterLink,
+         ╵     ~~~~~~~~~~
+
+
+▲ [WARNING] NG8113: RouterLink is not used within the template of ReglaMasaMuscularForm [plugin angular-compiler]
+
+    src/app/features/admin/alertaclinica/reglas/masa-muscular/regla-masa-muscular-form.ts:41:4:
+      41 │     RouterLink,
+         ╵     ~~~~~~~~~~
+
+
+▲ [WARNING] NG8113: RouterLink is not used within the template of ReglaPerimetroAbdominalForm [plugin angular-compiler]
+
+    src/app/features/admin/alertaclinica/reglas/perimetro-abdominal/regla-perimetro-abdominal-form.ts:41:4:
+      41 │     RouterLink,
+         ╵     ~~~~~~~~~~
+
+
+▲ [WARNING] NG8113: RouterLink is not used within the template of ReglaPorcentajeGrasaForm [plugin angular-compiler]
+
+    src/app/features/admin/alertaclinica/reglas/porcentaje-grasa/regla-porcentaje-grasa-form.ts:41:4:
+      41 │     RouterLink,
+         ╵     ~~~~~~~~~~
+
+
+▲ [WARNING] NG8113: RouterLink is not used within the template of ReglaPresionArterialForm [plugin angular-compiler]
+
+    src/app/features/admin/alertaclinica/reglas/presion-arterial/regla-presion-arterial-form.ts:41:4:
+      41 │     RouterLink,
+         ╵     ~~~~~~~~~~
+
+
+▲ [WARNING] NG8113: RouterLink is not used within the template of ReglaTrigliceridosForm [plugin angular-compiler]
+
+    src/app/features/admin/alertaclinica/reglas/trigliceridos/regla-trigliceridos-form.ts:41:4:
+      41 │     RouterLink,
+         ╵     ~~~~~~~~~~
+
+
+▲ [WARNING] NG8113: TuiLabel is not used within the template of Dashboard [plugin angular-compiler]
+
+    src/app/features/admin/aptitud/dashboard/dashboard.ts:40:4:
+      40 │     TuiLabel,
+         ╵     ~~~~~~~~
+
+
+▲ [WARNING] NG8113: TuiBadge is not used within the template of EvaluacionDetail [plugin angular-compiler]
+
+    src/app/features/admin/aptitud/evaluacion/evaluacion-detail.ts:27:4:
+      27 │     TuiBadge,
+         ╵     ~~~~~~~~
+
+
+▲ [WARNING] NG8113: TuiBadge is not used within the template of EvaluacionList [plugin angular-compiler]
+
+    src/app/features/admin/aptitud/evaluacion/evaluacion-list.ts:40:4:
+      40 │     TuiBadge,
+         ╵     ~~~~~~~~
+
+
+▲ [WARNING] NG8113: TuiLabel is not used within the template of EvaluacionList [plugin angular-compiler]
+
+    src/app/features/admin/aptitud/evaluacion/evaluacion-list.ts:48:4:
+      48 │     TuiLabel,
+         ╵     ~~~~~~~~
+
+
+▲ [WARNING] NG8113: RouterLink is not used within the template of CuarentenaList [plugin angular-compiler]
+
+    src/app/features/admin/asistencias/cuarentena/cuarentena-list.ts:27:4:
+      27 │     RouterLink,
+         ╵     ~~~~~~~~~~
+
+
+▲ [WARNING] NG8113: TuiBadge is not used within the template of CuarentenaList [plugin angular-compiler]
+
+    src/app/features/admin/asistencias/cuarentena/cuarentena-list.ts:31:4:
+      31 │     TuiBadge,
+         ╵     ~~~~~~~~
+
+
+▲ [WARNING] NG8113: TuiBadge is not used within the template of AsistenciaDashboard [plugin angular-compiler]
+
+    src/app/features/admin/asistencias/dashboard/dashboard.ts:19:4:
+      19 │     TuiBadge,
+         ╵     ~~~~~~~~
+
+
+▲ [WARNING] NG8113: TuiBadge is not used within the template of ExoneracionList [plugin angular-compiler]
+
+    src/app/features/admin/asistencias/exoneracion/exoneracion-list.ts:32:4:
+      32 │     TuiBadge,
+         ╵     ~~~~~~~~
+
+
+▲ [WARNING] NG8113: TuiAvatar is not used within the template of AsistenciaForm [plugin angular-compiler]
+
+    src/app/features/admin/asistencias/registro/asistencia-form.ts:36:4:
+      36 │     TuiAvatar,
+         ╵     ~~~~~~~~~
+
+
+▲ [WARNING] NG8113: TuiBadge is not used within the template of AsistenciaList [plugin angular-compiler]
+
+    src/app/features/admin/asistencias/registro/asistencia-list.ts:31:4:
+      31 │     TuiBadge,
+         ╵     ~~~~~~~~
+
+
+▲ [WARNING] NG8113: TuiBadge is not used within the template of AreaList [plugin angular-compiler]
+
+    src/app/features/admin/catalogo/area/area-list.ts:19:56:
+      19 │ ...tiveFormsModule, TuiButton, TuiBadge, TuiChevron, TuiComboBox, ...
+         ╵                                ~~~~~~~~
+
+
+▲ [WARNING] NG8113: TuiLabel is not used within the template of AreaList [plugin angular-compiler]
+
+    src/app/features/admin/catalogo/area/area-list.ts:19:155:
+      19 │ ... TuiFilterByInputPipe, TuiIcon, TuiLabel, TuiTextfield, TuiTable],
+         ╵                                    ~~~~~~~~
+
+
+▲ [WARNING] NG8113: TuiBadge is not used within the template of PeriodoList [plugin angular-compiler]
+
+    src/app/features/admin/catalogo/periodo/periodo-list.ts:19:56:
+      19 │ ...tiveFormsModule, TuiButton, TuiBadge, TuiChevron, TuiComboBox, ...
+         ╵                                ~~~~~~~~
+
+
+▲ [WARNING] NG8113: TuiLabel is not used within the template of PeriodoList [plugin angular-compiler]
+
+    src/app/features/admin/catalogo/periodo/periodo-list.ts:19:155:
+      19 │ ... TuiFilterByInputPipe, TuiIcon, TuiLabel, TuiTextfield, TuiTable],
+         ╵                                    ~~~~~~~~
+
+
+▲ [WARNING] NG8113: TuiBadge is not used within the template of MetaDetail [plugin angular-compiler]
+
+    src/app/features/admin/metas/meta/meta-detail.ts:15:24:
+      15 │   imports: [RouterLink, TuiBadge, TuiButton, TuiButtonLoading, Tui...
+         ╵                         ~~~~~~~~
+
+
+▲ [WARNING] NG8113: TuiButtonLoading is not used within the template of MetaDetail [plugin angular-compiler]
+
+    src/app/features/admin/metas/meta/meta-detail.ts:15:45:
+      15 │ ...k, TuiBadge, TuiButton, TuiButtonLoading, TuiIcon, TuiProgressB...
+         ╵                            ~~~~~~~~~~~~~~~~
+
+
+▲ [WARNING] NG8113: TuiAvatar is not used within the template of MetaList [plugin angular-compiler]
+
+    src/app/features/admin/metas/meta/meta-list.ts:31:4:
+      31 │     TuiAvatar,
+         ╵     ~~~~~~~~~
+
+
+▲ [WARNING] NG8113: TuiBadge is not used within the template of MetaList [plugin angular-compiler]
+
+    src/app/features/admin/metas/meta/meta-list.ts:33:4:
+      33 │     TuiBadge,
+         ╵     ~~~~~~~~
+
+
+▲ [WARNING] NG8113: TuiBadge is not used within the template of CategoriaList [plugin angular-compiler]
+
+    src/app/features/admin/noticias/categoria/categoria-list.ts:14:12:
+      14 │   imports: [TuiBadge, TuiButton, TuiIcon, TuiTable],
+         ╵             ~~~~~~~~
+
+
+▲ [WARNING] NG8113: TuiBadge is not used within the template of NoticiaFeedComponent [plugin angular-compiler]
+
+    src/app/features/admin/noticias/feed/noticia-feed.ts:19:4:
+      19 │     TuiBadge,
+         ╵     ~~~~~~~~
+
+
+▲ [WARNING] NG8113: TuiBadge is not used within the template of NoticiaDetail [plugin angular-compiler]
+
+    src/app/features/admin/noticias/noticia/noticia-detail.ts:13:24:
+      13 │   imports: [RouterLink, TuiBadge, TuiButton, TuiButtonLoading, Tui...
+         ╵                         ~~~~~~~~
+
+
+▲ [WARNING] NG8113: TuiBadge is not used within the template of NoticiaList [plugin angular-compiler]
+
+    src/app/features/admin/noticias/noticia/noticia-list.ts:24:4:
+      24 │     TuiBadge,
+         ╵     ~~~~~~~~
+
+
+▲ [WARNING] NG8113: TuiBadge is not used within the template of NotificacionList [plugin angular-compiler]
+
+    src/app/features/admin/notificaciones/notificacion/notificacion-list.ts:12:12:
+      12 │   imports: [TuiBadge, TuiButton, TuiIcon, TuiTable],
+         ╵             ~~~~~~~~
+
+
+▲ [WARNING] NG8113: TuiBadge is not used within the template of PlantillaList [plugin angular-compiler]
+
+    src/app/features/admin/notificaciones/plantilla/plantilla-list.ts:14:12:
+      14 │   imports: [TuiBadge, TuiButton, TuiIcon, TuiTable],
+         ╵             ~~~~~~~~
+
+
+▲ [WARNING] NG8113: RouterLink is not used within the template of AntropometricoForm [plugin angular-compiler]
+
+    src/app/features/admin/nutricional/antropometrico/antropometrico-form.ts:14:33:
+      14 │ ...rts: [ReactiveFormsModule, RouterLink, TuiButton, TuiButtonLoad...
+         ╵                               ~~~~~~~~~~
+
+
+▲ [WARNING] NG8113: RouterLink is not used within the template of BioquimicoForm [plugin angular-compiler]
+
+    src/app/features/admin/nutricional/bioquimico/bioquimico-form.ts:12:33:
+      12 │ ...rts: [ReactiveFormsModule, RouterLink, TuiButton, TuiButtonLoad...
+         ╵                               ~~~~~~~~~~
+
+
+▲ [WARNING] NG8113: TuiButtonLoading is not used within the template of BioquimicoForm [plugin angular-compiler]
+
+    src/app/features/admin/nutricional/bioquimico/bioquimico-form.ts:12:56:
+      12 │ ... RouterLink, TuiButton, TuiButtonLoading, TuiIcon, TuiInput, Tu...
+         ╵                            ~~~~~~~~~~~~~~~~
+
+
+▲ [WARNING] NG8113: TuiLabel is not used within the template of Dashboard [plugin angular-compiler]
+
+    src/app/features/admin/nutricional/dashboard/dashboard.ts:19:4:
+      19 │     TuiLabel,
+         ╵     ~~~~~~~~
+
+
+▲ [WARNING] NG8113: TuiBadge is not used within the template of EvaluacionDetail [plugin angular-compiler]
+
+    src/app/features/admin/nutricional/evaluacion/evaluacion-detail.ts:15:66:
+      15 │ ...uiButton, TuiButtonLoading, TuiBadge, TuiIcon, TuiLabel, TuiTex...
+         ╵                                ~~~~~~~~
+
+
+▲ [WARNING] NG8113: TuiLabel is not used within the template of EvaluacionDetail [plugin angular-compiler]
+
+    src/app/features/admin/nutricional/evaluacion/evaluacion-detail.ts:15:85:
+      15 │ ...Loading, TuiBadge, TuiIcon, TuiLabel, TuiTextfield, TuiTextarea...
+         ╵                                ~~~~~~~~
+
+
+▲ [WARNING] NG8113: TuiBadge is not used within the template of EvaluacionList [plugin angular-compiler]
+
+    src/app/features/admin/nutricional/evaluacion/evaluacion-list.ts:23:79:
+      23 │ ...tiveFormsModule, TuiButton, TuiBadge, TuiIcon, TuiLabel, TuiTex...
+         ╵                                ~~~~~~~~
+
+
+▲ [WARNING] NG8113: TuiLabel is not used within the template of EvaluacionList [plugin angular-compiler]
+
+    src/app/features/admin/nutricional/evaluacion/evaluacion-list.ts:23:98:
+      23 │ ...iButton, TuiBadge, TuiIcon, TuiLabel, TuiTextfield, TuiInput, T...
+         ╵                                ~~~~~~~~
+
+
+▲ [WARNING] NG8113: TuiBadge is not used within the template of Perfil [plugin angular-compiler]
+
+    src/app/features/admin/perfil/perfil.ts:19:44:
+      19 │ ...rts: [DatePipe, TuiAvatar, TuiButton, TuiBadge, TuiIcon, TuiTabs],
+         ╵                                          ~~~~~~~~
+
+
+▲ [WARNING] NG8113: TuiBadge is not used within the template of EquipoList [plugin angular-compiler]
+
+    src/app/features/admin/personal/equipo/equipo-list.ts:19:56:
+      19 │ ...tiveFormsModule, TuiButton, TuiBadge, TuiChevron, TuiComboBox, ...
+         ╵                                ~~~~~~~~
+
+
+▲ [WARNING] NG8113: TuiLabel is not used within the template of EquipoList [plugin angular-compiler]
+
+    src/app/features/admin/personal/equipo/equipo-list.ts:19:155:
+      19 │ ... TuiFilterByInputPipe, TuiIcon, TuiLabel, TuiTextfield, TuiTable],
+         ╵                                    ~~~~~~~~
+
+
+▲ [WARNING] NG8113: TuiBadge is not used within the template of PersonaDetail [plugin angular-compiler]
+
+    src/app/features/admin/personal/persona/persona-detail.ts:16:74:
+      16 │ ...uiButton, TuiButtonLoading, TuiBadge, TuiIcon, TuiInput, TuiLab...
+         ╵                                ~~~~~~~~
+
+
+▲ [WARNING] NG8113: TuiBadge is not used within the template of PersonaList [plugin angular-compiler]
+
+    src/app/features/admin/personal/persona/persona-list.ts:33:4:
+      33 │     TuiBadge,
+         ╵     ~~~~~~~~
+
+
+▲ [WARNING] NG8113: TuiBadge is not used within the template of RolesModal [plugin angular-compiler]
+
+    src/app/features/admin/seguridad/usuario/roles-modal.ts:19:46:
+      19 │ ...odule, ReactiveFormsModule, TuiBadge, TuiButton, TuiButtonLoadi...
+         ╵                                ~~~~~~~~
+
+
+▲ [WARNING] NG8113: TuiBadge is not used within the template of UsuarioDetail [plugin angular-compiler]
+
+    src/app/features/admin/seguridad/usuario/usuario-detail.ts:15:35:
+      15 │ ...ts: [RouterLink, TuiAvatar, TuiBadge, TuiButton, TuiButtonLoadi...
+         ╵                                ~~~~~~~~
+
+
+▲ [WARNING] NG8113: TuiBadge is not used within the template of UsuarioList [plugin angular-compiler]
+
+    src/app/features/admin/seguridad/usuario/usuario-list.ts:29:4:
+      29 │     TuiBadge,
+         ╵     ~~~~~~~~
+
+
+▲ [WARNING] NG8113: TuiLabel is not used within the template of UsuarioList [plugin angular-compiler]
+
+    src/app/features/admin/seguridad/usuario/usuario-list.ts:37:4:
+      37 │     TuiLabel,
+         ╵     ~~~~~~~~
+
+
+▲ [WARNING] bundle initial exceeded maximum budget. Budget 1.00 MB was not met by 118.63 kB with a total of 1.12 MB.
+
+
+▲ [WARNING] src/app/features/admin/home/admin-home.css exceeded maximum budget. Budget 4.00 kB was not met by 23 bytes with a total of 4.02 kB.
+
+
+▲ [WARNING] src/app/features/admin/asistencias/registro/asistencia-list.css exceeded maximum budget. Budget 4.00 kB was not met by 1.12 kB with a total of 5.12 kB.
+
+
+▲ [WARNING] src/app/features/admin/actividades/agenda/actividad-detail.css exceeded maximum budget. Budget 4.00 kB was not met by 1.25 kB with a total of 5.25 kB.
+
+
+▲ [WARNING] src/app/features/admin/aptitud/evaluacion/evaluacion-detail.css exceeded maximum budget. Budget 4.00 kB was not met by 535 bytes with a total of 4.54 kB.
+
+
+▲ [WARNING] src/app/features/admin/alertaclinica/dashboard/dashboard.css exceeded maximum budget. Budget 4.00 kB was not met by 326 bytes with a total of 4.33 kB.
+
+
+▲ [WARNING] src/app/features/admin/metas/meta/meta-detail.css exceeded maximum budget. Budget 4.00 kB was not met by 399 bytes with a total of 4.40 kB.
+
+
+▲ [WARNING] src/app/features/admin/seguridad/usuario/usuario-list.css exceeded maximum budget. Budget 4.00 kB was not met by 38 bytes with a total of 4.04 kB.
+
+
+▲ [WARNING] src/app/features/admin/aptitud/evaluacion/evaluacion-list.css exceeded maximum budget. Budget 4.00 kB was not met by 1.21 kB with a total of 5.21 kB.
+
+
+▲ [WARNING] src/app/features/admin/noticias/noticia/noticia-list.css exceeded maximum budget. Budget 4.00 kB was not met by 50 bytes with a total of 4.05 kB.
+
+
+▲ [WARNING] src/app/features/admin/aptitud/dashboard/dashboard.css exceeded maximum budget. Budget 4.00 kB was not met by 1.51 kB with a total of 5.51 kB.
+
+
+▲ [WARNING] src/app/features/admin/asistencias/dashboard/dashboard.css exceeded maximum budget. Budget 4.00 kB was not met by 627 bytes with a total of 4.63 kB.
+
+
+▲ [WARNING] src/app/features/admin/alertaclinica/alerta/alerta-clinica-detail.css exceeded maximum budget. Budget 4.00 kB was not met by 1.33 kB with a total of 5.33 kB.
+
+
+Output location: D:\ING SISTEMAS\LP2\PROYECTO 2.0\CODIGO\LOCAL\saludablemente-frontend\dist\saludablemente-frontend
+

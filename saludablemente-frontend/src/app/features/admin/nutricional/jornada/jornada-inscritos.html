@@ -1,0 +1,180 @@
+<div class="page-banner card">
+  <div class="page-banner-body">
+    <div class="page-banner-icon tile tile-rounded tile-soft-success">
+      <tui-icon icon="@tui.list-ordered" />
+    </div>
+    <div>
+      <h2 class="card-title">Inscritos</h2>
+      <p class="card-subtitle">
+        @if (jornada(); as j) {
+          {{ j.nombre }} · {{ formatearFecha(j.fecha) }}
+        } @else {
+          Turnos asignados a la jornada
+        }
+      </p>
+    </div>
+  </div>
+  <div class="page-banner-actions">
+    <a tuiButton appearance="outline" size="m" routerLink="/admin/nutricional/jornadas">
+      <tui-icon icon="@tui.arrow-left" />
+      Volver
+    </a>
+    @if (jornada(); as j) {
+      <a
+        tuiButton
+        appearance="outline"
+        size="m"
+        [routerLink]="['/admin/nutricional/jornadas', j.idJornada, 'editar']"
+      >
+        <tui-icon icon="@tui.pencil" />
+        Editar jornada
+      </a>
+    }
+  </div>
+</div>
+
+@if (jornada(); as j) {
+  <div class="stats-grid">
+    <div class="stat-card">
+      <span class="stat-label">Inscritos</span>
+      <strong class="stat-valor">{{ totalVigentes() }}</strong>
+      <span class="stat-detalle">de {{ j.capacidad }} cupos</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-label">Activas</span>
+      <strong class="stat-valor stat-success">{{ totalActivas() }}</strong>
+      <span class="stat-detalle">turnos vigentes</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-label">Asistieron</span>
+      <strong class="stat-valor stat-primary">{{ totalAsistieron() }}</strong>
+      <span class="stat-detalle">marcados</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-label">Canceladas</span>
+      <strong class="stat-valor stat-muted">{{ totalCanceladas() }}</strong>
+      <span class="stat-detalle">cupos liberados</span>
+    </div>
+  </div>
+}
+
+<div class="filtros-card">
+  <div class="filtros-linea">
+    <label tuiLabel class="filtro-item">
+      Buscar persona
+      <tui-textfield>
+        <tui-icon icon="@tui.search" />
+        <input
+          tuiInput
+          type="text"
+          placeholder="Nombre o documento"
+          [value]="busqueda()"
+          (input)="actualizarBusqueda($any($event.target).value)"
+        />
+      </tui-textfield>
+    </label>
+
+    <label tuiLabel class="filtro-item">
+      Estado
+      <tui-textfield tuiChevron>
+        <input tuiComboBox [formControl]="estadoCtrl" [strict]="true" placeholder="— Todos —" />
+        <tui-data-list-wrapper
+          *tuiDropdown
+          [items]="estadoOpts | tuiFilterByInput"
+          [itemContent]="estadoOpt"
+        />
+      </tui-textfield>
+    </label>
+  </div>
+</div>
+
+<ng-template #estadoOpt let-item>{{ item.label }}</ng-template>
+
+@if (error()) {
+  <div class="card error-caja">
+    <tui-icon icon="@tui.triangle-alert" class="icono-alerta" />
+    <p class="error-msg">{{ error() }}</p>
+  </div>
+}
+
+<div class="card tabla-card flush">
+  <div class="table-wrapper flush">
+    <table tuiTable>
+      <thead>
+        <tr>
+          <th tuiTh scope="col">Turno</th>
+          <th tuiTh scope="col">Persona</th>
+          <th tuiTh scope="col">Documento</th>
+          <th tuiTh scope="col">Inscripción</th>
+          <th tuiTh scope="col">Estado</th>
+          <th tuiTh scope="col" class="th-acciones"><span class="sr-only">Acciones</span></th>
+        </tr>
+      </thead>
+      <tbody tuiTbody>
+        @for (i of filtradas(); track i.idInscripcion) {
+          <tr>
+            <td tuiTd>
+              <span class="turno-chip">{{ i.numeroTurno }}</span>
+            </td>
+            <td tuiTd class="fw-bold">{{ i.nombresCompletos ?? '—' }}</td>
+            <td tuiTd class="text-soft">{{ i.documentoIdentidad ?? '—' }}</td>
+            <td tuiTd class="text-soft">{{ formatearFechaHora(i.fechaInscripcion) }}</td>
+            <td tuiTd>
+              <span [class]="claseEstado(i.estado)">{{ etiquetaEstado(i.estado) }}</span>
+            </td>
+            <td tuiTd class="td-acciones">
+              <div class="row-actions">
+                @if (i.estado === 'ACTIVA') {
+                  <button
+                    tuiButton
+                    appearance="outline"
+                    size="s"
+                    type="button"
+                    [loading]="procesando() === i.idInscripcion"
+                    (click)="marcarAsistio(i)"
+                  >
+                    <tui-icon icon="@tui.circle-check" />
+                    Asistió
+                  </button>
+                  <button
+                    tuiButton
+                    appearance="destructive"
+                    size="s"
+                    type="button"
+                    [loading]="procesando() === i.idInscripcion"
+                    (click)="cancelarInscripcion(i)"
+                  >
+                    <tui-icon icon="@tui.ban" />
+                    Cancelar
+                  </button>
+                } @else if (i.estado === 'CANCELADA') {
+                  <button
+                    tuiButton
+                    appearance="outline"
+                    size="s"
+                    type="button"
+                    [loading]="procesando() === i.idInscripcion"
+                    (click)="reactivarInscripcion(i)"
+                  >
+                    <tui-icon icon="@tui.rotate-ccw" />
+                    Reactivar
+                  </button>
+                } @else {
+                  <span class="text-soft">Turno completado</span>
+                }
+              </div>
+            </td>
+          </tr>
+        } @empty {
+          @if (!loading() && !error()) {
+            <tr>
+              <td tuiTd colspan="6" class="empty">
+                No hay inscritos que coincidan con los filtros.
+              </td>
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

@@ -1,0 +1,86 @@
+<div class="card">
+  <div class="page-banner">
+    <div class="page-banner-body">
+      <div class="page-banner-icon tile tile-rounded tile-soft-primary">
+        <tui-icon icon="@tui.calendar" />
+      </div>
+      <div>
+        <h2 class="card-title">Mis actividades</h2>
+        <p class="card-subtitle">
+          @if (loading()) {
+            Cargando actividades…
+          } @else {
+            {{ filtradas().length }} actividad(es) registrada(s)
+          }
+        </p>
+      </div>
+    </div>
+    <div class="page-banner-actions">
+      <a tuiButton appearance="outline" size="m" routerLink="/colaborador">
+        <tui-icon icon="@tui.arrow-left" />
+        Volver a mi panel
+      </a>
+    </div>
+  </div>
+
+  <div class="card filtros-card">
+    <div class="filtros-linea">
+      <label class="filtro-item">
+        <span class="filtro-etiqueta">Rango de fechas</span>
+        <tui-textfield tuiChevron>
+          <input tuiInputDateRange [formControl]="rangoCtrl" placeholder="— Selecciona rango —" />
+          <tui-calendar-range *tuiDropdown />
+        </tui-textfield>
+      </label>
+      <button tuiButton appearance="flat" size="m" type="button" (click)="fijarHoy()">
+        <tui-icon icon="@tui.calendar-check" />
+        Hoy
+      </button>
+      <button tuiButton appearance="flat" size="m" type="button" (click)="limpiarCampo()">
+        <tui-icon icon="@tui.eraser" />
+        Limpiar
+      </button>
+    </div>
+  </div>
+
+  @if (error()) {
+    <div class="card error-caja">
+      <tui-icon icon="@tui.triangle-alert" class="icono-alerta" />
+      <p class="error-msg">{{ error() }}</p>
+    </div>
+  }
+
+  @if (loading()) {
+    <div class="card">
+      <p class="hint">Cargando actividades...</p>
+    </div>
+  } @else if (filtradas().length === 0) {
+    <div class="card empty">No hay actividades en el rango seleccionado.</div>
+  } @else {
+    <div class="modulos-grid">
+      @for (a of filtradas(); track a.idActividad) {
+        <a class="card actividad-card" [routerLink]="['/colaborador/mis-actividades', a.idActividad]">
+          <div class="modulo-top">
+            @if (a.logoUrl) {
+              <div class="card-logo-box">
+                <img [src]="resolverUrl(a.logoUrl)" alt="" class="card-logo-img" />
+              </div>
+            } @else {
+              <span class="tile tile-circle tile-soft-primary">
+                <tui-icon icon="@tui.calendar" />
+              </span>
+            }
+            <span class="pill pill-neutral">{{ a.estado }}</span>
+          </div>
+          <h4>{{ a.nombre }}</h4>
+          <p class="hint">{{ a.lugar }}</p>
+          <p class="hint">{{ a.fechaActividad | date:'dd/MM/yyyy' }} {{ a.horaInicio }} - {{ a.horaFin }}</p>
+          <span class="modulo-foot">
+            Ver detalle
+            <span class="tile arrow tile-soft-primary"><tui-icon icon="@tui.arrow-right" /></span>
+          </span>
+        </a>
+      }
+    </div>
+  }
+</div>

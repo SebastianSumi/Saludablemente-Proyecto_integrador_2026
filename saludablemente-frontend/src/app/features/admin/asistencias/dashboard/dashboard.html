@@ -1,0 +1,153 @@
+<!-- ══════════════════════════════════════
+     CABECERA DE PÁGINA
+     ══════════════════════════════════════ -->
+<div class="page-banner card">
+  <div class="page-banner-body">
+    <div class="page-banner-icon tile tile-rounded tile-soft-primary">
+      <tui-icon icon="@tui.chart-column" />
+    </div>
+    <div>
+      <h2 class="card-title">Dashboard de Asistencias</h2>
+      <p class="card-subtitle">Métricas de participación por actividad, métodos de captura y monitoreo de ausentismo</p>
+    </div>
+  </div>
+  <a tuiButton appearance="primary" size="m" routerLink="/asistencias/registro">
+    <tui-icon icon="@tui.clipboard-list" />
+    Ver registros de asistencia
+  </a>
+</div>
+
+<!-- ══════════════════════════════════════
+     FILTRO DE ACTIVIDAD
+     ══════════════════════════════════════ -->
+<div class="filtros-card">
+  <div class="filtros-linea">
+    <div class="filtro-item">
+      <label class="filtro-etiqueta">Seleccione actividad</label>
+      <tui-textfield tuiChevron>
+        <input tuiComboBox [formControl]="actividadCtrl" [strict]="true" placeholder="— Busca y selecciona una actividad —" />
+        <tui-data-list-wrapper *tuiDropdown [items]="actividades() | tuiFilterByInput" [itemContent]="act" />
+      </tui-textfield>
+    </div>
+  </div>
+</div>
+
+<ng-template #act let-item>
+  <span class="opcion-actividad">
+    <strong class="opcion-actividad-nombre">{{ item.nombre }}</strong>
+    @if (item.fechaActividad || item.lugar) {
+      <span class="opcion-actividad-meta text-soft">{{ item.fechaActividad ?? '' }}{{ item.fechaActividad && item.lugar ? ' · ' : '' }}{{ item.lugar ?? '' }}</span>
+    }
+  </span>
+</ng-template>
+
+@if (loading()) {
+  <div class="card estado-caja">
+    <p class="sal-subtitulo">Cargando métricas de participación...</p>
+  </div>
+}
+
+@if (error()) {
+  <div class="card error-caja">
+    <tui-icon icon="@tui.triangle-alert" class="icono-alerta" />
+    <p class="error-msg">{{ error() }}</p>
+  </div>
+}
+
+@if (participacion(); as p) {
+  <!-- ══════════════════════════════════════
+       TARJETAS KPI
+       ══════════════════════════════════════ -->
+  <div class="kpi-grid">
+    <article class="card kpi-card">
+      <div class="kpi-top">
+        <span class="tile tile-circle tile-soft-primary kpi-icon">
+          <tui-icon icon="@tui.percent" />
+        </span>
+        @if (p.banda; as b) {
+          <span class="pill pill-soft-primary">{{ b.etiqueta }}</span>
+        }
+      </div>
+      <div class="kpi-body">
+        <strong class="kpi-value text-primary">{{ p.porcentajeParticipacion }}%</strong>
+        <span class="kpi-label">Tasa de participación</span>
+      </div>
+    </article>
+
+    <article class="card kpi-card">
+      <div class="kpi-top">
+        <span class="tile tile-circle tile-soft-success kpi-icon">
+          <tui-icon icon="@tui.users" />
+        </span>
+        <span class="pill pill-soft-success">Asistieron</span>
+      </div>
+      <div class="kpi-body">
+        <strong class="kpi-value">{{ p.totalAsistentes }} <span class="val-sub">/ {{ p.totalEsperados }}</span></strong>
+        <span class="kpi-label">Asistentes vs esperados</span>
+      </div>
+    </article>
+
+    <article class="card kpi-card">
+      <div class="kpi-top">
+        <span class="tile tile-circle tile-soft-warning kpi-icon">
+          <tui-icon icon="@tui.shield-alert" />
+        </span>
+        <span class="pill pill-soft-warning">En revisión</span>
+      </div>
+      <div class="kpi-body">
+        <strong class="kpi-value val-warning">{{ p.totalCuarentenaPendiente }}</strong>
+        <span class="kpi-label">Marcaciones en cuarentena</span>
+      </div>
+    </article>
+
+    <article class="card kpi-card">
+      <div class="kpi-top">
+        <span class="tile tile-circle tile-soft-secondary kpi-icon">
+          <tui-icon icon="@tui.trophy" />
+        </span>
+        <span class="pill pill-soft-secondary">Puntos</span>
+      </div>
+      <div class="kpi-body">
+        <strong class="kpi-value">{{ gamificados() }}</strong>
+        <span class="kpi-label">Gamificados (health points)</span>
+      </div>
+    </article>
+  </div>
+
+  @if (p.metodoMasUsado) {
+    <div class="card info-banner">
+      <tui-icon icon="@tui.info" class="info-ico" />
+      <span>Método de captura predominante: <strong class="text-ink">{{ p.metodoMasUsado }}</strong></span>
+    </div>
+  }
+
+  <!-- ══════════════════════════════════════
+       GRÁFICOS
+       ══════════════════════════════════════ -->
+  <div class="graficos-grid">
+    <section class="card chart-card">
+      <div echarts [options]="opcionesEstado()" class="chart-canvas"></div>
+    </section>
+    <section class="card chart-card">
+      <div echarts [options]="opcionesMetodo()" class="chart-canvas"></div>
+    </section>
+  </div>
+}
+
+@if (ausentismo(); as a) {
+  <section class="card ausentismo-card">
+    <div class="seccion-titulo">
+      <span class="tile tile-rounded tile-soft-error seccion-icono">
+        <tui-icon icon="@tui.user-x" />
+      </span>
+      <div>
+        <h3 class="seccion-nombre">Alerta de ausentismo crónico (Racha de inasistencias ≥ {{ a.minRacha }})</h3>
+        <p class="seccion-desc">{{ a.total }} persona(s) con ausencia recurrente consecutiva</p>
+      </div>
+    </div>
+    <div class="ausentismo-detalle">
+      <span class="text-soft">IDs de colaboradores afectados:</span>
+      <strong class="font-mono text-ink">{{ a.idsPersona.join(', ') || 'Ninguno detectado' }}</strong>
+    </div>
+  </section>
+}

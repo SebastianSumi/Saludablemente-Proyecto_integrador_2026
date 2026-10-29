@@ -1,0 +1,3583 @@
+﻿package upeu.edu.pe.Saludabemente.actividades.agenda.controller;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import upeu.edu.pe.Saludabemente.actividades.agenda.dto.request.ActividadRequest;
+import upeu.edu.pe.Saludabemente.actividades.agenda.dto.response.ActividadResponse;
+import upeu.edu.pe.Saludabemente.actividades.agenda.dto.response.CalendarioResponse;
+import upeu.edu.pe.Saludabemente.actividades.agenda.service.AgendaService;
+
+import java.util.List;
+
+@Tag(name = "Actividades - Agenda")
+@RestController
+@RequestMapping("/api/v1/agenda")
+@RequiredArgsConstructor
+public class ActividadController {
+
+    private final AgendaService agendaService;
+
+    @Operation(summary = "Listar actividades para el calendario mensual")
+    @GetMapping("/calendario")
+    public ResponseEntity<CalendarioResponse> listarParaCalendario(
+            @RequestParam int mes,
+            @RequestParam int anio) {
+        return ResponseEntity.ok(agendaService.listarParaCalendario(mes, anio));
+    }
+
+    @Operation(summary = "Actividades activas del dia de hoy")
+    @GetMapping("/hoy")
+    public ResponseEntity<List<ActividadResponse>> obtenerActivasDelDia() {
+        return ResponseEntity.ok(agendaService.obtenerActivasDelDia());
+    }
+
+    @Operation(summary = "Crear actividad individual")
+    @PostMapping("/actividades")
+    public ResponseEntity<ActividadResponse> crear(@Valid @RequestBody ActividadRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(agendaService.crearActividadIndividual(request));
+    }
+
+    @Operation(summary = "Obtener actividad por ID")
+    @GetMapping("/actividades/{id}")
+    public ResponseEntity<ActividadResponse> obtener(@PathVariable Long id) {
+        return ResponseEntity.ok(agendaService.obtenerPorId(id));
+    }
+
+    @Operation(summary = "Listar todas las actividades")
+    @GetMapping("/actividades")
+    public ResponseEntity<List<ActividadResponse>> listar() {
+        return ResponseEntity.ok(agendaService.listarTodas());
+    }
+}
+package upeu.edu.pe.Saludabemente.actividades.configuracion.controller;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import upeu.edu.pe.Saludabemente.actividades.configuracion.dto.request.GamificacionRequest;
+import upeu.edu.pe.Saludabemente.actividades.configuracion.dto.request.MaterialesRequest;
+import upeu.edu.pe.Saludabemente.actividades.configuracion.dto.request.PublicoObjetivoRequest;
+import upeu.edu.pe.Saludabemente.actividades.configuracion.dto.response.ConfiguracionResponse;
+import upeu.edu.pe.Saludabemente.actividades.configuracion.service.ConfiguracionService;
+
+@Tag(name = "Actividades - Configuracion")
+@RestController
+@RequestMapping("/api/v1/configuracion")
+@RequiredArgsConstructor
+public class ConfiguracionController {
+
+    private final ConfiguracionService configuracionService;
+
+    @Operation(summary = "Asignar publico objetivo (equipos) a una actividad")
+    @PostMapping("/{id}/publico")
+    public ResponseEntity<ConfiguracionResponse> asignarPublico(
+            @PathVariable Long id,
+            @Valid @RequestBody PublicoObjetivoRequest req) {
+        return ResponseEntity.ok(configuracionService.asignarPublicoObjetivo(id, req));
+    }
+
+    @Operation(summary = "Gestionar materiales requeridos de una actividad")
+    @PostMapping("/{id}/materiales")
+    public ResponseEntity<ConfiguracionResponse> gestionarMateriales(
+            @PathVariable Long id,
+            @Valid @RequestBody MaterialesRequest req) {
+        return ResponseEntity.ok(configuracionService.gestionarMateriales(id, req));
+    }
+
+    @Operation(summary = "Configurar Health Points (puntaje de salud) de una actividad")
+    @PutMapping("/{id}/puntaje")
+    public ResponseEntity<ConfiguracionResponse> configurarPuntaje(
+            @PathVariable Long id,
+            @Valid @RequestBody GamificacionRequest req) {
+        return ResponseEntity.ok(configuracionService.configurarPuntaje(id, req));
+    }
+
+    @Operation(summary = "Obtener configuracion completa de una actividad")
+    @GetMapping("/{id}")
+    public ResponseEntity<ConfiguracionResponse> obtener(@PathVariable Long id) {
+        return ResponseEntity.ok(configuracionService.obtenerConfiguracion(id));
+    }
+}
+package upeu.edu.pe.Saludabemente.actividades.inscripcion.controller;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import upeu.edu.pe.Saludabemente.actividades.inscripcion.dto.request.InscribirPersonasRequest;
+import upeu.edu.pe.Saludabemente.actividades.inscripcion.service.InscripcionService;
+
+import java.util.List;
+import java.util.Map;
+
+@Tag(name = "Actividades - Inscripciones")
+@RestController
+@RequestMapping("/api/v1/actividades/{idActividad}/inscripciones")
+@RequiredArgsConstructor
+public class InscripcionController {
+
+    private final InscripcionService inscripcionService;
+
+    @Operation(summary = "Inscribir a TODAS las personas activas (reemplaza inscritos previos)")
+    @PostMapping("/todos")
+    public ResponseEntity<Map<String, Object>> inscribirATodos(@PathVariable Long idActividad) {
+        int total = inscripcionService.inscribirATodos(idActividad);
+        return ResponseEntity.ok(Map.of(
+                "idActividad", idActividad,
+                "inscritos", total,
+                "modo", "TODOS"
+        ));
+    }
+
+    @Operation(summary = "Inscribir personas especificas (agrega a los existentes)")
+    @PostMapping
+    public ResponseEntity<Map<String, Object>> inscribirPersonas(
+            @PathVariable Long idActividad,
+            @Valid @RequestBody InscribirPersonasRequest req) {
+        int agregados = inscripcionService.inscribirPersonas(idActividad, req.idsPersonas());
+        return ResponseEntity.ok(Map.of(
+                "idActividad", idActividad,
+                "agregados", agregados,
+                "modo", "ESPECIFICO"
+        ));
+    }
+
+    @Operation(summary = "Quitar un inscrito")
+    @DeleteMapping("/{idPersona}")
+    public ResponseEntity<Void> quitar(
+            @PathVariable Long idActividad,
+            @PathVariable Long idPersona) {
+
+        boolean eliminado = inscripcionService.quitarInscrito(idActividad, idPersona);
+
+        if (!eliminado) {
+            // No existia el inscrito: 404
+            return ResponseEntity.notFound().build();
+        }
+
+        // Se elimino correctamente: 204
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "Listar IDs de inscritos")
+    @GetMapping
+    public ResponseEntity<List<Long>> listar(@PathVariable Long idActividad) {
+        return ResponseEntity.ok(inscripcionService.listarInscritos(idActividad));
+    }
+
+    @Operation(summary = "Contar inscritos")
+    @GetMapping("/count")
+    public ResponseEntity<Map<String, Long>> contar(@PathVariable Long idActividad) {
+        return ResponseEntity.ok(Map.of("total", inscripcionService.contarInscritos(idActividad)));
+    }
+}
+package upeu.edu.pe.Saludabemente.actividades.operacion.controller;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import upeu.edu.pe.Saludabemente.actividades.agenda.dto.response.ActividadResponse;
+import upeu.edu.pe.Saludabemente.actividades.operacion.dto.request.CancelacionRequest;
+import upeu.edu.pe.Saludabemente.actividades.operacion.dto.request.ReprogramacionRequest;
+import upeu.edu.pe.Saludabemente.actividades.operacion.dto.request.TransferenciaRequest;
+import upeu.edu.pe.Saludabemente.actividades.operacion.dto.response.TokenQrResponse;
+import upeu.edu.pe.Saludabemente.actividades.operacion.service.OperacionService;
+
+@Tag(name = "Actividades - Operacion")
+@RestController
+@RequestMapping("/api/v1/operacion")
+@RequiredArgsConstructor
+public class OperacionController {
+
+    private final OperacionService operacionService;
+
+    @Operation(summary = "Reprogramar una actividad PROGRAMADA")
+    @PutMapping("/{id}/tiempo")
+    public ResponseEntity<ActividadResponse> reprogramar(
+            @PathVariable Long id,
+            @Valid @RequestBody ReprogramacionRequest req) {
+        return ResponseEntity.ok(operacionService.reprogramar(id, req));
+    }
+
+    @Operation(summary = "Cancelar una actividad con motivo obligatorio")
+    @PatchMapping("/{id}/cancelar")
+    public ResponseEntity<ActividadResponse> cancelar(
+            @PathVariable Long id,
+            @Valid @RequestBody CancelacionRequest req) {
+        return ResponseEntity.ok(operacionService.cancelar(id, req));
+    }
+
+    @Operation(summary = "Iniciar una actividad (PROGRAMADA -> EN_CURSO)")
+    @PatchMapping("/{id}/iniciar")
+    public ResponseEntity<ActividadResponse> iniciar(@PathVariable Long id) {
+        return ResponseEntity.ok(operacionService.iniciar(id));
+    }
+
+    @Operation(summary = "Finalizar una actividad (EN_CURSO -> FINALIZADA)")
+    @PatchMapping("/{id}/finalizar")
+    public ResponseEntity<ActividadResponse> finalizar(@PathVariable Long id) {
+        return ResponseEntity.ok(operacionService.finalizar(id));
+    }
+
+    @Operation(summary = "Transferir el coordinador de una actividad")
+    @PutMapping("/{id}/coordinador")
+    public ResponseEntity<ActividadResponse> transferir(
+            @PathVariable Long id,
+            @Valid @RequestBody TransferenciaRequest req) {
+        return ResponseEntity.ok(operacionService.transferirCoordinador(id, req));
+    }
+
+    @Operation(summary = "Generar codigo QR de asistencia (solo EN_CURSO)")
+    @GetMapping("/{id}/qr")
+    public ResponseEntity<TokenQrResponse> generarQr(@PathVariable Long id) {
+        return ResponseEntity.ok(operacionService.generarQr(id));
+    }
+
+    @Operation(summary = "Rotar codigo QR de asistencia (cada 5 min)")
+    @PostMapping("/{id}/qr/rotar")
+    public ResponseEntity<TokenQrResponse> rotarQr(@PathVariable Long id) {
+        return ResponseEntity.ok(operacionService.rotarQr(id));
+    }
+}
+package upeu.edu.pe.Saludabemente.actividades.reporte.controller;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import upeu.edu.pe.Saludabemente.actividades.reporte.dto.response.ReporteActividadResponse;
+import upeu.edu.pe.Saludabemente.actividades.reporte.dto.response.ReportePeriodoResponse;
+import upeu.edu.pe.Saludabemente.actividades.reporte.service.ReporteActividadesService;
+
+import java.time.LocalDate;
+
+@Tag(name = "Actividades - Reportes")
+@RestController
+@RequestMapping("/api/v1/reportes")
+@RequiredArgsConstructor
+public class ReporteActividadesController {
+
+    private final ReporteActividadesService reporteActividadesService;
+
+    @Operation(summary = "Reporte A: actividad con su configuracion completa (materiales + publico objetivo)")
+    @GetMapping("/actividades/{id}")
+    public ResponseEntity<ReporteActividadResponse> reporteActividad(@PathVariable Long id) {
+        return ResponseEntity.ok(reporteActividadesService.reporteActividad(id));
+    }
+
+    @Operation(summary = "Reporte B: agenda agrupada por periodo (cabecera: conteos, detalle: actividades)")
+    @GetMapping("/agenda")
+    public ResponseEntity<ReportePeriodoResponse> reportePeriodo(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicio,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFin,
+            @RequestParam(required = false) String periodo) {
+        return ResponseEntity.ok(reporteActividadesService.reportePeriodo(fechaInicio, fechaFin, periodo));
+    }
+}
+package upeu.edu.pe.Saludabemente.alertaclinica.alerta.controller;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import upeu.edu.pe.Saludabemente.alertaclinica.alerta.dto.AlertaClinicaResponse;
+import upeu.edu.pe.Saludabemente.alertaclinica.alerta.dto.AlertaReporte;
+import upeu.edu.pe.Saludabemente.alertaclinica.alerta.dto.AtenderAlertaRequest;
+import upeu.edu.pe.Saludabemente.alertaclinica.alerta.entity.EstadoAlerta;
+import upeu.edu.pe.Saludabemente.alertaclinica.alerta.entity.SeveridadAlerta;
+import upeu.edu.pe.Saludabemente.alertaclinica.alerta.entity.TipoEvaluacionOrigen;
+import upeu.edu.pe.Saludabemente.alertaclinica.alerta.service.AlertaClinicaService;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+@Tag(name = "Alertas Clinicas")
+@RestController
+@RequestMapping("/api/v1/alertas")
+@RequiredArgsConstructor
+public class AlertaClinicaController {
+
+    private final AlertaClinicaService alertaService;
+
+    @Operation(summary = "Lista alertas con filtros combinados y ordenamiento opcionales")
+    @GetMapping
+    public ResponseEntity<List<AlertaClinicaResponse>> buscar(
+            @RequestParam(required = false) EstadoAlerta estado,
+            @RequestParam(required = false) SeveridadAlerta severidad,
+            @RequestParam(required = false) Long personaId,
+            @RequestParam(required = false) TipoEvaluacionOrigen tipoOrigen,
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime desde,
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime hasta,
+            @RequestParam(defaultValue = "fechaGeneracion") String ordenarPor,
+            @RequestParam(defaultValue = "DESC") String direccion) {
+        return ResponseEntity.ok(alertaService.buscar(
+                estado, severidad, personaId, tipoOrigen, desde, hasta, ordenarPor, direccion));
+    }
+
+    @Operation(summary = "Genera un reporte de alertas: agregados y detalle resumido")
+    @GetMapping("/resumen")
+    public ResponseEntity<AlertaReporte> resumen(
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime desde,
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime hasta) {
+        return ResponseEntity.ok(alertaService.reporte(desde, hasta));
+    }
+
+    @Operation(summary = "Consulta una alerta por id, con sus detalles")
+    @GetMapping("/{id}")
+    public ResponseEntity<AlertaClinicaResponse> obtener(@PathVariable Long id) {
+        return ResponseEntity.ok(alertaService.obtener(id));
+    }
+
+    @Operation(summary = "Marca una alerta como atendida")
+    @PatchMapping("/{id}/atender")
+    public ResponseEntity<AlertaClinicaResponse> atender(
+            @PathVariable Long id,
+            @Valid @RequestBody AtenderAlertaRequest request) {
+        return ResponseEntity.ok(alertaService.atender(id, request));
+    }
+
+    @Operation(summary = "Anula (baja logica) una alerta")
+    @PatchMapping("/{id}/anular")
+    public ResponseEntity<AlertaClinicaResponse> anular(@PathVariable Long id) {
+        return ResponseEntity.ok(alertaService.anular(id));
+    }
+}
+package upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.aptitud_fisica.controller;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.enums.EstadoRegla;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.enums.SexoBiologico;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.aptitud_fisica.dto.ReglaAbdominalesRequestDto;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.aptitud_fisica.dto.ReglaAbdominalesResponseDto;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.aptitud_fisica.service.ReglaAbdominalesService;
+
+import java.util.List;
+
+@Tag(name = "Reglas Abdominales (Administracion)")
+@RestController
+@RequestMapping("/api/v1/reglas/abdominales")
+@RequiredArgsConstructor
+public class ReglaAbdominalesController {
+
+    private final ReglaAbdominalesService service;
+
+    @Operation(summary = "Lista reglas de abdominales con filtros opcionales")
+    @GetMapping
+    public ResponseEntity<List<ReglaAbdominalesResponseDto>> listar(
+            @RequestParam(required = false) EstadoRegla estado,
+            @RequestParam(required = false) SexoBiologico sexo) {
+        return ResponseEntity.ok(service.listar(estado, sexo));
+    }
+
+    @Operation(summary = "Consulta una regla de abdominales por id")
+    @GetMapping("/{id}")
+    public ResponseEntity<ReglaAbdominalesResponseDto> obtener(@PathVariable Long id) {
+        return ResponseEntity.ok(service.obtener(id));
+    }
+
+    @Operation(summary = "Registra una regla de abdominales")
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public ReglaAbdominalesResponseDto crear(
+            @Valid @RequestBody ReglaAbdominalesRequestDto requestDto) {
+        return service.crear(requestDto);
+    }
+
+    @Operation(summary = "Actualiza una regla de abdominales existente")
+    @PutMapping("/{id}")
+    public ResponseEntity<ReglaAbdominalesResponseDto> actualizar(
+            @PathVariable Long id,
+            @Valid @RequestBody ReglaAbdominalesRequestDto requestDto) {
+        return ResponseEntity.ok(service.actualizar(id, requestDto));
+    }
+
+    @Operation(summary = "Desactiva una regla de abdominales")
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void desactivar(@PathVariable Long id) {
+        service.desactivar(id);
+    }
+
+    @Operation(summary = "Reactiva una regla de abdominales")
+    @PatchMapping("/{id}/reactivar")
+    public ResponseEntity<ReglaAbdominalesResponseDto> reactivar(@PathVariable Long id) {
+        return ResponseEntity.ok(service.reactivar(id));
+    }
+}
+package upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.aptitud_fisica.controller;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.enums.EstadoRegla;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.enums.SexoBiologico;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.aptitud_fisica.dto.ReglaCarrera400mRequestDto;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.aptitud_fisica.dto.ReglaCarrera400mResponseDto;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.aptitud_fisica.service.ReglaCarrera400mService;
+
+import java.util.List;
+
+@Tag(name = "Reglas Carrera 400m (Administracion)")
+@RestController
+@RequestMapping("/api/v1/reglas/carrera-400m")
+@RequiredArgsConstructor
+public class ReglaCarrera400mController {
+
+    private final ReglaCarrera400mService service;
+
+    @Operation(summary = "Lista reglas de carrera 400m con filtros opcionales")
+    @GetMapping
+    public ResponseEntity<List<ReglaCarrera400mResponseDto>> listar(
+            @RequestParam(required = false) EstadoRegla estado,
+            @RequestParam(required = false) SexoBiologico sexo) {
+        return ResponseEntity.ok(service.listar(estado, sexo));
+    }
+
+    @Operation(summary = "Consulta una regla de carrera 400m por id")
+    @GetMapping("/{id}")
+    public ResponseEntity<ReglaCarrera400mResponseDto> obtener(@PathVariable Long id) {
+        return ResponseEntity.ok(service.obtener(id));
+    }
+
+    @Operation(summary = "Registra una regla de carrera 400m")
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public ReglaCarrera400mResponseDto crear(
+            @Valid @RequestBody ReglaCarrera400mRequestDto requestDto) {
+        return service.crear(requestDto);
+    }
+
+    @Operation(summary = "Actualiza una regla de carrera 400m existente")
+    @PutMapping("/{id}")
+    public ResponseEntity<ReglaCarrera400mResponseDto> actualizar(
+            @PathVariable Long id,
+            @Valid @RequestBody ReglaCarrera400mRequestDto requestDto) {
+        return ResponseEntity.ok(service.actualizar(id, requestDto));
+    }
+
+    @Operation(summary = "Desactiva una regla de carrera 400m")
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void desactivar(@PathVariable Long id) {
+        service.desactivar(id);
+    }
+
+    @Operation(summary = "Reactiva una regla de carrera 400m")
+    @PatchMapping("/{id}/reactivar")
+    public ResponseEntity<ReglaCarrera400mResponseDto> reactivar(@PathVariable Long id) {
+        return ResponseEntity.ok(service.reactivar(id));
+    }
+}
+package upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.aptitud_fisica.controller;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.enums.EstadoRegla;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.enums.SexoBiologico;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.aptitud_fisica.dto.ReglaPlanchasRequestDto;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.aptitud_fisica.dto.ReglaPlanchasResponseDto;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.aptitud_fisica.service.ReglaPlanchasService;
+
+import java.util.List;
+
+@Tag(name = "Reglas Planchas (Administracion)")
+@RestController
+@RequestMapping("/api/v1/reglas/planchas")
+@RequiredArgsConstructor
+public class ReglaPlanchasController {
+
+    private final ReglaPlanchasService service;
+
+    @Operation(summary = "Lista reglas de planchas con filtros opcionales")
+    @GetMapping
+    public ResponseEntity<List<ReglaPlanchasResponseDto>> listar(
+            @RequestParam(required = false) EstadoRegla estado,
+            @RequestParam(required = false) SexoBiologico sexo) {
+        return ResponseEntity.ok(service.listar(estado, sexo));
+    }
+
+    @Operation(summary = "Consulta una regla de planchas por id")
+    @GetMapping("/{id}")
+    public ResponseEntity<ReglaPlanchasResponseDto> obtener(@PathVariable Long id) {
+        return ResponseEntity.ok(service.obtener(id));
+    }
+
+    @Operation(summary = "Registra una regla de planchas")
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public ReglaPlanchasResponseDto crear(
+            @Valid @RequestBody ReglaPlanchasRequestDto requestDto) {
+        return service.crear(requestDto);
+    }
+
+    @Operation(summary = "Actualiza una regla de planchas existente")
+    @PutMapping("/{id}")
+    public ResponseEntity<ReglaPlanchasResponseDto> actualizar(
+            @PathVariable Long id,
+            @Valid @RequestBody ReglaPlanchasRequestDto requestDto) {
+        return ResponseEntity.ok(service.actualizar(id, requestDto));
+    }
+
+    @Operation(summary = "Desactiva una regla de planchas")
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void desactivar(@PathVariable Long id) {
+        service.desactivar(id);
+    }
+
+    @Operation(summary = "Reactiva una regla de planchas")
+    @PatchMapping("/{id}/reactivar")
+    public ResponseEntity<ReglaPlanchasResponseDto> reactivar(@PathVariable Long id) {
+        return ResponseEntity.ok(service.reactivar(id));
+    }
+}
+package upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.aptitud_fisica.controller;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.enums.EstadoRegla;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.enums.SexoBiologico;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.aptitud_fisica.dto.ReglaSaltaSogaRequestDto;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.aptitud_fisica.dto.ReglaSaltaSogaResponseDto;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.aptitud_fisica.service.ReglaSaltaSogaService;
+
+import java.util.List;
+
+@Tag(name = "Reglas Salta Soga (Administracion)")
+@RestController
+@RequestMapping("/api/v1/reglas/salta-soga")
+@RequiredArgsConstructor
+public class ReglaSaltaSogaController {
+
+    private final ReglaSaltaSogaService service;
+
+    @Operation(summary = "Lista reglas de salta soga con filtros opcionales")
+    @GetMapping
+    public ResponseEntity<List<ReglaSaltaSogaResponseDto>> listar(
+            @RequestParam(required = false) EstadoRegla estado,
+            @RequestParam(required = false) SexoBiologico sexo) {
+        return ResponseEntity.ok(service.listar(estado, sexo));
+    }
+
+    @Operation(summary = "Consulta una regla de salta soga por id")
+    @GetMapping("/{id}")
+    public ResponseEntity<ReglaSaltaSogaResponseDto> obtener(@PathVariable Long id) {
+        return ResponseEntity.ok(service.obtener(id));
+    }
+
+    @Operation(summary = "Registra una regla de salta soga")
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public ReglaSaltaSogaResponseDto crear(
+            @Valid @RequestBody ReglaSaltaSogaRequestDto requestDto) {
+        return service.crear(requestDto);
+    }
+
+    @Operation(summary = "Actualiza una regla de salta soga existente")
+    @PutMapping("/{id}")
+    public ResponseEntity<ReglaSaltaSogaResponseDto> actualizar(
+            @PathVariable Long id,
+            @Valid @RequestBody ReglaSaltaSogaRequestDto requestDto) {
+        return ResponseEntity.ok(service.actualizar(id, requestDto));
+    }
+
+    @Operation(summary = "Desactiva una regla de salta soga")
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void desactivar(@PathVariable Long id) {
+        service.desactivar(id);
+    }
+
+    @Operation(summary = "Reactiva una regla de salta soga")
+    @PatchMapping("/{id}/reactivar")
+    public ResponseEntity<ReglaSaltaSogaResponseDto> reactivar(@PathVariable Long id) {
+        return ResponseEntity.ok(service.reactivar(id));
+    }
+}
+package upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.aptitud_fisica.controller;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.enums.EstadoRegla;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.enums.SexoBiologico;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.aptitud_fisica.dto.ReglaSaltoSinImpulsoRequestDto;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.aptitud_fisica.dto.ReglaSaltoSinImpulsoResponseDto;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.aptitud_fisica.service.ReglaSaltoSinImpulsoService;
+
+import java.util.List;
+
+@Tag(name = "Reglas Salto Sin Impulso (Administracion)")
+@RestController
+@RequestMapping("/api/v1/reglas/salto-sin-impulso")
+@RequiredArgsConstructor
+public class ReglaSaltoSinImpulsoController {
+
+    private final ReglaSaltoSinImpulsoService service;
+
+    @Operation(summary = "Lista reglas de salto sin impulso con filtros opcionales")
+    @GetMapping
+    public ResponseEntity<List<ReglaSaltoSinImpulsoResponseDto>> listar(
+            @RequestParam(required = false) EstadoRegla estado,
+            @RequestParam(required = false) SexoBiologico sexo) {
+        return ResponseEntity.ok(service.listar(estado, sexo));
+    }
+
+    @Operation(summary = "Consulta una regla de salto sin impulso por id")
+    @GetMapping("/{id}")
+    public ResponseEntity<ReglaSaltoSinImpulsoResponseDto> obtener(@PathVariable Long id) {
+        return ResponseEntity.ok(service.obtener(id));
+    }
+
+    @Operation(summary = "Registra una regla de salto sin impulso")
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public ReglaSaltoSinImpulsoResponseDto crear(
+            @Valid @RequestBody ReglaSaltoSinImpulsoRequestDto requestDto) {
+        return service.crear(requestDto);
+    }
+
+    @Operation(summary = "Actualiza una regla de salto sin impulso existente")
+    @PutMapping("/{id}")
+    public ResponseEntity<ReglaSaltoSinImpulsoResponseDto> actualizar(
+            @PathVariable Long id,
+            @Valid @RequestBody ReglaSaltoSinImpulsoRequestDto requestDto) {
+        return ResponseEntity.ok(service.actualizar(id, requestDto));
+    }
+
+    @Operation(summary = "Desactiva una regla de salto sin impulso")
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void desactivar(@PathVariable Long id) {
+        service.desactivar(id);
+    }
+
+    @Operation(summary = "Reactiva una regla de salto sin impulso")
+    @PatchMapping("/{id}/reactivar")
+    public ResponseEntity<ReglaSaltoSinImpulsoResponseDto> reactivar(@PathVariable Long id) {
+        return ResponseEntity.ok(service.reactivar(id));
+    }
+}
+package upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.nutricional.controller;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.enums.EstadoRegla;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.enums.SexoBiologico;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.nutricional.dto.ReglaColesterolRequestDto;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.nutricional.dto.ReglaColesterolResponseDto;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.nutricional.service.ReglaColesterolService;
+
+import java.util.List;
+
+@Tag(name = "Reglas Colesterol (Administracion)")
+@RestController
+@RequestMapping("/api/v1/reglas/colesterol")
+@RequiredArgsConstructor
+public class ReglaColesterolController {
+
+    private final ReglaColesterolService service;
+
+    @Operation(summary = "Lista reglas de colesterol con filtros opcionales")
+    @GetMapping
+    public ResponseEntity<List<ReglaColesterolResponseDto>> listar(
+            @RequestParam(required = false) EstadoRegla estado,
+            @RequestParam(required = false) SexoBiologico sexo) {
+        return ResponseEntity.ok(service.listar(estado, sexo));
+    }
+
+    @Operation(summary = "Consulta una regla de colesterol por id")
+    @GetMapping("/{id}")
+    public ResponseEntity<ReglaColesterolResponseDto> obtener(@PathVariable Long id) {
+        return ResponseEntity.ok(service.obtener(id));
+    }
+
+    @Operation(summary = "Registra una regla de colesterol")
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public ReglaColesterolResponseDto crear(
+            @Valid @RequestBody ReglaColesterolRequestDto requestDto) {
+        return service.crear(requestDto);
+    }
+
+    @Operation(summary = "Actualiza una regla de colesterol existente")
+    @PutMapping("/{id}")
+    public ResponseEntity<ReglaColesterolResponseDto> actualizar(
+            @PathVariable Long id,
+            @Valid @RequestBody ReglaColesterolRequestDto requestDto) {
+        return ResponseEntity.ok(service.actualizar(id, requestDto));
+    }
+
+    @Operation(summary = "Desactiva una regla de colesterol")
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void desactivar(@PathVariable Long id) {
+        service.desactivar(id);
+    }
+
+    @Operation(summary = "Reactiva una regla de colesterol")
+    @PatchMapping("/{id}/reactivar")
+    public ResponseEntity<ReglaColesterolResponseDto> reactivar(@PathVariable Long id) {
+        return ResponseEntity.ok(service.reactivar(id));
+    }
+}
+package upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.nutricional.controller;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.enums.EstadoRegla;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.enums.SexoBiologico;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.nutricional.dto.ReglaGlucosaRequestDto;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.nutricional.dto.ReglaGlucosaResponseDto;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.nutricional.service.ReglaGlucosaService;
+
+import java.util.List;
+
+@Tag(name = "Reglas Glucosa (Administracion)")
+@RestController
+@RequestMapping("/api/v1/reglas/glucosa")
+@RequiredArgsConstructor
+public class ReglaGlucosaController {
+
+    private final ReglaGlucosaService service;
+
+    @Operation(summary = "Lista reglas de glucosa con filtros opcionales")
+    @GetMapping
+    public ResponseEntity<List<ReglaGlucosaResponseDto>> listar(
+            @RequestParam(required = false) EstadoRegla estado,
+            @RequestParam(required = false) SexoBiologico sexo) {
+        return ResponseEntity.ok(service.listar(estado, sexo));
+    }
+
+    @Operation(summary = "Consulta una regla de glucosa por id")
+    @GetMapping("/{id}")
+    public ResponseEntity<ReglaGlucosaResponseDto> obtener(@PathVariable Long id) {
+        return ResponseEntity.ok(service.obtener(id));
+    }
+
+    @Operation(summary = "Registra una regla de glucosa")
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public ReglaGlucosaResponseDto crear(@Valid @RequestBody ReglaGlucosaRequestDto requestDto) {
+        return service.crear(requestDto);
+    }
+
+    @Operation(summary = "Actualiza una regla de glucosa existente")
+    @PutMapping("/{id}")
+    public ResponseEntity<ReglaGlucosaResponseDto> actualizar(
+            @PathVariable Long id,
+            @Valid @RequestBody ReglaGlucosaRequestDto requestDto) {
+        return ResponseEntity.ok(service.actualizar(id, requestDto));
+    }
+
+    @Operation(summary = "Desactiva una regla de glucosa")
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void desactivar(@PathVariable Long id) {
+        service.desactivar(id);
+    }
+
+    @Operation(summary = "Reactiva una regla de glucosa")
+    @PatchMapping("/{id}/reactivar")
+    public ResponseEntity<ReglaGlucosaResponseDto> reactivar(@PathVariable Long id) {
+        return ResponseEntity.ok(service.reactivar(id));
+    }
+}
+package upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.nutricional.controller;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.enums.EstadoRegla;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.enums.SexoBiologico;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.nutricional.dto.ReglaGrasaVisceralRequestDto;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.nutricional.dto.ReglaGrasaVisceralResponseDto;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.nutricional.service.ReglaGrasaVisceralService;
+
+import java.util.List;
+
+@Tag(name = "Reglas Grasa Visceral (Administracion)")
+@RestController
+@RequestMapping("/api/v1/reglas/grasa-visceral")
+@RequiredArgsConstructor
+public class ReglaGrasaVisceralController {
+
+    private final ReglaGrasaVisceralService service;
+
+    @Operation(summary = "Lista reglas de grasa visceral con filtros opcionales")
+    @GetMapping
+    public ResponseEntity<List<ReglaGrasaVisceralResponseDto>> listar(
+            @RequestParam(required = false) EstadoRegla estado,
+            @RequestParam(required = false) SexoBiologico sexo) {
+        return ResponseEntity.ok(service.listar(estado, sexo));
+    }
+
+    @Operation(summary = "Consulta una regla de grasa visceral por id")
+    @GetMapping("/{id}")
+    public ResponseEntity<ReglaGrasaVisceralResponseDto> obtener(@PathVariable Long id) {
+        return ResponseEntity.ok(service.obtener(id));
+    }
+
+    @Operation(summary = "Registra una regla de grasa visceral")
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public ReglaGrasaVisceralResponseDto crear(
+            @Valid @RequestBody ReglaGrasaVisceralRequestDto requestDto) {
+        return service.crear(requestDto);
+    }
+
+    @Operation(summary = "Actualiza una regla de grasa visceral existente")
+    @PutMapping("/{id}")
+    public ResponseEntity<ReglaGrasaVisceralResponseDto> actualizar(
+            @PathVariable Long id,
+            @Valid @RequestBody ReglaGrasaVisceralRequestDto requestDto) {
+        return ResponseEntity.ok(service.actualizar(id, requestDto));
+    }
+
+    @Operation(summary = "Desactiva una regla de grasa visceral")
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void desactivar(@PathVariable Long id) {
+        service.desactivar(id);
+    }
+
+    @Operation(summary = "Reactiva una regla de grasa visceral")
+    @PatchMapping("/{id}/reactivar")
+    public ResponseEntity<ReglaGrasaVisceralResponseDto> reactivar(@PathVariable Long id) {
+        return ResponseEntity.ok(service.reactivar(id));
+    }
+}
+package upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.nutricional.controller;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.enums.EstadoRegla;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.enums.SexoBiologico;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.nutricional.dto.ReglaImcRequestDto;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.nutricional.dto.ReglaImcResponseDto;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.nutricional.service.ReglaImcService;
+
+import java.util.List;
+
+@Tag(name = "Reglas IMC (Administracion)")
+@RestController
+@RequestMapping("/api/v1/reglas/imc")
+@RequiredArgsConstructor
+public class ReglaImcController {
+
+    private final ReglaImcService service;
+
+    @Operation(summary = "Lista reglas de IMC con filtros opcionales")
+    @GetMapping
+    public ResponseEntity<List<ReglaImcResponseDto>> listar(
+            @RequestParam(required = false) EstadoRegla estado,
+            @RequestParam(required = false) SexoBiologico sexo) {
+        return ResponseEntity.ok(service.listar(estado, sexo));
+    }
+
+    @Operation(summary = "Consulta una regla de IMC por id")
+    @GetMapping("/{id}")
+    public ResponseEntity<ReglaImcResponseDto> obtener(@PathVariable Long id) {
+        return ResponseEntity.ok(service.obtener(id));
+    }
+
+    @Operation(summary = "Registra una regla de IMC")
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public ReglaImcResponseDto crear(@Valid @RequestBody ReglaImcRequestDto requestDto) {
+        return service.crear(requestDto);
+    }
+
+    @Operation(summary = "Actualiza una regla de IMC existente")
+    @PutMapping("/{id}")
+    public ResponseEntity<ReglaImcResponseDto> actualizar(
+            @PathVariable Long id,
+            @Valid @RequestBody ReglaImcRequestDto requestDto) {
+        return ResponseEntity.ok(service.actualizar(id, requestDto));
+    }
+
+    @Operation(summary = "Desactiva (baja logica) una regla de IMC")
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void desactivar(@PathVariable Long id) {
+        service.desactivar(id);
+    }
+
+    @Operation(summary = "Reactiva una regla de IMC previamente desactivada")
+    @PatchMapping("/{id}/reactivar")
+    public ResponseEntity<ReglaImcResponseDto> reactivar(@PathVariable Long id) {
+        return ResponseEntity.ok(service.reactivar(id));
+    }
+}
+package upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.nutricional.controller;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.enums.EstadoRegla;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.enums.SexoBiologico;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.nutricional.dto.ReglaMasaMuscularRequestDto;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.nutricional.dto.ReglaMasaMuscularResponseDto;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.nutricional.service.ReglaMasaMuscularService;
+
+import java.util.List;
+
+@Tag(name = "Reglas Masa Muscular (Administracion)")
+@RestController
+@RequestMapping("/api/v1/reglas/masa-muscular")
+@RequiredArgsConstructor
+public class ReglaMasaMuscularController {
+
+    private final ReglaMasaMuscularService service;
+
+    @Operation(summary = "Lista reglas de masa muscular con filtros opcionales")
+    @GetMapping
+    public ResponseEntity<List<ReglaMasaMuscularResponseDto>> listar(
+            @RequestParam(required = false) EstadoRegla estado,
+            @RequestParam(required = false) SexoBiologico sexo) {
+        return ResponseEntity.ok(service.listar(estado, sexo));
+    }
+
+    @Operation(summary = "Consulta una regla de masa muscular por id")
+    @GetMapping("/{id}")
+    public ResponseEntity<ReglaMasaMuscularResponseDto> obtener(@PathVariable Long id) {
+        return ResponseEntity.ok(service.obtener(id));
+    }
+
+    @Operation(summary = "Registra una regla de masa muscular")
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public ReglaMasaMuscularResponseDto crear(
+            @Valid @RequestBody ReglaMasaMuscularRequestDto requestDto) {
+        return service.crear(requestDto);
+    }
+
+    @Operation(summary = "Actualiza una regla de masa muscular existente")
+    @PutMapping("/{id}")
+    public ResponseEntity<ReglaMasaMuscularResponseDto> actualizar(
+            @PathVariable Long id,
+            @Valid @RequestBody ReglaMasaMuscularRequestDto requestDto) {
+        return ResponseEntity.ok(service.actualizar(id, requestDto));
+    }
+
+    @Operation(summary = "Desactiva una regla de masa muscular")
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void desactivar(@PathVariable Long id) {
+        service.desactivar(id);
+    }
+
+    @Operation(summary = "Reactiva una regla de masa muscular")
+    @PatchMapping("/{id}/reactivar")
+    public ResponseEntity<ReglaMasaMuscularResponseDto> reactivar(@PathVariable Long id) {
+        return ResponseEntity.ok(service.reactivar(id));
+    }
+}
+package upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.nutricional.controller;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.enums.EstadoRegla;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.enums.SexoBiologico;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.nutricional.dto.ReglaPerimetroAbdominalRequestDto;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.nutricional.dto.ReglaPerimetroAbdominalResponseDto;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.nutricional.service.ReglaPerimetroAbdominalService;
+
+import java.util.List;
+
+@Tag(name = "Reglas Perimetro Abdominal (Administracion)")
+@RestController
+@RequestMapping("/api/v1/reglas/perimetro-abdominal")
+@RequiredArgsConstructor
+public class ReglaPerimetroAbdominalController {
+
+    private final ReglaPerimetroAbdominalService service;
+
+    @Operation(summary = "Lista reglas de perimetro abdominal con filtros opcionales")
+    @GetMapping
+    public ResponseEntity<List<ReglaPerimetroAbdominalResponseDto>> listar(
+            @RequestParam(required = false) EstadoRegla estado,
+            @RequestParam(required = false) SexoBiologico sexo) {
+        return ResponseEntity.ok(service.listar(estado, sexo));
+    }
+
+    @Operation(summary = "Consulta una regla de perimetro abdominal por id")
+    @GetMapping("/{id}")
+    public ResponseEntity<ReglaPerimetroAbdominalResponseDto> obtener(@PathVariable Long id) {
+        return ResponseEntity.ok(service.obtener(id));
+    }
+
+    @Operation(summary = "Registra una regla de perimetro abdominal")
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public ReglaPerimetroAbdominalResponseDto crear(
+            @Valid @RequestBody ReglaPerimetroAbdominalRequestDto requestDto) {
+        return service.crear(requestDto);
+    }
+
+    @Operation(summary = "Actualiza una regla de perimetro abdominal existente")
+    @PutMapping("/{id}")
+    public ResponseEntity<ReglaPerimetroAbdominalResponseDto> actualizar(
+            @PathVariable Long id,
+            @Valid @RequestBody ReglaPerimetroAbdominalRequestDto requestDto) {
+        return ResponseEntity.ok(service.actualizar(id, requestDto));
+    }
+
+    @Operation(summary = "Desactiva una regla de perimetro abdominal")
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void desactivar(@PathVariable Long id) {
+        service.desactivar(id);
+    }
+
+    @Operation(summary = "Reactiva una regla de perimetro abdominal")
+    @PatchMapping("/{id}/reactivar")
+    public ResponseEntity<ReglaPerimetroAbdominalResponseDto> reactivar(@PathVariable Long id) {
+        return ResponseEntity.ok(service.reactivar(id));
+    }
+}
+package upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.nutricional.controller;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.enums.EstadoRegla;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.enums.SexoBiologico;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.nutricional.dto.ReglaPorcentajeGrasaRequestDto;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.nutricional.dto.ReglaPorcentajeGrasaResponseDto;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.nutricional.service.ReglaPorcentajeGrasaService;
+
+import java.util.List;
+
+@Tag(name = "Reglas Porcentaje Grasa (Administracion)")
+@RestController
+@RequestMapping("/api/v1/reglas/porcentaje-grasa")
+@RequiredArgsConstructor
+public class ReglaPorcentajeGrasaController {
+
+    private final ReglaPorcentajeGrasaService service;
+
+    @Operation(summary = "Lista reglas de porcentaje de grasa con filtros opcionales")
+    @GetMapping
+    public ResponseEntity<List<ReglaPorcentajeGrasaResponseDto>> listar(
+            @RequestParam(required = false) EstadoRegla estado,
+            @RequestParam(required = false) SexoBiologico sexo) {
+        return ResponseEntity.ok(service.listar(estado, sexo));
+    }
+
+    @Operation(summary = "Consulta una regla de porcentaje de grasa por id")
+    @GetMapping("/{id}")
+    public ResponseEntity<ReglaPorcentajeGrasaResponseDto> obtener(@PathVariable Long id) {
+        return ResponseEntity.ok(service.obtener(id));
+    }
+
+    @Operation(summary = "Registra una regla de porcentaje de grasa")
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public ReglaPorcentajeGrasaResponseDto crear(
+            @Valid @RequestBody ReglaPorcentajeGrasaRequestDto requestDto) {
+        return service.crear(requestDto);
+    }
+
+    @Operation(summary = "Actualiza una regla de porcentaje de grasa existente")
+    @PutMapping("/{id}")
+    public ResponseEntity<ReglaPorcentajeGrasaResponseDto> actualizar(
+            @PathVariable Long id,
+            @Valid @RequestBody ReglaPorcentajeGrasaRequestDto requestDto) {
+        return ResponseEntity.ok(service.actualizar(id, requestDto));
+    }
+
+    @Operation(summary = "Desactiva una regla de porcentaje de grasa")
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void desactivar(@PathVariable Long id) {
+        service.desactivar(id);
+    }
+
+    @Operation(summary = "Reactiva una regla de porcentaje de grasa")
+    @PatchMapping("/{id}/reactivar")
+    public ResponseEntity<ReglaPorcentajeGrasaResponseDto> reactivar(@PathVariable Long id) {
+        return ResponseEntity.ok(service.reactivar(id));
+    }
+}
+package upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.nutricional.controller;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.enums.EstadoRegla;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.enums.SexoBiologico;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.nutricional.dto.ReglaPresionArterialRequestDto;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.nutricional.dto.ReglaPresionArterialResponseDto;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.nutricional.service.ReglaPresionArterialService;
+
+import java.util.List;
+
+@Tag(name = "Reglas Presion Arterial (Administracion)")
+@RestController
+@RequestMapping("/api/v1/reglas/presion-arterial")
+@RequiredArgsConstructor
+public class ReglaPresionArterialController {
+
+    private final ReglaPresionArterialService service;
+
+    @Operation(summary = "Lista reglas de presion arterial con filtros opcionales")
+    @GetMapping
+    public ResponseEntity<List<ReglaPresionArterialResponseDto>> listar(
+            @RequestParam(required = false) EstadoRegla estado,
+            @RequestParam(required = false) SexoBiologico sexo) {
+        return ResponseEntity.ok(service.listar(estado, sexo));
+    }
+
+    @Operation(summary = "Consulta una regla de presion arterial por id")
+    @GetMapping("/{id}")
+    public ResponseEntity<ReglaPresionArterialResponseDto> obtener(@PathVariable Long id) {
+        return ResponseEntity.ok(service.obtener(id));
+    }
+
+    @Operation(summary = "Registra una regla de presion arterial")
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public ReglaPresionArterialResponseDto crear(
+            @Valid @RequestBody ReglaPresionArterialRequestDto requestDto) {
+        return service.crear(requestDto);
+    }
+
+    @Operation(summary = "Actualiza una regla de presion arterial existente")
+    @PutMapping("/{id}")
+    public ResponseEntity<ReglaPresionArterialResponseDto> actualizar(
+            @PathVariable Long id,
+            @Valid @RequestBody ReglaPresionArterialRequestDto requestDto) {
+        return ResponseEntity.ok(service.actualizar(id, requestDto));
+    }
+
+    @Operation(summary = "Desactiva una regla de presion arterial")
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void desactivar(@PathVariable Long id) {
+        service.desactivar(id);
+    }
+
+    @Operation(summary = "Reactiva una regla de presion arterial")
+    @PatchMapping("/{id}/reactivar")
+    public ResponseEntity<ReglaPresionArterialResponseDto> reactivar(@PathVariable Long id) {
+        return ResponseEntity.ok(service.reactivar(id));
+    }
+}
+package upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.nutricional.controller;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.enums.EstadoRegla;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.enums.SexoBiologico;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.nutricional.dto.ReglaTrigliceridosRequestDto;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.nutricional.dto.ReglaTrigliceridosResponseDto;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.nutricional.service.ReglaTrigliceridosService;
+
+import java.util.List;
+
+@Tag(name = "Reglas Trigliceridos (Administracion)")
+@RestController
+@RequestMapping("/api/v1/reglas/trigliceridos")
+@RequiredArgsConstructor
+public class ReglaTrigliceridosController {
+
+    private final ReglaTrigliceridosService service;
+
+    @Operation(summary = "Lista reglas de trigliceridos con filtros opcionales")
+    @GetMapping
+    public ResponseEntity<List<ReglaTrigliceridosResponseDto>> listar(
+            @RequestParam(required = false) EstadoRegla estado,
+            @RequestParam(required = false) SexoBiologico sexo) {
+        return ResponseEntity.ok(service.listar(estado, sexo));
+    }
+
+    @Operation(summary = "Consulta una regla de trigliceridos por id")
+    @GetMapping("/{id}")
+    public ResponseEntity<ReglaTrigliceridosResponseDto> obtener(@PathVariable Long id) {
+        return ResponseEntity.ok(service.obtener(id));
+    }
+
+    @Operation(summary = "Registra una regla de trigliceridos")
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public ReglaTrigliceridosResponseDto crear(
+            @Valid @RequestBody ReglaTrigliceridosRequestDto requestDto) {
+        return service.crear(requestDto);
+    }
+
+    @Operation(summary = "Actualiza una regla de trigliceridos existente")
+    @PutMapping("/{id}")
+    public ResponseEntity<ReglaTrigliceridosResponseDto> actualizar(
+            @PathVariable Long id,
+            @Valid @RequestBody ReglaTrigliceridosRequestDto requestDto) {
+        return ResponseEntity.ok(service.actualizar(id, requestDto));
+    }
+
+    @Operation(summary = "Desactiva una regla de trigliceridos")
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void desactivar(@PathVariable Long id) {
+        service.desactivar(id);
+    }
+
+    @Operation(summary = "Reactiva una regla de trigliceridos")
+    @PatchMapping("/{id}/reactivar")
+    public ResponseEntity<ReglaTrigliceridosResponseDto> reactivar(@PathVariable Long id) {
+        return ResponseEntity.ok(service.reactivar(id));
+    }
+}
+package upeu.edu.pe.Saludabemente.aptitudfisica.cardio.controller;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import upeu.edu.pe.Saludabemente.aptitudfisica.cardio.dto.request.CardioRequest;
+import upeu.edu.pe.Saludabemente.aptitudfisica.cardio.dto.response.CardioResponse;
+import upeu.edu.pe.Saludabemente.aptitudfisica.cardio.service.CardioService;
+
+@Tag(name = "Aptitud FÃ­sica - Cardiovascular")
+@RestController
+@RequestMapping("/api/v1/aptitud/{idEvaluacion}/cardio")
+@RequiredArgsConstructor
+public class CardioController {
+
+    private final CardioService service;
+
+    @Operation(summary = "Registra las 2 pruebas cardio (soga 30s, carrera 400m)")
+    @PostMapping
+    public ResponseEntity<CardioResponse> registrar(
+            @PathVariable Long idEvaluacion,
+            @Valid @RequestBody CardioRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(service.registrar(idEvaluacion, request));
+    }
+
+    @Operation(summary = "Consulta el detalle cardiovascular de una evaluaciÃ³n")
+    @GetMapping
+    public ResponseEntity<CardioResponse> consultar(@PathVariable Long idEvaluacion) {
+        return ResponseEntity.ok(service.consultar(idEvaluacion));
+    }
+}
+package upeu.edu.pe.Saludabemente.aptitudfisica.evaluacion.controller;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import upeu.edu.pe.Saludabemente.aptitudfisica.evaluacion.dto.request.EvaluacionInitRequest;
+import upeu.edu.pe.Saludabemente.aptitudfisica.evaluacion.dto.request.ObservacionesRequest;
+import upeu.edu.pe.Saludabemente.aptitudfisica.evaluacion.dto.response.EvaluacionAptitudResponse;
+import upeu.edu.pe.Saludabemente.aptitudfisica.evaluacion.dto.resumen.AptitudAgregadoDto;
+import upeu.edu.pe.Saludabemente.aptitudfisica.evaluacion.dto.resumen.EvaluacionResumen;
+import upeu.edu.pe.Saludabemente.aptitudfisica.evaluacion.enums.EstadoEvaluacion;
+import upeu.edu.pe.Saludabemente.aptitudfisica.evaluacion.service.EvaluacionAptitudService;
+
+import java.util.List;
+
+@Tag(name = "Aptitud FÃ­sica")
+@RestController
+@RequestMapping("/api/v1/aptitud")
+@RequiredArgsConstructor
+public class EvaluacionAptitudController {
+
+    private final EvaluacionAptitudService service;
+
+    @Operation(summary = "Inicia una evaluaciÃ³n de aptitud (crea cabecera con snapshot)")
+    @PostMapping
+    public ResponseEntity<EvaluacionAptitudResponse> iniciar(
+            @Valid @RequestBody EvaluacionInitRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.iniciar(request));
+    }
+
+    @Operation(summary = "BÃºsqueda paginada con filtros opcionales")
+    @GetMapping
+    public ResponseEntity<Page<EvaluacionResumen>> buscar(
+            @RequestParam(required = false) Long idPeriodo,
+            @RequestParam(required = false) EstadoEvaluacion estado,
+            @RequestParam(required = false) String area,
+            @RequestParam(required = false) String texto,
+            @PageableDefault(size = 20) Pageable pageable) {
+        return ResponseEntity.ok(service.buscar(idPeriodo, estado, area, texto, pageable));
+    }
+
+    @Operation(summary = "Obtiene la evaluaciÃ³n completa con detalle de fuerza y cardio")
+    @GetMapping("/{id}")
+    public ResponseEntity<EvaluacionAptitudResponse> obtener(@PathVariable Long id) {
+        return ResponseEntity.ok(service.obtener(id));
+    }
+
+    @Operation(summary = "Historial de evaluaciones de una persona (orden descendente)")
+    @GetMapping("/persona/{idPersona}")
+    public ResponseEntity<List<EvaluacionResumen>> historial(@PathVariable Long idPersona) {
+        return ResponseEntity.ok(service.historial(idPersona));
+    }
+
+    @Operation(summary = "Anula una evaluaciÃ³n (baja lÃ³gica)")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> anular(@PathVariable Long id) {
+        service.anular(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "Actualiza las observaciones/restricciones de la cabecera")
+    @PutMapping("/{id}/observaciones")
+    public ResponseEntity<EvaluacionAptitudResponse> actualizarObservaciones(
+            @PathVariable Long id, @Valid @RequestBody ObservacionesRequest request) {
+        return ResponseEntity.ok(service.actualizarObservaciones(id, request));
+    }
+
+    @Operation(summary = "MÃ©tricas agregadas por perÃ­odo (para dashboard)")
+    @GetMapping("/agregados/{idPeriodo}")
+    public ResponseEntity<AptitudAgregadoDto> agregados(@PathVariable Long idPeriodo) {
+        return ResponseEntity.ok(service.obtenerAgregados(idPeriodo));
+    }
+}
+package upeu.edu.pe.Saludabemente.aptitudfisica.fuerza.controller;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import upeu.edu.pe.Saludabemente.aptitudfisica.fuerza.dto.request.FuerzaRequest;
+import upeu.edu.pe.Saludabemente.aptitudfisica.fuerza.dto.response.FuerzaResponse;
+import upeu.edu.pe.Saludabemente.aptitudfisica.fuerza.service.FuerzaService;
+
+@Tag(name = "Aptitud FÃ­sica - Fuerza")
+@RestController
+@RequestMapping("/api/v1/aptitud/{idEvaluacion}/fuerza")
+@RequiredArgsConstructor
+public class FuerzaController {
+
+    private final FuerzaService service;
+
+    @Operation(summary = "Registra las 3 pruebas de fuerza (abdominales, planchas, salto)")
+    @PostMapping
+    public ResponseEntity<FuerzaResponse> registrar(
+            @PathVariable Long idEvaluacion,
+            @Valid @RequestBody FuerzaRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(service.registrar(idEvaluacion, request));
+    }
+
+    @Operation(summary = "Consulta el detalle de fuerza de una evaluaciÃ³n")
+    @GetMapping
+    public ResponseEntity<FuerzaResponse> consultar(@PathVariable Long idEvaluacion) {
+        return ResponseEntity.ok(service.consultar(idEvaluacion));
+    }
+}
+package upeu.edu.pe.Saludabemente.asistencias.cuarentena.controller;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import upeu.edu.pe.Saludabemente.asistencias.cuarentena.dto.request.ResolverCuarentenaRequest;
+import upeu.edu.pe.Saludabemente.asistencias.cuarentena.dto.response.CuarentenaResponse;
+import upeu.edu.pe.Saludabemente.asistencias.cuarentena.service.CuarentenaService;
+import upeu.edu.pe.Saludabemente.asistencias.enums.EstadoCuarentena;
+import upeu.edu.pe.Saludabemente.asistencias.enums.MotivoCuarentena;
+
+import java.time.LocalDateTime;
+import java.util.Map;
+
+@Tag(name = "Cuarentena", description = "Bandeja de registros retenidos")
+@RestController
+@RequestMapping("/api/v1/cuarentena")
+@RequiredArgsConstructor
+public class CuarentenaController {
+
+    private final CuarentenaService cuarentenaService;
+
+    @Operation(summary = "Listar bandeja de cuarentena con filtros")
+    @ApiResponse(responseCode = "200", description = "PÃ¡gina de resultados")
+    @GetMapping
+    public ResponseEntity<Page<CuarentenaResponse>> listar(
+            @RequestParam(required = false) EstadoCuarentena estado,
+            @RequestParam(required = false) MotivoCuarentena motivo,
+            @RequestParam(required = false) Long idActividad,
+            @RequestParam(required = false) Long idPersona,
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime desde,
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime hasta,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(defaultValue = "fechaCreacion") String sortBy,
+            @RequestParam(defaultValue = "DESC") String sortDir) {
+
+        Sort sort = "ASC".equalsIgnoreCase(sortDir)
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        return ResponseEntity.ok(cuarentenaService.listarBandeja(
+                estado, motivo, idActividad, idPersona, desde, hasta, pageable));
+    }
+
+    @Operation(summary = "Obtener un registro de cuarentena por ID")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Registro encontrado"),
+            @ApiResponse(responseCode = "404", description = "No existe")
+    })
+    @GetMapping("/{idCuarentena}")
+    public ResponseEntity<CuarentenaResponse> obtener(@PathVariable Long idCuarentena) {
+        return ResponseEntity.ok(cuarentenaService.obtener(idCuarentena));
+    }
+
+    @Operation(summary = "Resolver un registro (APROBAR o RECHAZAR)")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Resuelto"),
+            @ApiResponse(responseCode = "404", description = "No existe"),
+            @ApiResponse(responseCode = "409", description = "Ya resuelto o decisiÃ³n invÃ¡lida")
+    })
+    @PutMapping("/{idCuarentena}/resolver")
+    public ResponseEntity<CuarentenaResponse> resolver(
+            @PathVariable Long idCuarentena,
+            @Valid @RequestBody ResolverCuarentenaRequest request) {
+        return ResponseEntity.ok(cuarentenaService.resolver(idCuarentena, request));
+    }
+
+    @Operation(summary = "Contar registros pendientes")
+    @GetMapping("/pendientes/count")
+    public ResponseEntity<Map<String, Long>> contarPendientes() {
+        return ResponseEntity.ok(Map.of("total", cuarentenaService.contarPendientes()));
+    }
+}
+package upeu.edu.pe.Saludabemente.asistencias.exoneracion.controller;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import upeu.edu.pe.Saludabemente.asistencias.enums.EstadoJustificacion;
+import upeu.edu.pe.Saludabemente.asistencias.exoneracion.dto.request.DictamenRequest;
+import upeu.edu.pe.Saludabemente.asistencias.exoneracion.dto.request.JustificacionRequest;
+import upeu.edu.pe.Saludabemente.asistencias.exoneracion.dto.response.JustificacionResponse;
+import upeu.edu.pe.Saludabemente.asistencias.exoneracion.service.ExoneracionService;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+
+@Tag(name = "Exoneraciones", description = "Justificaciones de ausencia")
+@RestController
+@RequestMapping("/api/v1/exoneraciones")
+@RequiredArgsConstructor
+public class ExoneracionController {
+
+    private final ExoneracionService exoneracionService;
+
+    @Operation(summary = "Solicitar justificaciÃ³n de ausencia")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Solicitud registrada"),
+            @ApiResponse(responseCode = "404", description = "Persona o actividad no encontrada"),
+            @ApiResponse(responseCode = "409", description = "No hay ausencia o ya existe solicitud pendiente")
+    })
+    @PostMapping("/solicitar")
+    public ResponseEntity<JustificacionResponse> solicitar(
+            @Valid @RequestBody JustificacionRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(exoneracionService.solicitar(request));
+    }
+
+    @Operation(summary = "Dictaminar justificaciÃ³n (APROBADO o RECHAZADO)")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Dictamen registrado"),
+            @ApiResponse(responseCode = "404", description = "JustificaciÃ³n no encontrada"),
+            @ApiResponse(responseCode = "409", description = "Ya dictaminada o estado invÃ¡lido")
+    })
+    @PutMapping("/{id}/dictaminar")
+    public ResponseEntity<JustificacionResponse> dictaminar(
+            @PathVariable Long id,
+            @Valid @RequestBody DictamenRequest request) {
+        return ResponseEntity.ok(exoneracionService.dictaminar(id, request));
+    }
+
+    @Operation(summary = "Listar justificaciones con filtros")
+    @GetMapping
+    public ResponseEntity<Page<JustificacionResponse>> listar(
+            @RequestParam(required = false) EstadoJustificacion estado,
+            @RequestParam(required = false) Long idPersona,
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime desde,
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime hasta,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+
+        Pageable pageable = PageRequest.of(page, size,
+                Sort.by("fechaSolicitud").descending());
+
+        return ResponseEntity.ok(exoneracionService.listar(
+                estado, idPersona, desde, hasta, pageable));
+    }
+
+    @Operation(summary = "Detectar ausentismo crÃ³nico")
+    @GetMapping("/ausentismo")
+    public ResponseEntity<Map<String, Object>> detectarAusentismo(
+            @RequestParam(defaultValue = "3") int minRacha) {
+        List<Long> ids = exoneracionService.detectarAusentismoCronico(minRacha);
+        return ResponseEntity.ok(Map.of(
+                "minRacha", minRacha,
+                "total", ids.size(),
+                "idsPersona", ids
+        ));
+    }
+}
+package upeu.edu.pe.Saludabemente.asistencias.qr.controller;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+import upeu.edu.pe.Saludabemente.asistencias.qr.dto.response.QrActividadResponse;
+import upeu.edu.pe.Saludabemente.asistencias.qr.service.QrActividadService;
+import upeu.edu.pe.Saludabemente.asistencias.qr.service.QrStreamService;
+
+@Tag(name = "QR Actividad", description = "GeneraciÃ³n y rotaciÃ³n del QR general")
+@RestController
+@RequestMapping("/api/v1/actividades/{idActividad}/qr")
+@RequiredArgsConstructor
+public class QrActividadController {
+
+    private final QrActividadService qrActividadService;
+    private final QrStreamService qrStreamService;
+
+    @Operation(summary = "Forzar rotaciÃ³n del QR")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "QR rotado"),
+            @ApiResponse(responseCode = "404", description = "Actividad no encontrada"),
+            @ApiResponse(responseCode = "409", description = "Actividad no permite QR")
+    })
+    @PostMapping("/rotar")
+    public ResponseEntity<QrActividadResponse> rotar(@PathVariable Long idActividad) {
+        QrActividadResponse qr = qrActividadService.rotar(idActividad);
+        qrStreamService.emitir(idActividad, qr);
+        return ResponseEntity.ok(qr);
+    }
+
+    @Operation(summary = "Obtener el QR vigente")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "QR devuelto"),
+            @ApiResponse(responseCode = "404", description = "No hay QR vigente")
+    })
+    @GetMapping("/actual")
+    public ResponseEntity<QrActividadResponse> obtenerActual(@PathVariable Long idActividad) {
+        return ResponseEntity.ok(qrActividadService.obtenerActual(idActividad));
+    }
+
+    @Operation(summary = "Stream SSE con rotaciÃ³n automÃ¡tica del QR")
+    @GetMapping(value = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public SseEmitter stream(@PathVariable Long idActividad) {
+        return qrStreamService.suscribir(idActividad);
+    }
+}
+package upeu.edu.pe.Saludabemente.asistencias.registro.controller;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import upeu.edu.pe.Saludabemente.asistencias.registro.dto.request.AsistenciaManualRequest;
+import upeu.edu.pe.Saludabemente.asistencias.registro.dto.request.AsistenciaQrCoordinadorRequest;
+import upeu.edu.pe.Saludabemente.asistencias.registro.dto.response.AsistenciaHistorialResponse;
+import upeu.edu.pe.Saludabemente.asistencias.registro.dto.response.AsistenciaResponse;
+import upeu.edu.pe.Saludabemente.asistencias.registro.dto.response.CierreAsistenciasResponse;
+import upeu.edu.pe.Saludabemente.asistencias.registro.service.AsistenciaService;
+
+import java.util.List;
+
+@Tag(name = "Asistencias", description = "Registro y consulta de asistencias")
+@RestController
+@RequestMapping("/api/v1/asistencias")
+@RequiredArgsConstructor
+public class AsistenciaController {
+
+    private final AsistenciaService asistenciaService;
+
+    @Operation(summary = "Registrar asistencia manual (coordinador)")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Asistencia registrada"),
+            @ApiResponse(responseCode = "400", description = "Datos invÃ¡lidos"),
+            @ApiResponse(responseCode = "404", description = "Actividad o persona no encontrada"),
+            @ApiResponse(responseCode = "409", description = "Regla de negocio violada")
+    })
+    @PostMapping("/manual")
+    public ResponseEntity<AsistenciaResponse> registrarManual(
+            @Valid @RequestBody AsistenciaManualRequest request) {
+        AsistenciaResponse response = asistenciaService.registrarManual(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @Operation(summary = "Listar asistencias de una actividad")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Lista devuelta"),
+            @ApiResponse(responseCode = "400", description = "ParÃ¡metro invÃ¡lido")
+    })
+    @GetMapping("/actividad/{idActividad}")
+    public ResponseEntity<List<AsistenciaResponse>> listarPorActividad(
+            @PathVariable Long idActividad) {
+        return ResponseEntity.ok(asistenciaService.listarPorActividad(idActividad));
+    }
+
+    @Operation(summary = "Historial de asistencia de una persona")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Historial devuelto"),
+            @ApiResponse(responseCode = "404", description = "Persona no encontrada")
+    })
+    @GetMapping("/historial/{idPersona}")
+    public ResponseEntity<List<AsistenciaHistorialResponse>> historialPorPersona(
+            @PathVariable Long idPersona) {
+        return ResponseEntity.ok(asistenciaService.historialPorPersona(idPersona));
+    }
+
+    @Operation(summary = "Registrar asistencia por QR personal (coordinador)")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Asistencia registrada"),
+            @ApiResponse(responseCode = "400", description = "Datos invÃ¡lidos"),
+            @ApiResponse(responseCode = "404", description = "Actividad o persona no encontrada"),
+            @ApiResponse(responseCode = "409", description = "Regla de negocio violada (QR invÃ¡lido, duplicado, etc.)")
+    })
+    @PostMapping("/qr/coordinador")
+    public ResponseEntity<AsistenciaResponse> registrarPorQrCoordinador(
+            @Valid @RequestBody AsistenciaQrCoordinadorRequest request) {
+        AsistenciaResponse response = asistenciaService.registrarPorQrCoordinador(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @Operation(summary = "Forzar cierre de una actividad (admin)")
+    @PostMapping("/cierre/{idActividad}")
+    public ResponseEntity<CierreAsistenciasResponse> forzarCierre(
+            @PathVariable Long idActividad) {
+        return ResponseEntity.ok(asistenciaService.generarCierreDeAsistencias(idActividad));
+    }
+}
+package upeu.edu.pe.Saludabemente.asistencias.reporte.controller;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import upeu.edu.pe.Saludabemente.asistencias.reporte.dto.response.*;
+import upeu.edu.pe.Saludabemente.asistencias.reporte.service.ReporteAsistenciasService;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Map;
+
+@Tag(name = "Reportes", description = "AnalÃ­tica y reportes motivacionales")
+@RestController
+@RequestMapping("/api/v1/asistencias/reportes")
+@RequiredArgsConstructor
+public class ReporteAsistenciasController {
+
+    private final ReporteAsistenciasService reporteAsistenciasService;
+
+    @Operation(summary = "ParticipaciÃ³n por actividad")
+    @GetMapping("/participacion/{idActividad}")
+    public ResponseEntity<ParticipacionActividadResponse> participacion(
+            @PathVariable Long idActividad) {
+        return ResponseEntity.ok(reporteAsistenciasService.participacionPorActividad(idActividad));
+    }
+
+    @Operation(summary = "Reporte por persona (periodo o rango)")
+    @GetMapping("/persona/{idPersona}")
+    public ResponseEntity<ReportePersonaResponse> porPersona(
+            @PathVariable Long idPersona,
+            @RequestParam(required = false) String periodo,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate desde,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate hasta) {
+        return ResponseEntity.ok(reporteAsistenciasService.reportePorPersona(idPersona, periodo, desde, hasta));
+    }
+
+    @Operation(summary = "Reporte por team (PERIODO o DIARIO)")
+    @GetMapping("/team/{idTeam}")
+    public ResponseEntity<ReporteTeamResponse> porTeam(
+            @PathVariable Long idTeam,
+            @RequestParam(required = false) String periodo,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate desde,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate hasta,
+            @RequestParam(defaultValue = "PERIODO") String modo) {
+        return ResponseEntity.ok(reporteAsistenciasService.reportePorTeam(idTeam, periodo, desde, hasta, modo));
+    }
+
+    @Operation(summary = "Ranking comparativo de teams")
+    @GetMapping("/teams/ranking")
+    public ResponseEntity<RankingTeamsResponse> rankingTeams(
+            @RequestParam(required = false) String periodo,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate desde,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate hasta,
+            @RequestParam(defaultValue = "PERIODO") String modo) {
+        return ResponseEntity.ok(reporteAsistenciasService.rankingTeams(periodo, desde, hasta, modo));
+    }
+
+    @Operation(summary = "DetecciÃ³n de ausentismo crÃ³nico")
+    @GetMapping("/ausentismo")
+    public ResponseEntity<Map<String, Object>> ausentismo(
+            @RequestParam(defaultValue = "3") int minRacha) {
+        List<Long> ids = reporteAsistenciasService.ausentismoCronico(minRacha);
+        return ResponseEntity.ok(Map.of(
+                "minRacha", minRacha,
+                "total", ids.size(),
+                "idsPersona", ids));
+    }
+
+    @Operation(summary = "Datos para gamificaciÃ³n (capa anticorrupciÃ³n)")
+    @GetMapping("/gamificacion/{idActividad}")
+    public ResponseEntity<List<Long>> gamificacion(@PathVariable Long idActividad) {
+        return ResponseEntity.ok(reporteAsistenciasService.asistentesParaGamificacion(idActividad));
+    }
+}
+package upeu.edu.pe.Saludabemente.asistencias.sincronizacion.controller;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import upeu.edu.pe.Saludabemente.asistencias.sincronizacion.dto.request.LoteRequest;
+import upeu.edu.pe.Saludabemente.asistencias.sincronizacion.dto.response.LoteResponse;
+import upeu.edu.pe.Saludabemente.asistencias.sincronizacion.service.SincronizacionService;
+
+import java.util.Map;
+
+@Tag(name = "SincronizaciÃ³n", description = "Motor offline y carga masiva")
+@RestController
+@RequestMapping("/api/v1/sincronizacion")
+@RequiredArgsConstructor
+public class SincronizacionController {
+
+    private final SincronizacionService sincronizacionService;
+
+    @Operation(summary = "Health check para detectar conexiÃ³n")
+    @GetMapping("/ping")
+    public ResponseEntity<Map<String, Object>> ping() {
+        return ResponseEntity.ok(Map.of(
+                "status", "UP",
+                "timestamp", System.currentTimeMillis()
+        ));
+    }
+
+    @Operation(summary = "Procesar lote de asistencias offline")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Lote procesado"),
+            @ApiResponse(responseCode = "400", description = "Lote vacÃ­o o malformado")
+    })
+    @PostMapping("/lote")
+    public ResponseEntity<LoteResponse> procesarLote(
+            @Valid @RequestBody LoteRequest request) {
+        return ResponseEntity.ok(sincronizacionService.procesarLote(request));
+    }
+}
+package upeu.edu.pe.Saludabemente.catalogo.area.controller;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import upeu.edu.pe.Saludabemente.catalogo.area.dto.request.AreaRequest;
+import upeu.edu.pe.Saludabemente.catalogo.area.dto.response.AreaResponse;
+import upeu.edu.pe.Saludabemente.catalogo.area.dto.response.AreaResumen;
+import upeu.edu.pe.Saludabemente.catalogo.area.service.AreaService;
+
+import java.util.List;
+
+@Tag(name = "CatÃ¡logo - Ãreas de Trabajo")
+@RestController
+@RequestMapping("/api/v1/areas")
+@RequiredArgsConstructor
+public class AreaController {
+
+    private final AreaService areaService;
+
+    @Operation(summary = "Lista areas, opcionalmente filtradas por estado")
+    @GetMapping
+    public ResponseEntity<List<AreaResponse>> listar(
+            @RequestParam(required = false) Boolean activo,
+            @RequestParam(defaultValue = "ASC") String orden) {
+
+        Sort.Direction dir = "DESC".equalsIgnoreCase(orden)
+                ? Sort.Direction.DESC
+                : Sort.Direction.ASC;
+        Sort sort = Sort.by(dir, "nombre");
+
+        return ResponseEntity.ok(areaService.buscar(activo, sort));
+    }
+
+    @Operation(summary = "Lista el resumen de areas activas (para combos)")
+    @GetMapping("/resumen")
+    public ResponseEntity<List<AreaResumen>> listarResumen() {
+        return ResponseEntity.ok(areaService.listarResumen());
+    }
+
+    @Operation(summary = "Obtiene un area por id")
+    @GetMapping("/{id}")
+    public ResponseEntity<AreaResponse> obtener(@PathVariable Long id) {
+        return ResponseEntity.ok(areaService.obtener(id));
+    }
+
+    @Operation(summary = "Registra un area nueva")
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public ResponseEntity<AreaResponse> crear(@Valid @RequestBody AreaRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(areaService.crear(request));
+    }
+
+    @Operation(summary = "Actualiza un area existente")
+    @PutMapping("/{id}")
+    public ResponseEntity<AreaResponse> actualizar(
+            @PathVariable Long id,
+            @Valid @RequestBody AreaRequest request) {
+        return ResponseEntity.ok(areaService.actualizar(id, request));
+    }
+
+    @Operation(summary = "Inactiva un area (baja logica)")
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void inactivar(@PathVariable Long id) {
+        areaService.inactivar(id);
+    }
+}
+package upeu.edu.pe.Saludabemente.catalogo.periodo.controller;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import upeu.edu.pe.Saludabemente.catalogo.periodo.dto.EstadoPeriodo;
+import upeu.edu.pe.Saludabemente.catalogo.periodo.dto.request.PeriodoRequest;
+import upeu.edu.pe.Saludabemente.catalogo.periodo.dto.response.PeriodoResponse;
+import upeu.edu.pe.Saludabemente.catalogo.periodo.dto.response.PeriodoResumen;
+import upeu.edu.pe.Saludabemente.catalogo.periodo.service.PeriodoService;
+
+import java.util.List;
+
+@Tag(name = "CatÃ¡logo - Periodos")
+@RestController
+@RequestMapping("/api/v1/periodos")
+@RequiredArgsConstructor
+public class PeriodoController {
+
+    private final PeriodoService periodoService;
+
+    @Operation(summary = "Lista periodos, opcionalmente filtrados por estado")
+    @GetMapping
+    public ResponseEntity<List<PeriodoResponse>> listar(
+            @RequestParam(required = false) EstadoPeriodo estado,
+            @RequestParam(defaultValue = "DESC") String orden,
+            @RequestParam(defaultValue = "codigo") String ordenarPor) {
+
+        Sort.Direction dir = "ASC".equalsIgnoreCase(orden)
+                ? Sort.Direction.ASC
+                : Sort.Direction.DESC;
+        Sort sort = Sort.by(dir, ordenarPor);
+
+        return ResponseEntity.ok(periodoService.buscar(estado, sort));
+    }
+
+    @Operation(summary = "Lista el resumen de todos los periodos")
+    @GetMapping("/resumen")
+    public ResponseEntity<List<PeriodoResumen>> listarResumen() {
+        return ResponseEntity.ok(periodoService.listarResumen());
+    }
+
+    @Operation(summary = "Obtiene el periodo actualmente VIGENTE")
+    @GetMapping("/vigente")
+    public ResponseEntity<PeriodoResponse> obtenerVigente() {
+        return ResponseEntity.ok(periodoService.obtenerVigente());
+    }
+
+    @Operation(summary = "Obtiene un periodo por su codigo estandarizado (ej. 2026-1)")
+    @GetMapping("/codigo/{codigo}")
+    public ResponseEntity<PeriodoResponse> obtenerPorCodigo(@PathVariable String codigo) {
+        return ResponseEntity.ok(periodoService.obtenerPorCodigo(codigo));
+    }
+
+    @Operation(summary = "Obtiene un periodo por id")
+    @GetMapping("/{id}")
+    public ResponseEntity<PeriodoResponse> obtener(@PathVariable Long id) {
+        return ResponseEntity.ok(periodoService.obtener(id));
+    }
+
+    @Operation(summary = "Registra un periodo nuevo en estado PLANIFICADO")
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public ResponseEntity<PeriodoResponse> crear(@Valid @RequestBody PeriodoRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(periodoService.crear(request));
+    }
+
+    @Operation(summary = "Actualiza un periodo existente (no cambia su estado)")
+    @PutMapping("/{id}")
+    public ResponseEntity<PeriodoResponse> actualizar(
+            @PathVariable Long id,
+            @Valid @RequestBody PeriodoRequest request) {
+        return ResponseEntity.ok(periodoService.actualizar(id, request));
+    }
+
+    @Operation(summary = "Marca un periodo como VIGENTE (falla si ya hay otro VIGENTE)")
+    @PatchMapping("/{id}/vigente")
+    public ResponseEntity<PeriodoResponse> marcarVigente(@PathVariable Long id) {
+        return ResponseEntity.ok(periodoService.marcarVigente(id));
+    }
+
+    @Operation(summary = "Cierra un periodo (estado CERRADO, sella el historial)")
+    @PatchMapping("/{id}/cerrar")
+    public ResponseEntity<PeriodoResponse> cerrar(@PathVariable Long id) {
+        return ResponseEntity.ok(periodoService.cerrar(id));
+    }
+
+    @Operation(summary = "Elimina un periodo (baja logica: pasa a CERRADO)")
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void eliminar(@PathVariable Long id) {
+        periodoService.eliminar(id);
+    }
+}
+package upeu.edu.pe.Saludabemente.metas.meta.controller;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import upeu.edu.pe.Saludabemente.exception.BusinessRuleException;
+import upeu.edu.pe.Saludabemente.metas.meta.dto.CheckInRequestDTO;
+import upeu.edu.pe.Saludabemente.metas.meta.dto.ProgresoMetaResponseDTO;
+import upeu.edu.pe.Saludabemente.metas.meta.service.AuditoriaMetasService;
+import upeu.edu.pe.Saludabemente.metas.meta.service.CheckInService;
+import upeu.edu.pe.Saludabemente.metas.meta.service.NotificacionMetasService;
+import upeu.edu.pe.Saludabemente.metas.shared.enums.EstadoMeta;
+import upeu.edu.pe.Saludabemente.seguridad.api.metas.MetasUsuarioApi;
+import upeu.edu.pe.Saludabemente.seguridad.api.metas.UsuarioActualDTO;
+
+import java.util.List;
+
+@Slf4j
+@Tag(name = "Check-ins")
+@RestController
+@RequestMapping("/api/v1/metas/checkins")
+@RequiredArgsConstructor
+public class CheckInController {
+
+    private final CheckInService checkInService;
+    private final NotificacionMetasService notificacionMetas;
+    private final AuditoriaMetasService auditoriaMetas;
+    private final MetasUsuarioApi seguridadApi;
+
+    @Operation(summary = "Registra un avance sobre una meta")
+    @PostMapping
+    public ResponseEntity<ProgresoMetaResponseDTO> registrar(
+            @Valid @RequestBody CheckInRequestDTO dto) {
+
+        if (!seguridadApi.tieneAlgunRol("Colaborador", "Administrador")) {
+            throw new BusinessRuleException("No autorizado para registrar check-ins");
+        }
+        UsuarioActualDTO usuario = seguridadApi.obtenerUsuarioActual();
+
+        ProgresoMetaResponseDTO resultado = checkInService.registrar(dto, usuario.email());
+
+        try {
+            auditoriaMetas.registrarCheckIn(
+                    usuario.idUsuario(),
+                    resultado.idMeta(),
+                    null,
+                    resultado.modalidad().name(),
+                    resultado.valorActual() == null ? null : resultado.valorActual().toString());
+        } catch (RuntimeException ex) {
+            log.warn("Fallo al auditar check-in de meta {}: {}",
+                    resultado.idMeta(), ex.getMessage());
+        }
+
+        if (resultado.estado() == EstadoMeta.COMPLETADA) {
+            try {
+                notificacionMetas.notificarMetaCompletada(
+                        resultado.idPersona(),
+                        resultado.idMeta(),
+                        resultado.descripcion());
+            } catch (RuntimeException ex) {
+                log.warn("Fallo al notificar meta completada {}: {}",
+                        resultado.idMeta(), ex.getMessage());
+            }
+        }
+
+        return ResponseEntity.ok(resultado);
+    }
+
+    @Operation(summary = "Historial de check-ins de una meta")
+    @GetMapping("/meta/{idMeta}")
+    public ResponseEntity<List<ProgresoMetaResponseDTO>> historial(@PathVariable Long idMeta) {
+
+        if (!seguridadApi.tieneAlgunRol("Colaborador", "Administrador", "Evaluador")) {
+            throw new BusinessRuleException("No autorizado para consultar historial");
+        }
+        return ResponseEntity.ok(checkInService.historial(idMeta));
+    }
+}
+package upeu.edu.pe.Saludabemente.metas.meta.controller;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import upeu.edu.pe.Saludabemente.exception.BusinessRuleException;
+import upeu.edu.pe.Saludabemente.metas.meta.dto.MetaClinicaRequestDTO;
+import upeu.edu.pe.Saludabemente.metas.meta.dto.MetaResponseDTO;
+import upeu.edu.pe.Saludabemente.metas.meta.service.AuditoriaMetasService;
+import upeu.edu.pe.Saludabemente.metas.meta.service.MetaService;
+import upeu.edu.pe.Saludabemente.seguridad.api.metas.MetasUsuarioApi;
+import upeu.edu.pe.Saludabemente.seguridad.api.metas.UsuarioActualDTO;
+
+import java.net.URI;
+
+@Slf4j
+@Tag(name = "Metas Clinicas")
+@RestController
+@RequestMapping("/api/v1/metas/clinicas")
+@RequiredArgsConstructor
+public class MetaClinicaController {
+
+    private final MetaService metaService;
+    private final AuditoriaMetasService auditoriaMetas;
+    private final MetasUsuarioApi seguridadApi;
+
+    @Operation(summary = "Prescribe una meta clinica vinculada a una evaluacion y alerta")
+    @PostMapping
+    public ResponseEntity<MetaResponseDTO> prescribir(
+            @Valid @RequestBody MetaClinicaRequestDTO dto) {
+
+        if (!seguridadApi.tieneAlgunRol("Evaluador", "Administrador")) {
+            throw new BusinessRuleException("No autorizado para prescribir metas clinicas");
+        }
+        UsuarioActualDTO usuario = seguridadApi.obtenerUsuarioActual();
+
+        MetaResponseDTO creada = metaService.crearClinica(dto, usuario.email());
+
+        try {
+            auditoriaMetas.registrarMetaCreada(
+                    usuario.idUsuario(),
+                    creada.id(),
+                    creada.tipoOrigen().name(),
+                    creada.pilar().name());
+        } catch (RuntimeException ex) {
+            log.warn("Fallo al auditar prescripcion de meta clinica {}: {}",
+                    creada.id(), ex.getMessage());
+        }
+
+        return ResponseEntity
+                .created(URI.create("/api/v1/metas/clinicas/" + creada.id()))
+                .body(creada);
+    }
+}
+package upeu.edu.pe.Saludabemente.metas.meta.controller;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import upeu.edu.pe.Saludabemente.exception.BusinessRuleException;
+import upeu.edu.pe.Saludabemente.metas.meta.dto.MetaRequestDTO;
+import upeu.edu.pe.Saludabemente.metas.meta.dto.MetaResponseDTO;
+import upeu.edu.pe.Saludabemente.metas.meta.dto.ProgresoMetaResponseDTO;
+import upeu.edu.pe.Saludabemente.metas.meta.service.AuditoriaMetasService;
+import upeu.edu.pe.Saludabemente.metas.meta.service.MetaService;
+import upeu.edu.pe.Saludabemente.metas.shared.enums.EstadoMeta;
+import upeu.edu.pe.Saludabemente.seguridad.api.metas.MetasUsuarioApi;
+import upeu.edu.pe.Saludabemente.seguridad.api.metas.UsuarioActualDTO;
+
+import java.net.URI;
+import java.util.List;
+
+@Slf4j
+@Tag(name = "Metas Personales")
+@RestController
+@RequestMapping("/api/v1/metas/personales")
+@RequiredArgsConstructor
+public class MetaPersonalController {
+
+    private final MetaService metaService;
+    private final AuditoriaMetasService auditoriaMetas;
+    private final MetasUsuarioApi seguridadApi;
+
+    @Operation(summary = "Crea una meta personal del colaborador autenticado")
+    @PostMapping
+    public ResponseEntity<MetaResponseDTO> crear(@Valid @RequestBody MetaRequestDTO dto) {
+
+        if (!seguridadApi.tieneAlgunRol("Colaborador", "Administrador")) {
+            throw new BusinessRuleException("No autorizado para crear metas personales");
+        }
+        UsuarioActualDTO usuario = seguridadApi.obtenerUsuarioActual();
+
+        MetaResponseDTO creada = metaService.crearPersonal(dto, usuario.email());
+
+        try {
+            auditoriaMetas.registrarMetaCreada(
+                    usuario.idUsuario(),
+                    creada.id(),
+                    creada.tipoOrigen().name(),
+                    creada.pilar().name());
+        } catch (RuntimeException ex) {
+            log.warn("Fallo al auditar creacion de meta {}: {}",
+                    creada.id(), ex.getMessage());
+        }
+
+        return ResponseEntity
+                .created(URI.create("/api/v1/metas/personales/" + creada.id()))
+                .body(creada);
+    }
+
+    @Operation(summary = "Lista las metas de un colaborador, opcionalmente filtradas por estado")
+    @GetMapping("/persona/{idPersona}")
+    public ResponseEntity<List<MetaResponseDTO>> listar(
+            @PathVariable Long idPersona,
+            @RequestParam(required = false) EstadoMeta estado) {
+
+        if (!seguridadApi.tieneAlgunRol("Colaborador", "Administrador", "Evaluador")) {
+            throw new BusinessRuleException("No autorizado para consultar metas");
+        }
+        return ResponseEntity.ok(metaService.listarPorPersona(idPersona, estado));
+    }
+
+    @Operation(summary = "Consulta el progreso de una meta (porcentaje y racha)")
+    @GetMapping("/{idMeta}/progreso")
+    public ResponseEntity<ProgresoMetaResponseDTO> progreso(@PathVariable Long idMeta) {
+
+        if (!seguridadApi.tieneAlgunRol("Colaborador", "Administrador", "Evaluador")) {
+            throw new BusinessRuleException("No autorizado para consultar progreso");
+        }
+        return ResponseEntity.ok(metaService.obtenerProgreso(idMeta));
+    }
+}
+package upeu.edu.pe.Saludabemente.noticias.categoria.controller;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import upeu.edu.pe.Saludabemente.noticias.categoria.dto.CategoriaRequestDTO;
+import upeu.edu.pe.Saludabemente.noticias.categoria.dto.CategoriaResponseDTO;
+import upeu.edu.pe.Saludabemente.noticias.categoria.service.CategoriaService;
+
+import java.util.List;
+
+@Tag(name = "Noticias - CategorÃ­as (Admin)")
+@RestController
+@RequestMapping("/api/v1/noticias/categorias")
+@RequiredArgsConstructor
+public class CategoriaAdminController {
+
+    private final CategoriaService categoriaService;
+
+    @Operation(summary = "Lista todas las categorÃ­as, incluidas inactivas")
+    @GetMapping
+    public ResponseEntity<List<CategoriaResponseDTO>> listarTodas() {
+        return ResponseEntity.ok(categoriaService.listarTodas());
+    }
+
+    @Operation(summary = "Obtiene una categorÃ­a por id")
+    @GetMapping("/{id}")
+    public ResponseEntity<CategoriaResponseDTO> obtener(@PathVariable Long id) {
+        return ResponseEntity.ok(categoriaService.obtener(id));
+    }
+
+    @Operation(summary = "Crea una categorÃ­a nueva")
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public ResponseEntity<CategoriaResponseDTO> crear(@Valid @RequestBody CategoriaRequestDTO request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(categoriaService.crear(request));
+    }
+
+    @Operation(summary = "Actualiza una categorÃ­a existente")
+    @PutMapping("/{id}")
+    public ResponseEntity<CategoriaResponseDTO> actualizar(
+            @PathVariable Long id,
+            @Valid @RequestBody CategoriaRequestDTO request) {
+        return ResponseEntity.ok(categoriaService.actualizar(id, request));
+    }
+
+    @Operation(summary = "Activa una categorÃ­a inactiva")
+    @PatchMapping("/{id}/activar")
+    public ResponseEntity<CategoriaResponseDTO> activar(@PathVariable Long id) {
+        return ResponseEntity.ok(categoriaService.activar(id));
+    }
+
+    @Operation(summary = "Inactiva una categorÃ­a activa")
+    @PatchMapping("/{id}/inactivar")
+    public ResponseEntity<CategoriaResponseDTO> inactivar(@PathVariable Long id) {
+        return ResponseEntity.ok(categoriaService.inactivar(id));
+    }
+
+    @Operation(summary = "Elimina una categorÃ­a. Solo si no es del sistema y no tiene noticias")
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void eliminar(@PathVariable Long id) {
+        categoriaService.eliminar(id);
+    }
+}
+package upeu.edu.pe.Saludabemente.noticias.categoria.controller;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import upeu.edu.pe.Saludabemente.noticias.categoria.dto.CategoriaResponseDTO;
+import upeu.edu.pe.Saludabemente.noticias.categoria.service.CategoriaService;
+
+import java.util.List;
+
+@Tag(name = "Noticias - CategorÃ­as (PÃºblico)")
+@RestController
+@RequestMapping("/api/v1/noticias/categorias/public")
+@RequiredArgsConstructor
+public class CategoriaPublicController {
+
+    private final CategoriaService categoriaService;
+
+    @Operation(summary = "Lista las categorÃ­as activas para el feed")
+    @GetMapping
+    public ResponseEntity<List<CategoriaResponseDTO>> listarActivas() {
+        return ResponseEntity.ok(categoriaService.listarActivas());
+    }
+}
+package upeu.edu.pe.Saludabemente.noticias.noticia.controller;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import upeu.edu.pe.Saludabemente.noticias.noticia.dto.NoticiaRequestDTO;
+import upeu.edu.pe.Saludabemente.noticias.noticia.dto.NoticiaResponseDTO;
+import upeu.edu.pe.Saludabemente.noticias.noticia.service.NoticiaService;
+import upeu.edu.pe.Saludabemente.noticias.shared.enums.EstadoNoticia;
+
+@Tag(name = "Noticias - Admin")
+@RestController
+@RequestMapping("/api/v1/noticias/admin")
+@RequiredArgsConstructor
+public class NoticiaAdminController {
+
+    private final NoticiaService noticiaService;
+
+    @Operation(summary = "Crea un borrador de noticia")
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public ResponseEntity<NoticiaResponseDTO> crear(@Valid @RequestBody NoticiaRequestDTO request) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(noticiaService.crearBorrador(request));
+    }
+
+    @Operation(summary = "Actualiza un borrador existente")
+    @PutMapping("/{id}")
+    public ResponseEntity<NoticiaResponseDTO> actualizar(
+            @PathVariable Long id,
+            @Valid @RequestBody NoticiaRequestDTO request) {
+        return ResponseEntity.ok(noticiaService.actualizarBorrador(id, request));
+    }
+
+    @Operation(summary = "Sube o reemplaza la imagen de portada de una noticia")
+    @PostMapping(value = "/{id}/imagen", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<NoticiaResponseDTO> subirImagen(
+            @PathVariable Long id,
+            @RequestPart("imagen") MultipartFile imagen) {
+        return ResponseEntity.ok(noticiaService.subirImagen(id, imagen));
+    }
+
+    @Operation(summary = "Elimina la imagen de portada de una noticia")
+    @DeleteMapping("/{id}/imagen")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void eliminarImagen(@PathVariable Long id) {
+        noticiaService.eliminarImagen(id);
+    }
+
+    @Operation(summary = "Publica una noticia en borrador")
+    @PatchMapping("/{id}/publicar")
+    public ResponseEntity<NoticiaResponseDTO> publicar(@PathVariable Long id) {
+        return ResponseEntity.ok(noticiaService.publicar(id));
+    }
+
+    @Operation(summary = "Despublica una noticia, regresa a borrador")
+    @PatchMapping("/{id}/despublicar")
+    public ResponseEntity<NoticiaResponseDTO> despublicar(@PathVariable Long id) {
+        return ResponseEntity.ok(noticiaService.despublicar(id));
+    }
+
+    @Operation(summary = "Archiva una noticia publicada")
+    @PatchMapping("/{id}/archivar")
+    public ResponseEntity<NoticiaResponseDTO> archivar(@PathVariable Long id) {
+        return ResponseEntity.ok(noticiaService.archivar(id));
+    }
+
+    @Operation(summary = "Obtiene el detalle completo de una noticia")
+    @GetMapping("/{id}")
+    public ResponseEntity<NoticiaResponseDTO> obtener(@PathVariable Long id) {
+        return ResponseEntity.ok(noticiaService.obtenerDetalleAdmin(id));
+    }
+
+    @Operation(summary = "Lista noticias con filtros para el panel admin")
+    @GetMapping
+    public ResponseEntity<Page<NoticiaResponseDTO>> listar(
+            @RequestParam(required = false) EstadoNoticia estado,
+            @RequestParam(required = false) Long idCategoria,
+            @RequestParam(required = false) Long idArea,
+            @RequestParam(required = false) Long idTeam,
+            @ParameterObject
+            @PageableDefault(size = 20, sort = "fechaCreacion", direction = Sort.Direction.DESC)
+            Pageable pageable) {
+        return ResponseEntity.ok(
+                noticiaService.listarAdmin(estado, idCategoria, idArea, idTeam, pageable));
+    }
+}
+package upeu.edu.pe.Saludabemente.noticias.noticia.controller;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import upeu.edu.pe.Saludabemente.noticias.noticia.dto.NoticiaFeedResponseDTO;
+import upeu.edu.pe.Saludabemente.noticias.noticia.dto.NoticiaResponseDTO;
+import upeu.edu.pe.Saludabemente.noticias.noticia.service.NoticiaService;
+
+@Tag(name = "Noticias - PÃºblico")
+@RestController
+@RequestMapping("/api/v1/noticias")
+@RequiredArgsConstructor
+public class NoticiaPublicController {
+
+    private final NoticiaService noticiaService;
+
+    @Operation(summary = "Feed pÃºblico de noticias publicadas, filtrable por categorÃ­a")
+    @GetMapping("/feed")
+    public ResponseEntity<Page<NoticiaFeedResponseDTO>> feed(
+            @RequestParam(required = false) Long idCategoria,
+            @RequestParam(required = false) Long idPersona,
+            @ParameterObject
+            @PageableDefault(size = 20, sort = "fechaPublicacion", direction = Sort.Direction.DESC)
+            Pageable pageable) {
+        return ResponseEntity.ok(
+                noticiaService.listarFeedPublico(idCategoria, idPersona, pageable));
+    }
+
+    @Operation(summary = "Detalle de una noticia publicada")
+    @GetMapping("/{id}")
+    public ResponseEntity<NoticiaResponseDTO> detalle(
+            @PathVariable Long id,
+            @RequestParam(required = false) Long idPersona) {
+        return ResponseEntity.ok(noticiaService.obtenerDetallePublico(id, idPersona));
+    }
+}
+package upeu.edu.pe.Saludabemente.notificaciones.notificacion.controller;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
+import upeu.edu.pe.Saludabemente.notificaciones.notificacion.dto.BandejaNotificacionDTO;
+import upeu.edu.pe.Saludabemente.notificaciones.notificacion.dto.NotificacionResponse;
+import upeu.edu.pe.Saludabemente.notificaciones.notificacion.service.notificacion.NotificacionService;
+
+import java.util.List;
+
+@Tag(name = "Notificaciones")
+@RestController
+@RequestMapping("/api/v1/notificaciones")
+@RequiredArgsConstructor
+public class NotificacionController {
+
+    private final NotificacionService notificacionService;
+
+    @Operation(summary = "Lista todas las notificaciones registradas")
+    @GetMapping
+    public ResponseEntity<List<NotificacionResponse>> listar() {
+        return ResponseEntity.ok(notificacionService.listar());
+    }
+
+    @Operation(summary = "Consulta una notificaciÃ³n por id")
+    @GetMapping("/{id}")
+    public ResponseEntity<NotificacionResponse> obtener(@PathVariable Long id) {
+        return ResponseEntity.ok(notificacionService.obtener(id));
+    }
+
+    @Operation(summary = "Lista la bandeja del colaborador (solo no leÃ­das)")
+    @GetMapping("/mis-alertas")
+    public ResponseEntity<List<BandejaNotificacionDTO>> misAlertas(@RequestParam Long idPersona) {
+        return ResponseEntity.ok(notificacionService.listarBandeja(idPersona));
+    }
+
+    @Operation(summary = "Cuenta las notificaciones no leÃ­das de un colaborador")
+    @GetMapping("/contador-no-leidas")
+    public ResponseEntity<Long> contadorNoLeidas(@RequestParam Long idPersona) {
+        return ResponseEntity.ok(notificacionService.contarNoLeidas(idPersona));
+    }
+
+    @Operation(summary = "Marca una notificaciÃ³n como leÃ­da")
+    @PutMapping("/{id}/marcar-leida")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void marcarLeida(@PathVariable Long id) {
+        notificacionService.marcarLeida(id);
+    }
+
+    @Operation(summary = "Archiva una notificaciÃ³n (deja de aparecer en la bandeja)")
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void archivar(@PathVariable Long id) {
+        notificacionService.archivar(id);
+    }
+}
+package upeu.edu.pe.Saludabemente.notificaciones.notificacion.controller;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
+import upeu.edu.pe.Saludabemente.notificaciones.notificacion.dto.PlantillaRequest;
+import upeu.edu.pe.Saludabemente.notificaciones.notificacion.dto.PlantillaResponse;
+import upeu.edu.pe.Saludabemente.notificaciones.notificacion.dto.PlantillaResumen;
+import upeu.edu.pe.Saludabemente.notificaciones.notificacion.service.plantilla.PlantillaService;
+
+import java.util.List;
+
+@Tag(name = "Plantillas")
+@RestController
+@RequestMapping("/api/v1/notificaciones/plantillas")
+@RequiredArgsConstructor
+public class PlantillaAdminController {
+
+    private final PlantillaService plantillaService;
+
+    @Operation(summary = "Lista todas las plantillas registradas (sin cuerpo HTML)")
+    @GetMapping
+    public ResponseEntity<List<PlantillaResumen>> listar() {
+        return ResponseEntity.ok(plantillaService.listar());
+    }
+
+    @Operation(summary = "Consulta una plantilla por id (con cuerpo HTML)")
+    @GetMapping("/{id}")
+    public ResponseEntity<PlantillaResponse> obtener(@PathVariable Long id) {
+        return ResponseEntity.ok(plantillaService.obtener(id));
+    }
+
+    @Operation(summary = "Registra una plantilla nueva")
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public PlantillaResponse crear(@Valid @RequestBody PlantillaRequest request) {
+        return plantillaService.crear(request);
+    }
+
+    @Operation(summary = "Actualiza una plantilla existente")
+    @PutMapping("/{id}")
+    public ResponseEntity<PlantillaResponse> actualizar(
+            @PathVariable Long id,
+            @Valid @RequestBody PlantillaRequest request) {
+        return ResponseEntity.ok(plantillaService.actualizar(id, request));
+    }
+
+    @Operation(summary = "Elimina una plantilla")
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void eliminar(@PathVariable Long id) {
+        plantillaService.eliminar(id);
+    }
+}
+package upeu.edu.pe.Saludabemente.nutricional.antropometrico.controller;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import upeu.edu.pe.Saludabemente.nutricional.antropometrico.dto.request.AntropometricoRequest;
+import upeu.edu.pe.Saludabemente.nutricional.antropometrico.dto.response.AntropometricoResponse;
+import upeu.edu.pe.Saludabemente.nutricional.antropometrico.service.AntropometricoService;
+
+@Tag(name = "AntropometrÃ­a",
+        description = "Medidas fÃ­sicas y diagnÃ³sticos OMRON")
+@RestController
+@RequestMapping("/api/v1/evaluaciones-nutricionales/{idEvaluacion}/antropometrico")
+@RequiredArgsConstructor
+public class AntropometricoController {
+
+    private final AntropometricoService antropometricoService;
+
+    // ===================================================================
+    // POST /{idEvaluacion}/antropometrico
+    // ===================================================================
+
+    @Operation(summary = "Registra las medidas fÃ­sicas y calcula diagnÃ³sticos OMRON")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "AntropometrÃ­a registrada"),
+            @ApiResponse(responseCode = "400", description = "Datos fuera de rango plausible"),
+            @ApiResponse(responseCode = "404", description = "EvaluaciÃ³n inexistente"),
+            @ApiResponse(responseCode = "409", description = "EvaluaciÃ³n no PENDIENTE o ya tiene antropometrÃ­a")
+    })
+    @PostMapping
+    public ResponseEntity<AntropometricoResponse> registrar(
+            @PathVariable Long idEvaluacion,
+            @Valid @RequestBody AntropometricoRequest request) {
+
+        AntropometricoResponse creada =
+                antropometricoService.registrar(idEvaluacion, request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(creada);
+    }
+
+    // ===================================================================
+    // PUT /{idEvaluacion}/antropometrico/recalcular
+    // ===================================================================
+
+    @Operation(summary = "Recalcula diagnÃ³sticos OMRON sobre las medidas ya guardadas",
+            description = "Uso: RRHH corrigiÃ³ la fecha de nacimiento o el sexo de la persona")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "DiagnÃ³sticos recalculados"),
+            @ApiResponse(responseCode = "404", description = "EvaluaciÃ³n o antropometrÃ­a inexistente"),
+            @ApiResponse(responseCode = "409", description = "EvaluaciÃ³n anulada")
+    })
+    @PutMapping("/recalcular")
+    public ResponseEntity<AntropometricoResponse> recalcular(
+            @PathVariable Long idEvaluacion) {
+
+        return ResponseEntity.ok(antropometricoService.recalcular(idEvaluacion));
+    }
+
+    @Operation(summary = "Actualiza las medidas fÃ­sicas (corrige errores de tipeo)",
+            description = "Permitido en PENDIENTE y COMPLETA. Bloqueado en ANULADA.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "AntropometrÃ­a actualizada"),
+            @ApiResponse(responseCode = "404", description = "EvaluaciÃ³n o antropometrÃ­a inexistente"),
+            @ApiResponse(responseCode = "409", description = "EvaluaciÃ³n anulada o valores fuera de rango")
+    })
+    @PutMapping
+    public ResponseEntity<AntropometricoResponse> actualizar(
+            @PathVariable Long idEvaluacion,
+            @Valid @RequestBody AntropometricoRequest request) {
+
+        return ResponseEntity.ok(
+                antropometricoService.actualizar(idEvaluacion, request));
+    }
+}
+package upeu.edu.pe.Saludabemente.nutricional.bioquimico.controller;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import upeu.edu.pe.Saludabemente.nutricional.bioquimico.dto.ImportacionReporteDto;
+import upeu.edu.pe.Saludabemente.nutricional.bioquimico.dto.request.BioquimicoManualRequest;
+import upeu.edu.pe.Saludabemente.nutricional.bioquimico.dto.response.BioquimicoResponse;
+import upeu.edu.pe.Saludabemente.nutricional.bioquimico.service.BioquimicoService;
+
+@Tag(name = "BioquÃ­mica",
+        description = "Registro manual e importaciÃ³n masiva del laboratorio")
+@RestController
+@RequestMapping("/api/v1/evaluaciones-nutricionales")
+@RequiredArgsConstructor
+public class BioquimicoController {
+
+    private final BioquimicoService bioquimicoService;
+
+    // ===================================================================
+    // POST /importar-bioquimico
+    // ===================================================================
+
+    @Operation(summary = "Importa el Excel del laboratorio para un periodo",
+            description = "Cruce por celular. Filas sin evaluaciÃ³n PENDIENTE se rechazan "
+                    + "y se devuelven en el reporte.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "ImportaciÃ³n procesada (puede incluir rechazos)"),
+            @ApiResponse(responseCode = "400", description = "Archivo invÃ¡lido o inaccesible")
+    })
+    @PostMapping(value = "/importar-bioquimico",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ImportacionReporteDto> importarLote(
+            @Parameter(description = "Archivo Excel (.xlsx) del laboratorio")
+            @RequestParam("file") MultipartFile file,
+
+            @Parameter(description = "Periodo semestral (ej. 2026-1)")
+            @RequestParam("periodo") String periodo) {
+
+        ImportacionReporteDto reporte =
+                bioquimicoService.importarLoteExcel(file, periodo);
+        return ResponseEntity.ok(reporte);
+    }
+
+    // ===================================================================
+    // POST /{idEvaluacion}/bioquimico/manual
+    // ===================================================================
+
+    @Operation(summary = "Registra el bioquÃ­mico de un colaborador de forma manual")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "BioquÃ­mico registrado"),
+            @ApiResponse(responseCode = "404", description = "EvaluaciÃ³n inexistente"),
+            @ApiResponse(responseCode = "409", description = "EvaluaciÃ³n no PENDIENTE o ya tiene bioquÃ­mico")
+    })
+    @PostMapping("/{idEvaluacion}/bioquimico/manual")
+    public ResponseEntity<BioquimicoResponse> registrarManual(
+            @PathVariable Long idEvaluacion,
+            @Valid @RequestBody BioquimicoManualRequest request) {
+
+        BioquimicoResponse creada =
+                bioquimicoService.registrarManual(idEvaluacion, request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(creada);
+    }
+
+
+    @Operation(summary = "Actualiza el bioquÃ­mico existente (correcciones del laboratorio)")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "BioquÃ­mico actualizado"),
+            @ApiResponse(responseCode = "404", description = "EvaluaciÃ³n o bioquÃ­mico inexistente"),
+            @ApiResponse(responseCode = "409", description = "EvaluaciÃ³n anulada")
+    })
+    @PutMapping("/{idEvaluacion}/bioquimico/manual")
+    public ResponseEntity<BioquimicoResponse> actualizarManual(
+            @PathVariable Long idEvaluacion,
+            @Valid @RequestBody BioquimicoManualRequest request) {
+
+        return ResponseEntity.ok(
+                bioquimicoService.actualizar(idEvaluacion, request));
+    }
+}
+package upeu.edu.pe.Saludabemente.nutricional.evaluacion.controller;
+
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import java.util.Set;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import upeu.edu.pe.Saludabemente.catalogo.periodo.dto.response.PeriodoResponse;
+import upeu.edu.pe.Saludabemente.nutricional.evaluacion.dto.reporte.EvaluacionAgregado;
+import upeu.edu.pe.Saludabemente.nutricional.evaluacion.dto.request.EvaluacionInitRequest;
+import upeu.edu.pe.Saludabemente.nutricional.evaluacion.dto.request.ObservacionesRequest;
+import upeu.edu.pe.Saludabemente.nutricional.evaluacion.dto.response.EvaluacionResponse;
+import upeu.edu.pe.Saludabemente.nutricional.evaluacion.dto.response.EvaluacionResumen;
+import upeu.edu.pe.Saludabemente.nutricional.evaluacion.enums.EstadoEvaluacion;
+import upeu.edu.pe.Saludabemente.nutricional.evaluacion.service.EvaluacionService;
+
+import java.util.List;
+import java.util.Set;
+
+@Tag(name = "EvaluaciÃ³n Nutricional",
+        description = "Ciclo de vida de la cabecera de evaluaciÃ³n nutricional")
+@RestController
+@RequestMapping("/api/v1/evaluaciones-nutricionales")
+@RequiredArgsConstructor
+public class EvaluacionController {
+
+    private final EvaluacionService evaluacionService;
+
+    // ===================================================================
+    // GET /api/v1/evaluaciones-nutricionales
+    // ===================================================================
+
+    private static final Set<String> CAMPOS_ORDENABLES = Set.of(
+            "idEvaluacion",
+            "fechaEvaluacion",
+            "idPeriodo",
+            "estadoEvaluacion",
+            "idPersona"
+    );
+
+    @Operation(summary = "Lista evaluaciones con filtros opcionales y paginaciÃ³n")
+    @ApiResponse(responseCode = "200", description = "Listado paginado de evaluaciones")
+    @GetMapping
+    public ResponseEntity<Page<EvaluacionResumen>> buscar(
+            @Parameter(description = "Estado de la evaluaciÃ³n")
+            @RequestParam(required = false) EstadoEvaluacion estado,
+
+            @Parameter(description = "Periodo semestral (ej. 2026-1)")
+            @RequestParam(required = false) String periodo,
+
+            @Parameter(description = "ID de la persona")
+            @RequestParam(required = false) Long idPersona,
+
+            @PageableDefault(size = 20)
+            Pageable pageable) {
+
+        Pageable pageableSeguro = sanearPageable(pageable);
+        return ResponseEntity.ok(
+                evaluacionService.buscar(estado, periodo, idPersona, pageableSeguro));
+    }
+
+    /**
+     * Ignora propiedades de ordenamiento que no sean campos reales de la entidad.
+     * Swagger UI envÃ­a {@code sort=string} por defecto, y eso rompe Spring Data.
+     * Si ningÃºn campo es vÃ¡lido, aplica el orden por defecto: fechaEvaluacion DESC.
+     */
+    private Pageable sanearPageable(Pageable pageable) {
+        Sort ordenSeguro = Sort.by(Sort.Direction.DESC, "fechaEvaluacion");
+
+        if (pageable.getSort().isSorted()) {
+            Sort filtrado = Sort.unsorted();
+            for (Sort.Order order : pageable.getSort()) {
+                if (CAMPOS_ORDENABLES.contains(order.getProperty())) {
+                    filtrado = filtrado.and(
+                            Sort.by(order.getDirection(), order.getProperty()));
+                }
+            }
+            if (filtrado.isSorted()) {
+                ordenSeguro = filtrado;
+            }
+        }
+
+        return PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), ordenSeguro);
+    }
+
+    // ===================================================================
+    // GET /api/v1/evaluaciones-nutricionales/agregados
+    // ===================================================================
+
+    @Operation(summary = "MÃ©tricas agregadas para el dashboard")
+    @ApiResponse(responseCode = "200", description = "Totales y promedios")
+    @GetMapping("/agregados")
+    public ResponseEntity<EvaluacionAgregado> agregados(
+            @Parameter(description = "Periodo a filtrar (opcional)")
+            @RequestParam(required = false) String periodo) {
+
+        return ResponseEntity.ok(evaluacionService.agregados(periodo));
+    }
+
+    // ===================================================================
+    // GET /api/v1/evaluaciones-nutricionales/{id}
+    // ===================================================================
+
+    @Operation(summary = "Obtiene una evaluaciÃ³n completa por ID")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "EvaluaciÃ³n encontrada"),
+            @ApiResponse(responseCode = "404", description = "EvaluaciÃ³n inexistente")
+    })
+    @GetMapping("/{id}")
+    public ResponseEntity<EvaluacionResponse> obtener(@PathVariable Long id) {
+        return ResponseEntity.ok(evaluacionService.obtener(id));
+    }
+
+    // ===================================================================
+    // GET /api/v1/evaluaciones-nutricionales/persona/{idPersona}
+    // ===================================================================
+
+    @Operation(summary = "Historial cronolÃ³gico de evaluaciones de una persona")
+    @ApiResponse(responseCode = "200", description = "Listado ordenado por fecha descendente")
+    @GetMapping("/persona/{idPersona}")
+    public ResponseEntity<List<EvaluacionResumen>> historialPorPersona(
+            @PathVariable Long idPersona) {
+
+        return ResponseEntity.ok(evaluacionService.historialPorPersona(idPersona));
+    }
+
+    // ===================================================================
+    // GET /api/v1/evaluaciones-nutricionales/incompletas
+    // ===================================================================
+
+    @Operation(summary = "Evaluaciones PENDIENTES de un periodo (seguimiento)")
+    @ApiResponse(responseCode = "200", description = "Listado de cabeceras atascadas")
+    @GetMapping("/incompletas")
+    public ResponseEntity<List<EvaluacionResumen>> incompletas(
+            @Parameter(description = "Periodo a filtrar", required = true)
+            @RequestParam String periodo) {
+
+        return ResponseEntity.ok(evaluacionService.incompletasPorPeriodo(periodo));
+    }
+
+    // ===================================================================
+    // POST /api/v1/evaluaciones-nutricionales
+    // ===================================================================
+
+    @Operation(summary = "Inicia una evaluaciÃ³n capturando el snapshot clÃ­nico")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "EvaluaciÃ³n creada en PENDIENTE"),
+            @ApiResponse(responseCode = "400", description = "Datos invÃ¡lidos"),
+            @ApiResponse(responseCode = "404", description = "Persona no encontrada"),
+            @ApiResponse(responseCode = "409", description = "Ya existe evaluaciÃ³n activa en el periodo")
+    })
+    @PostMapping
+    public ResponseEntity<EvaluacionResponse> iniciar(
+            @Valid @RequestBody EvaluacionInitRequest request) {
+
+        EvaluacionResponse creada = evaluacionService.iniciar(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(creada);
+    }
+
+    // ===================================================================
+    // PATCH /api/v1/evaluaciones-nutricionales/{id}/observaciones
+    // ===================================================================
+
+    @Operation(summary = "Actualiza las observaciones mÃ©dicas de una evaluaciÃ³n")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Observaciones actualizadas"),
+            @ApiResponse(responseCode = "404", description = "EvaluaciÃ³n inexistente"),
+            @ApiResponse(responseCode = "409", description = "EvaluaciÃ³n anulada")
+    })
+    @PatchMapping("/{id}/observaciones")
+    public ResponseEntity<EvaluacionResponse> actualizarObservaciones(
+            @PathVariable Long id,
+            @Valid @RequestBody ObservacionesRequest request) {
+
+        return ResponseEntity.ok(
+                evaluacionService.actualizarObservaciones(id, request.getObservaciones()));
+    }
+
+    // ===================================================================
+    // DELETE /api/v1/evaluaciones-nutricionales/{id}
+    // ===================================================================
+
+    @Operation(summary = "Anula una evaluaciÃ³n (baja lÃ³gica, no borra registros)")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "EvaluaciÃ³n anulada"),
+            @ApiResponse(responseCode = "404", description = "EvaluaciÃ³n inexistente"),
+            @ApiResponse(responseCode = "409", description = "EvaluaciÃ³n ya anulada")
+    })
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> anular(@PathVariable Long id) {
+        evaluacionService.anular(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(
+            summary = "Lista los periodos donde se puede iniciar una evaluaciÃ³n",
+            description = "Excluye los periodos CERRADOS. VIGENTE primero. "
+                    + "Pensado para poblar dropdowns en el cliente.")
+    @ApiResponse(responseCode = "200", description = "Lista curada de periodos disponibles")
+    @GetMapping("/periodos-disponibles")
+    public ResponseEntity<List<PeriodoResponse>> listarPeriodosDisponibles() {
+        return ResponseEntity.ok(evaluacionService.listarPeriodosDisponibles());
+    }
+
+
+
+}
+package upeu.edu.pe.Saludabemente.nutricional.reporte.controller;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import upeu.edu.pe.Saludabemente.nutricional.reporte.service.ReporteService;
+
+@Tag(name = "Reportes Nutricionales",
+        description = "ExportaciÃ³n de consolidados y fichas clÃ­nicas")
+@RestController
+@RequestMapping("/api/v1/evaluaciones-nutricionales")
+@RequiredArgsConstructor
+public class ReporteController {
+
+    private final ReporteService reporteService;
+
+    // ===================================================================
+    // GET /exportar/{periodo}
+    // ===================================================================
+
+    @Operation(summary = "Exporta el consolidado del semestre en formato Excel",
+            description = "Una fila por evaluaciÃ³n. Cruce por cÃ³digo de periodo.")
+    @ApiResponse(responseCode = "200", description = "Archivo XLSX generado")
+    @GetMapping("/exportar/{periodo}")
+    public ResponseEntity<byte[]> exportarConsolidado(
+            @Parameter(description = "CÃ³digo del periodo (ej. 2026-1)", required = true)
+            @PathVariable String periodo) {
+
+        byte[] excel = reporteService.exportarConsolidadoSemestral(periodo);
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=\"consolidado-" + periodo + ".xlsx\"")
+                .contentType(MediaType.parseMediaType(
+                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                .body(excel);
+    }
+
+    // ===================================================================
+    // GET /{id}/pdf
+    // ===================================================================
+
+    @Operation(summary = "Descarga la ficha clÃ­nica individual en PDF")
+    @ApiResponse(responseCode = "200", description = "PDF generado")
+    @ApiResponse(responseCode = "404", description = "EvaluaciÃ³n inexistente")
+    @GetMapping("/{id}/pdf")
+    public ResponseEntity<byte[]> descargarFichaPdf(@PathVariable Long id) {
+
+        byte[] pdf = reporteService.generarFichaClinicaPdf(id);
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "inline; filename=\"ficha-" + id + ".pdf\"")
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(pdf);
+    }
+}
+package upeu.edu.pe.Saludabemente.personal.credencial.controller;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import upeu.edu.pe.Saludabemente.personal.api.CredencialApiService;
+import upeu.edu.pe.Saludabemente.personal.api.VerificacionQrResponse;
+import upeu.edu.pe.Saludabemente.personal.api.VerificarQrRequest;
+
+/**
+ * Endpoint HTTP publico para verificacion de QR.
+ *
+ * <p>Lo consume el frontend SPA de Asistencias tras escanear el QR de un
+ * colaborador. Internamente delega en {@link CredencialApiService}.</p>
+ *
+ * <p>Nunca responde 4xx por QR invalido: siempre devuelve 200 con
+ * {@code valido = false} y el mensaje. El consumidor decide que hacer.</p>
+ */
+@Tag(name = "Credenciales - VerificaciÃ³n QR")
+@RestController
+@RequestMapping("/api/v1/credenciales")
+@RequiredArgsConstructor
+public class CredencialPublicoController {
+
+    private final CredencialApiService credencialApiService;
+
+    @Operation(summary = "Verifica un codigo QR escaneado")
+    @PostMapping("/verificar")
+    public ResponseEntity<VerificacionQrResponse> verificar(
+            @Valid @RequestBody VerificarQrRequest request) {
+        return ResponseEntity.ok(
+                credencialApiService.verificarQrParaAsistencia(request.codigoQrHash()));
+    }
+}
+package upeu.edu.pe.Saludabemente.personal.persona.controller;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import upeu.edu.pe.Saludabemente.personal.credencial.dto.response.CredencialResponse;
+import upeu.edu.pe.Saludabemente.personal.credencial.service.CredencialService;
+import upeu.edu.pe.Saludabemente.personal.persona.dto.PersonalAgregado;
+import upeu.edu.pe.Saludabemente.personal.persona.dto.request.CelularUpdateRequest;
+import upeu.edu.pe.Saludabemente.personal.persona.dto.request.PersonaRequest;
+import upeu.edu.pe.Saludabemente.personal.persona.dto.response.PersonaResponse;
+import upeu.edu.pe.Saludabemente.personal.persona.dto.response.PersonaResumen;
+import upeu.edu.pe.Saludabemente.personal.persona.entity.Sexo;
+import upeu.edu.pe.Saludabemente.personal.persona.service.PersonaService;
+import upeu.edu.pe.Saludabemente.personal.preferencia.dto.request.PreferenciaRequest;
+import upeu.edu.pe.Saludabemente.personal.preferencia.dto.response.PreferenciaResponse;
+import upeu.edu.pe.Saludabemente.personal.preferencia.service.PreferenciaService;
+
+import java.util.List;
+import java.util.Set;
+
+@Tag(name = "Personal")
+@RestController
+@RequestMapping("/api/v1/personal")
+@RequiredArgsConstructor
+public class PersonaController {
+
+    private static final Set<String> CAMPOS_ORDENABLES = Set.of(
+            "id", "nombres", "apellidoPaterno", "apellidoMaterno",
+            "celular", "fechaNacimiento", "activo"
+    );
+
+    private final PersonaService personaService;
+    private final PreferenciaService preferenciaService;
+    private final CredencialService credencialService;
+
+    // -------------------------------------------------------------------
+    // Consultas
+    // -------------------------------------------------------------------
+
+    @Operation(summary = "Lista personas con filtros combinables y ordenamiento opcional")
+    @GetMapping
+    public ResponseEntity<List<PersonaResponse>> buscar(
+            @RequestParam(required = false) Boolean estado,
+            @RequestParam(required = false) Sexo sexo,
+            @RequestParam(required = false) Long areaId,
+            @RequestParam(required = false) Long equipoId,
+            @RequestParam(defaultValue = "apellidoPaterno") String ordenarPor,
+            @RequestParam(defaultValue = "ASC") String direccion) {
+
+        Sort sort = construirSort(ordenarPor, direccion);
+        return ResponseEntity.ok(
+                personaService.buscar(estado, sexo, areaId, equipoId, sort));
+    }
+
+    @Operation(summary = "Reporte agregado del modulo Personal")
+    @GetMapping("/resumen")
+    public ResponseEntity<PersonalAgregado> resumen() {
+        return ResponseEntity.ok(personaService.reporte());
+    }
+
+    @Operation(summary = "Consulta una persona por id")
+    @GetMapping("/{id}")
+    public ResponseEntity<PersonaResponse> obtener(@PathVariable Long id) {
+        return ResponseEntity.ok(personaService.obtener(id));
+    }
+
+    @Operation(summary = "Lista el resumen de personas de un equipo")
+    @GetMapping("/equipo/{idEquipo}")
+    public ResponseEntity<List<PersonaResumen>> listarPorEquipo(@PathVariable Long idEquipo) {
+        return ResponseEntity.ok(personaService.listarResumenPorEquipo(idEquipo));
+    }
+
+    // -------------------------------------------------------------------
+    // Comandos
+    // -------------------------------------------------------------------
+
+    @Operation(summary = "Registra una persona nueva")
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public ResponseEntity<PersonaResponse> crear(@Valid @RequestBody PersonaRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(personaService.crear(request));
+    }
+
+    @Operation(summary = "Actualiza todos los datos de una persona")
+    @PutMapping("/{id}")
+    public ResponseEntity<PersonaResponse> actualizar(
+            @PathVariable Long id,
+            @Valid @RequestBody PersonaRequest request) {
+        return ResponseEntity.ok(personaService.actualizar(id, request));
+    }
+
+    @Operation(summary = "Actualiza solo el celular de una persona")
+    @PatchMapping("/{id}/celular")
+    public ResponseEntity<PersonaResponse> cambiarCelular(
+            @PathVariable Long id,
+            @Valid @RequestBody CelularUpdateRequest request) {
+        return ResponseEntity.ok(personaService.cambiarCelular(id, request.celular()));
+    }
+
+    @Operation(summary = "Inactiva una persona (baja logica)")
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void inactivar(@PathVariable Long id) {
+        personaService.inactivar(id);
+    }
+
+    // -------------------------------------------------------------------
+    // Relaciones
+    // -------------------------------------------------------------------
+
+    @Operation(summary = "Obtiene las preferencias de comunicacion de una persona")
+    @GetMapping("/{id}/preferencias")
+    public ResponseEntity<PreferenciaResponse> obtenerPreferencias(@PathVariable Long id) {
+        return ResponseEntity.ok(preferenciaService.obtenerPorPersona(id));
+    }
+
+    @Operation(summary = "Configura las preferencias de comunicacion de una persona")
+    @PutMapping("/{id}/preferencias")
+    public ResponseEntity<PreferenciaResponse> upsertPreferencias(
+            @PathVariable Long id,
+            @Valid @RequestBody PreferenciaRequest request) {
+        return ResponseEntity.ok(preferenciaService.upsertPreferencias(id, request));
+    }
+
+    @Operation(summary = "Genera o rota la credencial QR de una persona")
+    @PostMapping("/{id}/credencial")
+    public ResponseEntity<CredencialResponse> generarCredencial(
+            @PathVariable Long id,
+            @RequestParam(defaultValue = "false") boolean incluirQr) {
+        return ResponseEntity.ok(credencialService.generarCredencial(id, incluirQr));
+    }
+
+    // -------------------------------------------------------------------
+    // Helpers
+    // -------------------------------------------------------------------
+
+    private Sort construirSort(String ordenarPor, String direccion) {
+        if (!CAMPOS_ORDENABLES.contains(ordenarPor)) {
+            throw new IllegalArgumentException(
+                    "Campo de ordenamiento no permitido: " + ordenarPor
+                            + ". Permitidos: " + CAMPOS_ORDENABLES);
+        }
+        Sort.Direction dir = "DESC".equalsIgnoreCase(direccion)
+                ? Sort.Direction.DESC
+                : Sort.Direction.ASC;
+        return Sort.by(dir, ordenarPor);
+    }
+}
+package upeu.edu.pe.Saludabemente.seguridad.rol.controller;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import upeu.edu.pe.Saludabemente.seguridad.rol.dto.response.RolResponse;
+import upeu.edu.pe.Saludabemente.seguridad.rol.service.RolService;
+
+import java.util.List;
+
+/**
+ * Endpoints REST del catÃ¡logo de roles.
+ *
+ * <p><b>Alcance Sub-fase 1:</b> listado completo sin filtro fantasma.
+ * En Sub-fase 2, si el solicitante no es ROOT, se ocultarÃ¡ el rol ROOT
+ * del catÃ¡logo.</p>
+ */
+@Tag(name = "Roles", description = "CatÃ¡logo de roles de negocio")
+@RestController
+@RequestMapping("/api/v1/roles")
+@RequiredArgsConstructor
+public class RolController {
+
+    private final RolService rolService;
+
+    @Operation(summary = "Listar el catÃ¡logo de roles disponibles")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "CatÃ¡logo devuelto")
+    })
+    @GetMapping
+    public ResponseEntity<List<RolResponse>> listarTodos() {
+        return ResponseEntity.ok(rolService.listarTodos());
+    }
+}
+package upeu.edu.pe.Saludabemente.seguridad.usuario.controller;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;      // â† IMPORT NUEVO
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import upeu.edu.pe.Saludabemente.seguridad.usuario.dto.request.PasswordRequest;
+import upeu.edu.pe.Saludabemente.seguridad.usuario.dto.request.RolesRequest;
+import upeu.edu.pe.Saludabemente.seguridad.usuario.dto.request.UsuarioRequest;
+import upeu.edu.pe.Saludabemente.seguridad.usuario.dto.response.UsuarioResponse;
+import upeu.edu.pe.Saludabemente.seguridad.usuario.service.UsuarioService;
+
+@Tag(name = "Usuarios", description = "GestiÃ³n de cuentas y roles del sistema")
+@RestController
+@RequestMapping("/api/v1/usuarios")
+@RequiredArgsConstructor
+public class UsuarioController {
+
+    private final UsuarioService usuarioService;
+
+    // -------------------------------------------------------------------
+    // Crear
+    // -------------------------------------------------------------------
+
+    @Operation(summary = "Crear una cuenta de usuario",
+            description = "Captura el snapshot de identidad desde el mÃ³dulo Personal y persiste la cuenta con contraseÃ±a cifrada.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Cuenta creada"),
+            @ApiResponse(responseCode = "400", description = "Datos de entrada invÃ¡lidos"),
+            @ApiResponse(responseCode = "409", description = "Email duplicado, persona ya con cuenta, persona inexistente o inactiva")
+    })
+    @PostMapping
+    public ResponseEntity<UsuarioResponse> crear(
+            @Valid @RequestBody UsuarioRequest request) {
+        UsuarioResponse response = usuarioService.crear(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    // -------------------------------------------------------------------
+    // Buscar / obtener
+    // -------------------------------------------------------------------
+
+    @Operation(summary = "Buscar usuarios con filtros y paginaciÃ³n")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Listado paginado"),
+            @ApiResponse(responseCode = "400", description = "ParÃ¡metros de paginaciÃ³n u ordenamiento invÃ¡lidos")
+    })
+    @GetMapping
+    public ResponseEntity<Page<UsuarioResponse>> buscar(
+            @Parameter(description = "Filtro parcial por email (LIKE, case-insensitive)")
+            @RequestParam(required = false) String email,
+
+            @Parameter(description = "Filtro por estado de cuenta (true=activo, false=inactivo)")
+            @RequestParam(required = false) Boolean activo,
+
+            @ParameterObject                                                   // â† FIX
+            @PageableDefault(size = 20, sort = "fechaCreacion") Pageable pageable) {
+
+        return ResponseEntity.ok(usuarioService.buscar(email, activo, pageable));
+    }
+
+    @Operation(summary = "Obtener el perfil 360Â° de un usuario")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Perfil encontrado"),
+            @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
+    })
+    @GetMapping("/{id}")
+    public ResponseEntity<UsuarioResponse> obtener(@PathVariable Long id) {
+        return ResponseEntity.ok(usuarioService.obtener(id));
+    }
+
+    // -------------------------------------------------------------------
+    // Actualizar roles
+    // -------------------------------------------------------------------
+
+    @Operation(summary = "Reemplazar los roles de un usuario",
+            description = "Sobrescribe por completo la asignaciÃ³n de roles. Debe quedar al menos uno.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Roles actualizados"),
+            @ApiResponse(responseCode = "400", description = "Payload invÃ¡lido"),
+            @ApiResponse(responseCode = "404", description = "Usuario no encontrado"),
+            @ApiResponse(responseCode = "409", description = "Roles inexistentes o lista vacÃ­a")
+    })
+    @PutMapping("/{id}/roles")
+    public ResponseEntity<UsuarioResponse> actualizarRoles(
+            @PathVariable Long id,
+            @Valid @RequestBody RolesRequest request) {
+        return ResponseEntity.ok(usuarioService.actualizarRoles(id, request));
+    }
+
+    // -------------------------------------------------------------------
+    // Actualizar contraseÃ±a
+    // -------------------------------------------------------------------
+
+    @Operation(summary = "Cambiar la contraseÃ±a de un usuario",
+            description = "La nueva contraseÃ±a se cifra con BCrypt antes de persistir.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "ContraseÃ±a actualizada"),
+            @ApiResponse(responseCode = "400", description = "ContraseÃ±a invÃ¡lida"),
+            @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
+    })
+    @PutMapping("/{id}/password")
+    public ResponseEntity<Void> actualizarPassword(
+            @PathVariable Long id,
+            @Valid @RequestBody PasswordRequest request) {
+        usuarioService.actualizarPassword(id, request);
+        return ResponseEntity.noContent().build();
+    }
+
+    // -------------------------------------------------------------------
+    // Inactivar / reactivar
+    // -------------------------------------------------------------------
+
+    @Operation(summary = "Inactivar una cuenta (baja lÃ³gica)")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Cuenta inactivada"),
+            @ApiResponse(responseCode = "404", description = "Usuario no encontrado"),
+            @ApiResponse(responseCode = "409", description = "La cuenta ya estÃ¡ inactiva")
+    })
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> inactivar(@PathVariable Long id) {
+        usuarioService.inactivar(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "Reactivar una cuenta inactivada")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Cuenta reactivada"),
+            @ApiResponse(responseCode = "404", description = "Usuario no encontrado"),
+            @ApiResponse(responseCode = "409", description = "La cuenta ya estÃ¡ activa")
+    })
+    @PostMapping("/{id}/reactivar")
+    public ResponseEntity<Void> reactivar(@PathVariable Long id) {
+        usuarioService.reactivar(id);
+        return ResponseEntity.noContent().build();
+    }
+}
+package upeu.edu.pe.Saludabemente.teams.controller;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import upeu.edu.pe.Saludabemente.teams.dto.request.TeamRequest;
+import upeu.edu.pe.Saludabemente.teams.dto.response.TeamResponse;
+import upeu.edu.pe.Saludabemente.teams.service.TeamService;
+
+import java.util.List;
+
+@Tag(name = "Teams")
+@RestController
+@RequestMapping("/api/v1/equipos")
+@RequiredArgsConstructor
+public class TeamController {
+
+    private final TeamService teamService;
+
+    @Operation(summary = "Lista equipos, opcionalmente solo los activos")
+    @GetMapping
+    public ResponseEntity<List<TeamResponse>> listar(
+            @RequestParam(required = false) Boolean activo) {
+        Sort sort = Sort.by(Sort.Direction.ASC, "nombre");
+        return ResponseEntity.ok(teamService.listar(activo, sort));
+    }
+
+    @Operation(summary = "Consulta un equipo por id")
+    @GetMapping("/{id}")
+    public ResponseEntity<TeamResponse> obtener(@PathVariable Long id) {
+        return ResponseEntity.ok(teamService.obtener(id));
+    }
+
+    @Operation(summary = "Registra un equipo nuevo")
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public ResponseEntity<TeamResponse> crear(@Valid @RequestBody TeamRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(teamService.crear(request));
+    }
+
+    @Operation(summary = "Actualiza un equipo existente")
+    @PutMapping("/{id}")
+    public ResponseEntity<TeamResponse> actualizar(
+            @PathVariable Long id,
+            @Valid @RequestBody TeamRequest request) {
+        return ResponseEntity.ok(teamService.actualizar(id, request));
+    }
+
+    @Operation(summary = "Inactiva un equipo (baja lÃ³gica)")
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void inactivar(@PathVariable Long id) {
+        teamService.inactivar(id);
+    }
+}
+

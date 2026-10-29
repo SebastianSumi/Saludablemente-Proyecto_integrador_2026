@@ -1,0 +1,106 @@
+<!-- ══════════════════════════════════════
+     CABECERA DE PÁGINA
+     ══════════════════════════════════════ -->
+<div class="page-banner card">
+  <div class="page-banner-body">
+    <div class="page-banner-icon tile tile-rounded tile-soft-primary">
+      <tui-icon icon="@tui.briefcase" />
+    </div>
+    <div>
+      <h2 class="card-title">Áreas de Trabajo</h2>
+      <p class="card-subtitle">
+        @if (loading()) {
+          Cargando áreas…
+        } @else {
+          {{ areas().length }} área(s) registrada(s)
+        }
+      </p>
+    </div>
+  </div>
+  <a tuiButton appearance="primary" size="m" routerLink="/catalogos/areas/nueva">
+    <tui-icon icon="@tui.plus" />
+    Nueva área
+  </a>
+</div>
+
+<!-- ══════════════════════════════════════
+     FILTROS EN LÍNEA
+     ══════════════════════════════════════ -->
+<div class="filtros-card">
+  <div class="filtros-linea">
+    <div class="filtro-item">
+      <label class="filtro-etiqueta">Filtrar por Estado</label>
+      <tui-textfield tuiChevron>
+        <input tuiComboBox [formControl]="estadoCtrl" [strict]="true" placeholder="— Todos los estados —" />
+        <tui-data-list-wrapper *tuiDropdown [items]="estadoOpts | tuiFilterByInput" [itemContent]="opt" />
+      </tui-textfield>
+    </div>
+  </div>
+</div>
+
+<ng-template #opt let-item>{{ item.label }}</ng-template>
+
+@if (error()) {
+  <div class="card error-caja">
+    <tui-icon icon="@tui.triangle-alert" class="icono-alerta" />
+    <p class="error-msg">{{ error() }}</p>
+  </div>
+}
+
+<!-- ══════════════════════════════════════
+     TABLA DE ÁREAS
+     ══════════════════════════════════════ -->
+<div class="card tabla-card flush">
+  <div class="table-wrapper flush">
+    <table tuiTable [columns]="columnas">
+      <thead>
+        <tr>
+          <th tuiTh>Nombre del Área</th>
+          <th tuiTh>Descripción</th>
+          <th tuiTh>Estado</th>
+          <th tuiTh class="th-acciones"><span class="sr-only">Acciones</span></th>
+        </tr>
+      </thead>
+      <tbody tuiTbody [data]="areas()">
+        @for (area of areas(); track area.id) {
+          <tr>
+            <td tuiTd>
+              <span class="fila-nombre">{{ area.nombre }}</span>
+            </td>
+            <td tuiTd class="text-soft">{{ area.descripcion || '—' }}</td>
+            <td tuiTd>
+              @if (area.activo) {
+                <span class="pill pill-soft-success">Activo</span>
+              } @else {
+                <span class="pill pill-soft-neutral">Inactivo</span>
+              }
+            </td>
+            <td tuiTd class="td-acciones">
+              <div class="row-actions">
+                <a tuiButton appearance="flat" size="s" [routerLink]="['/personal/personas']" [queryParams]="{ area: area.id }" title="Ver personal del área">
+                  <tui-icon icon="@tui.users" />
+                  Ver personal
+                </a>
+                <a tuiButton appearance="flat" size="s" [routerLink]="['/catalogos/areas', area.id, 'editar']" title="Editar área">
+                  <tui-icon icon="@tui.pencil" />
+                  Editar
+                </a>
+                @if (area.activo) {
+                  <button tuiButton appearance="outline" size="s" type="button" (click)="inactivar(area)" title="Inactivar área">
+                    Inactivar
+                  </button>
+                }
+              </div>
+            </td>
+          </tr>
+        } @empty {
+          @if (!loading() && !error()) {
+            <tr>
+              <td tuiTd colspan="4" class="empty">No hay áreas de trabajo registradas.</td>
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

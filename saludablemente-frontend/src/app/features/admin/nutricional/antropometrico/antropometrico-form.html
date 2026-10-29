@@ -1,0 +1,142 @@
+<!-- ══════════════════════════════════════
+     CABECERA DEL FORMULARIO
+     ══════════════════════════════════════ -->
+<div class="form-cabecera">
+  <div class="tile tile-rounded tile-soft-warning modulo-icono">
+    <tui-icon icon="@tui.scale" />
+  </div>
+  <div>
+    <h2 class="card-title">{{ modoEdicion() ? 'Editar medidas antropométricas' : 'Registrar medidas antropométricas' }}</h2>
+    @if (evaluacion(); as e) {
+      <p class="card-subtitle">
+        Evaluación #{{ e.idEvaluacion }} — <strong class="text-ink">{{ e.nombresCompletos }}</strong> (DNI {{ e.documentoIdentidad }})
+      </p>
+    } @else {
+      <p class="card-subtitle">Ingreso de mediciones corporales y composición corporal</p>
+    }
+  </div>
+</div>
+
+<form [formGroup]="form" (ngSubmit)="guardar()" class="form-contenedor">
+  @if (loading()) {
+    <div class="card estado-caja">
+      <p class="sal-subtitulo">Cargando datos antropométricos...</p>
+    </div>
+  }
+
+  @if (error()) {
+    <div class="card error-caja">
+      <tui-icon icon="@tui.triangle-alert" class="icono-alerta" />
+      <p class="error-msg">{{ error() }}</p>
+    </div>
+  }
+
+  <!-- ══════════════════════════════════════
+       MEDIDAS CORPORALES
+       ══════════════════════════════════════ -->
+  <section class="card">
+    <div class="seccion-titulo">
+      <span class="tile tile-rounded tile-soft-primary seccion-icono">
+        <tui-icon icon="@tui.ruler" />
+      </span>
+      <div>
+        <h3 class="seccion-nombre">Mediciones corporales y composición</h3>
+        <p class="seccion-desc">Los diagnósticos (IMC, grasa, masa muscular) se calcularán automáticamente al guardar</p>
+      </div>
+    </div>
+
+    <div class="form-grid">
+      <!-- Estatura -->
+      <label tuiLabel class="field">
+        <span class="field-label">Estatura (cm) <span class="required">*</span></span>
+        <tui-textfield>
+          <input tuiInput type="number" step="0.1" formControlName="estaturaCm" placeholder="Ej. 170.5" />
+        </tui-textfield>
+        @if (mensajeValidacion('estaturaCm'); as mensaje) {
+          <p class="error-campo">{{ mensaje }}</p>
+        }
+      </label>
+
+      <!-- Peso -->
+      <label tuiLabel class="field">
+        <span class="field-label">Peso corporal (kg) <span class="required">*</span></span>
+        <tui-textfield>
+          <input tuiInput type="number" step="0.1" formControlName="pesoKg" placeholder="Ej. 72.3" />
+        </tui-textfield>
+        @if (mensajeValidacion('pesoKg'); as mensaje) {
+          <p class="error-campo">{{ mensaje }}</p>
+        }
+      </label>
+
+      <!-- Perímetro Abdominal -->
+      <label tuiLabel class="field">
+        <span class="field-label">Perímetro abdominal (cm) <span class="required">*</span></span>
+        <tui-textfield>
+          <input tuiInput type="number" step="0.1" formControlName="perimetroAbdominalCm" placeholder="Ej. 85.0" />
+        </tui-textfield>
+        @if (mensajeValidacion('perimetroAbdominalCm'); as mensaje) {
+          <p class="error-campo">{{ mensaje }}</p>
+        }
+      </label>
+
+      <!-- % Grasa -->
+      <label tuiLabel class="field">
+        <span class="field-label">Porcentaje de grasa corporal (%) <span class="required">*</span></span>
+        <tui-textfield>
+          <input tuiInput type="number" step="0.1" formControlName="porcentajeGrasa" placeholder="Ej. 22.5" />
+        </tui-textfield>
+        @if (mensajeValidacion('porcentajeGrasa'); as mensaje) {
+          <p class="error-campo">{{ mensaje }}</p>
+        }
+      </label>
+
+      <!-- % Masa Muscular -->
+      <label tuiLabel class="field">
+        <span class="field-label">Porcentaje de masa muscular (%) <span class="required">*</span></span>
+        <tui-textfield>
+          <input tuiInput type="number" step="0.1" formControlName="porcentajeMasaMuscular" placeholder="Ej. 34.0" />
+        </tui-textfield>
+        @if (mensajeValidacion('porcentajeMasaMuscular'); as mensaje) {
+          <p class="error-campo">{{ mensaje }}</p>
+        }
+      </label>
+
+      <!-- % Grasa Visceral -->
+      <label tuiLabel class="field">
+        <span class="field-label">Nivel de grasa visceral <span class="required">*</span></span>
+        <tui-textfield>
+          <input tuiInput type="number" step="0.1" formControlName="porcentajeGrasaVisceral" placeholder="Ej. 6.0" />
+        </tui-textfield>
+        @if (mensajeValidacion('porcentajeGrasaVisceral'); as mensaje) {
+          <p class="error-campo">{{ mensaje }}</p>
+        }
+      </label>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════
+       BOTONES DE ACCIÓN
+       ══════════════════════════════════════ -->
+  <div class="form-acciones">
+    <button
+      tuiButton
+      appearance="primary"
+      size="m"
+      type="submit"
+      [loading]="guardando()"
+      [disabled]="loading() || errorCarga()"
+    >
+      <tui-icon icon="@tui.circle-check" />
+      {{ modoEdicion() ? 'Actualizar antropometría' : 'Registrar antropometría' }}
+    </button>
+    <button
+      tuiButton
+      appearance="outline"
+      size="m"
+      type="button"
+      (click)="cancelar()"
+    >
+      Cancelar
+    </button>
+  </div>
+</form>

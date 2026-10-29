@@ -1,0 +1,52 @@
+<div class="col-stack">
+  <a tuiButton appearance="flat" size="s" routerLink="/colaborador/mis-metas" class="back">
+    <tui-icon icon="@tui.arrow-left" />
+    Volver a mis metas
+  </a>
+
+  @if (loading()) {
+    <div appearance="floating" tuiCardLarge>
+      <header tuiHeader><h2 tuiTitle>Cargando tu meta...<span tuiSubtitle>Un momento</span></h2></header>
+    </div>
+  }
+  @if (error()) {
+    <div appearance="floating" tuiCardLarge>
+      <header tuiHeader><h2 tuiTitle>No se pudo cargar tu meta<span tuiSubtitle>{{ error() }}</span></h2></header>
+    </div>
+  }
+
+  @if (progreso(); as p) {
+    <div appearance="floating" tuiCardLarge>
+      <header tuiHeader>
+        <h1 tuiTitle>{{ p.descripcion }}<span tuiSubtitle>{{ p.pilar }} · {{ p.indicador }} · {{ p.estado }}</span></h1>
+        <aside tuiAccessories><div appearance="positive" tuiAvatar="@tui.target"></div></aside>
+      </header>
+      <section>
+        <div tuiTitle>{{ p.porcentajeAvance }}%<div tuiSubtitle>{{ p.valorActual }}/{{ p.valorObjetivo }} {{ p.unidad ?? '' }} · racha {{ p.rachaActual }} días · {{ p.totalCheckIns }} check-ins</div></div>
+        <progress tuiProgressBar [max]="100" [value]="p.porcentajeAvance"></progress>
+      </section>
+      <footer>
+        <div tuiSubtitle>Del {{ p.fechaInicio | date:'dd/MM/yyyy' }} al {{ p.fechaObjetivo | date:'dd/MM/yyyy' }}.</div>
+        @if (p.ultimoCheckIn) {
+          <div tuiSubtitle>Último check-in {{ p.ultimoCheckIn | date:'dd/MM/yyyy' }}.</div>
+        }
+        <div class="checkin-actions">
+          <button tuiButton appearance="primary" size="m" type="button" (click)="registrarCheckin()">
+            <tui-icon icon="@tui.check" />Registrar check-in
+          </button>
+        </div>
+      </footer>
+    </div>
+
+    <div appearance="floating" tuiCardLarge>
+      <header tuiHeader>
+        <h2 tuiTitle>Historial de check-ins<span tuiSubtitle>{{ historial().length }} registros</span></h2>
+      </header>
+      @for (h of historial(); track $index) {
+        <div tuiTitle>{{ h.ultimoCheckIn ?? '—' }}<div tuiSubtitle>{{ h.porcentajeAvance }}% · racha {{ h.rachaActual }}</div></div>
+      } @empty {
+        <section><div tuiSubtitle>Sin check-ins registrados.</div></section>
+      }
+    </div>
+  }
+</div>

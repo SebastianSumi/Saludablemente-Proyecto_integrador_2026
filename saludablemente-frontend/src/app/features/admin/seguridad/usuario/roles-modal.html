@@ -1,0 +1,34 @@
+@if (error()) {
+  <p class="error">{{ error() }}</p>
+}
+
+@if (roles().length === 0 && !error()) {
+  <p class="hint">Cargando roles...</p>
+}
+
+<div class="teams-grid">
+  @for (r of roles(); track r.id) {
+    <label tuiLabel class="check-fila" [title]="r.descripcion ?? r.nombre">
+      <input
+        tuiCheckbox
+        type="checkbox"
+        [ngModel]="elegidos().includes(r.id)"
+        (ngModelChange)="toggle(r.id, $event)"
+        [ngModelOptions]="{ standalone: true }"
+      />
+      {{ r.nombre }}
+    </label>
+  }
+</div>
+
+@if (roles().length > 0) {
+  <div class="form-actions">
+    <button tuiButton appearance="primary" size="m" type="button" [loading]="guardando()" (click)="guardar()">
+      <tui-icon icon="@tui.check" />
+      Guardar roles
+    </button>
+    <button tuiButton appearance="outline" size="m" type="button" (click)="cancelar()">
+      Cancelar
+    </button>
+  </div>
+}

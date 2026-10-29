@@ -1,0 +1,433 @@
+<div class="col-stack">
+  <nav class="breadcrumb" aria-label="Miga de pan">
+    <a routerLink="/colaborador" class="crumb-link">Mi panel</a>
+    <tui-icon icon="@tui.chevron-right" class="crumb-sep" />
+    <a routerLink="/colaborador/mis-evaluaciones" class="crumb-link">Evaluaciones</a>
+    <tui-icon icon="@tui.chevron-right" class="crumb-sep" />
+    <span class="crumb-actual">{{ tipo() === 'nutricional' ? 'Nutricional' : 'Aptitud física' }}</span>
+  </nav>
+
+  @if (loading()) {
+    <div class="card"><div class="sk sk-line sk-line-lg"></div><div class="sk sk-line"></div><div class="sk sk-line"></div></div>
+  }
+
+  @if (error()) {
+    <div class="card error-caja" role="alert">
+      <span class="tile tile-rounded tile-soft-error">
+        <tui-icon icon="@tui.triangle-alert" class="icono-alerta" />
+      </span>
+      <div class="error-body">
+        <p class="error-title">No se pudo cargar tu evaluación</p>
+        <p class="error-msg">{{ error() }}</p>
+      </div>
+      <div class="error-actions">
+        <a tuiButton appearance="outline" size="s" routerLink="/colaborador/mis-evaluaciones">
+          <tui-icon icon="@tui.arrow-left" />
+          Volver
+        </a>
+      </div>
+    </div>
+  }
+
+  <!-- ════════════ NUTRICIONAL ════════════ -->
+  @if (nut(); as n) {
+    <div class="card hero-card sem-{{ semaforoNut() }}">
+      <div class="hero-banner" aria-hidden="true">
+        <span class="hero-orb hero-orb-a"></span>
+        <span class="hero-orb hero-orb-b"></span>
+      </div>
+      <div class="hero-body">
+        <span class="tile tile-rounded tile-soft-success hero-icono">
+          <tui-icon icon="@tui.apple" />
+        </span>
+        <div class="hero-info">
+          <div class="hero-title-row">
+            <h1 class="hero-titulo">Mi evaluación nutricional #{{ n.idEvaluacion }}</h1>
+            @if (n.estadoEvaluacion === 'COMPLETA') {
+              <span class="pill pill-success">Completa</span>
+            } @else if (n.estadoEvaluacion === 'ANULADA') {
+              <span class="pill pill-error">Anulada</span>
+            } @else {
+              <span class="pill pill-warning">Pendiente</span>
+            }
+          </div>
+          <div class="hero-chips">
+            <span class="meta-chip">
+              <tui-icon icon="@tui.calendar" />
+              {{ n.fechaEvaluacion | date: 'dd/MM/yyyy' }}
+            </span>
+            <span class="meta-chip">
+              <tui-icon icon="@tui.layers" />
+              Periodo {{ n.idPeriodo }}
+            </span>
+            <span class="meta-chip">
+              <tui-icon icon="@tui.cake" />
+              {{ n.edadAlMomento }} años
+            </span>
+            <span class="meta-chip meta-chip-soft">
+              <tui-icon icon="@tui.map-pin" />
+              {{ n.areaTrabajoAlMomento }}
+            </span>
+          </div>
+          <div class="semaforo">
+            @if (semaforoNut() === 'danger') {
+              <span class="pill pill-error"><span class="dot"></span>Requiere atención · {{ conteoNut().danger }} en rojo</span>
+            } @else if (semaforoNut() === 'warn') {
+              <span class="pill pill-warning"><span class="dot"></span>Con observaciones · {{ conteoNut().warn }} en ámbar</span>
+            } @else {
+              <span class="pill pill-success"><span class="dot"></span>Estable · {{ conteoNut().ok }} en verde</span>
+            }
+            <span class="text-soft semaforo-detalle">{{ conteoNut().ok }} bien · {{ conteoNut().warn }} atención · {{ conteoNut().danger }} peligro</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card tabs-card">
+      <tui-tabs [activeItemIndex]="tab()" (activeItemIndexChange)="tab.set($event)">
+        <button tuiTab type="button">
+          <tui-icon icon="@tui.scale" />
+          Antropometría
+        </button>
+        <button tuiTab type="button">
+          <tui-icon icon="@tui.droplet" />
+          Bioquímica
+        </button>
+        <button tuiTab type="button">
+          <tui-icon icon="@tui.message-square-text" />
+          Observaciones
+        </button>
+      </tui-tabs>
+    </div>
+
+    @if (tab() === 0) {
+      <section class="card detail-card">
+        <div class="section-title">
+          <div class="section-title-left">
+            <span class="tile tile-rounded tile-soft-warning seccion-icono">
+              <tui-icon icon="@tui.scale" />
+            </span>
+            <div>
+              <h3>Antropometría</h3>
+              <p class="seccion-desc">Medidas corporales y composición</p>
+            </div>
+          </div>
+        </div>
+        @if (n.detalleAntropometrico; as a) {
+          <div class="metricas">
+            <div class="metrica">
+              <span class="tile tile-rounded tile-soft-primary metrica-icon"><tui-icon icon="@tui.ruler" /></span>
+              <div class="metrica-body">
+                <span class="metrica-label">Estatura</span>
+                <strong class="metrica-val">{{ a.estaturaCm }} <span class="unit">cm</span></strong>
+              </div>
+            </div>
+            <div class="metrica">
+              <span class="tile tile-rounded tile-soft-primary metrica-icon"><tui-icon icon="@tui.weight" /></span>
+              <div class="metrica-body">
+                <span class="metrica-label">Peso</span>
+                <strong class="metrica-val">{{ a.pesoKg }} <span class="unit">kg</span></strong>
+              </div>
+            </div>
+            <div class="metrica">
+              <span class="tile tile-rounded tile-soft-secondary metrica-icon"><tui-icon icon="@tui.activity" /></span>
+              <div class="metrica-body">
+                <span class="metrica-label">IMC</span>
+                <strong class="metrica-val">{{ a.imc ?? '—' }}</strong>
+                <span class="pill {{ claseDx(a.dxImc) }}">{{ etiquetaDx(a.dxImc) }}</span>
+              </div>
+            </div>
+            <div class="metrica">
+              <span class="tile tile-rounded tile-soft-secondary metrica-icon"><tui-icon icon="@tui.circle-dot" /></span>
+              <div class="metrica-body">
+                <span class="metrica-label">Perímetro abdominal</span>
+                <strong class="metrica-val">{{ a.perimetroAbdominalCm ?? '—' }} <span class="unit">cm</span></strong>
+                <span class="pill {{ claseDx(a.dxPerimetroAbdominal) }}">{{ etiquetaDx(a.dxPerimetroAbdominal) }}</span>
+              </div>
+            </div>
+            <div class="metrica">
+              <span class="tile tile-rounded tile-soft-warning metrica-icon"><tui-icon icon="@tui.pie-chart" /></span>
+              <div class="metrica-body">
+                <span class="metrica-label">Grasa corporal</span>
+                <strong class="metrica-val">{{ a.porcentajeGrasa ?? '—' }}<span class="unit">%</span></strong>
+                <span class="pill {{ claseDx(a.dxGrasa) }}">{{ etiquetaDx(a.dxGrasa) }}</span>
+              </div>
+            </div>
+            <div class="metrica">
+              <span class="tile tile-rounded tile-soft-success metrica-icon"><tui-icon icon="@tui.dumbbell" /></span>
+              <div class="metrica-body">
+                <span class="metrica-label">Masa muscular</span>
+                <strong class="metrica-val">{{ a.porcentajeMasaMuscular ?? '—' }}<span class="unit">%</span></strong>
+                <span class="pill {{ claseDx(a.dxMasaMuscular) }}">{{ etiquetaDx(a.dxMasaMuscular) }}</span>
+              </div>
+            </div>
+            <div class="metrica">
+              <span class="tile tile-rounded tile-soft-error metrica-icon"><tui-icon icon="@tui.heart-pulse" /></span>
+              <div class="metrica-body">
+                <span class="metrica-label">Grasa visceral</span>
+                <strong class="metrica-val">{{ a.porcentajeGrasaVisceral ?? '—' }}<span class="unit">%</span></strong>
+                <span class="pill {{ claseDx(a.dxGrasaVisceral) }}">{{ etiquetaDx(a.dxGrasaVisceral) }}</span>
+              </div>
+            </div>
+          </div>
+        } @else {
+          <p class="text-soft">Sin registro antropométrico en esta evaluación.</p>
+        }
+      </section>
+    }
+
+    @if (tab() === 1) {
+      <section class="card detail-card">
+        <div class="section-title">
+          <div class="section-title-left">
+            <span class="tile tile-rounded tile-soft-error seccion-icono">
+              <tui-icon icon="@tui.droplet" />
+            </span>
+            <div>
+              <h3>Bioquímica</h3>
+              <p class="seccion-desc">Análisis de laboratorio</p>
+            </div>
+          </div>
+          @if (n.detalleBioquimico?.dxBioquimico) {
+            <span class="pill {{ claseDx(n.detalleBioquimico?.dxBioquimico) }}">{{ etiquetaDx(n.detalleBioquimico?.dxBioquimico) }}</span>
+          }
+        </div>
+        @if (n.detalleBioquimico; as b) {
+          <div class="metricas">
+            <div class="metrica">
+              <span class="tile tile-rounded tile-soft-warning metrica-icon"><tui-icon icon="@tui.candy" /></span>
+              <div class="metrica-body">
+                <span class="metrica-label">Glucosa</span>
+                <strong class="metrica-val">{{ b.glucosa ?? '—' }} <span class="unit">mg/dL</span></strong>
+                <span class="pill {{ claseDx(bioEstado('GLUCOSA') === 'ok' ? 'NORMAL' : bioEstado('GLUCOSA') === 'warn' ? 'ALTO' : bioEstado('GLUCOSA') === 'neutro' ? null : 'ALTERADO') }}">{{ bioEstado('GLUCOSA') === 'ok' ? 'Normal' : bioEstado('GLUCOSA') === 'neutro' ? 'Sin dato' : 'Alterada' }}</span>
+              </div>
+            </div>
+            <div class="metrica">
+              <span class="tile tile-rounded tile-soft-secondary metrica-icon"><tui-icon icon="@tui.droplets" /></span>
+              <div class="metrica-body">
+                <span class="metrica-label">Colesterol</span>
+                <strong class="metrica-val">{{ b.colesterol ?? '—' }} <span class="unit">mg/dL</span></strong>
+                <span class="pill {{ claseDx(bioEstado('COLESTEROL') === 'ok' ? 'NORMAL' : bioEstado('COLESTEROL') === 'neutro' ? null : 'ALTERADO') }}">{{ bioEstado('COLESTEROL') === 'ok' ? 'Normal' : bioEstado('COLESTEROL') === 'neutro' ? 'Sin dato' : 'Alterado' }}</span>
+              </div>
+            </div>
+            <div class="metrica">
+              <span class="tile tile-rounded tile-soft-secondary metrica-icon"><tui-icon icon="@tui.test-tube" /></span>
+              <div class="metrica-body">
+                <span class="metrica-label">Triglicéridos</span>
+                <strong class="metrica-val">{{ b.trigliceridos ?? '—' }} <span class="unit">mg/dL</span></strong>
+                <span class="pill {{ claseDx(bioEstado('TRIGLICERIDOS') === 'ok' ? 'NORMAL' : bioEstado('TRIGLICERIDOS') === 'neutro' ? null : 'ALTERADO') }}">{{ bioEstado('TRIGLICERIDOS') === 'ok' ? 'Normal' : bioEstado('TRIGLICERIDOS') === 'neutro' ? 'Sin dato' : 'Alterados' }}</span>
+              </div>
+            </div>
+            <div class="metrica">
+              <span class="tile tile-rounded tile-soft-error metrica-icon"><tui-icon icon="@tui.heart-pulse" /></span>
+              <div class="metrica-body">
+                <span class="metrica-label">Presión arterial</span>
+                <strong class="metrica-val">{{ b.presionSistolica ?? '—' }}/{{ b.presionDiastolica ?? '—' }} <span class="unit">mmHg</span></strong>
+                <span class="pill {{ claseDx(bioEstado('PRESION_SISTOLICA') === 'ok' && bioEstado('PRESION_DIASTOLICA') === 'ok' ? 'NORMAL' : (bioEstado('PRESION_SISTOLICA') === 'neutro' && bioEstado('PRESION_DIASTOLICA') === 'neutro') ? null : 'ALTERADO') }}">{{ (bioEstado('PRESION_SISTOLICA') === 'ok' && bioEstado('PRESION_DIASTOLICA') === 'ok') ? 'Normal' : (bioEstado('PRESION_SISTOLICA') === 'neutro' && bioEstado('PRESION_DIASTOLICA') === 'neutro') ? 'Sin dato' : 'Alterada' }}</span>
+              </div>
+            </div>
+          </div>
+        } @else {
+          <p class="text-soft">Sin registro bioquímico en esta evaluación.</p>
+        }
+      </section>
+    }
+
+    @if (tab() === 2) {
+      <section class="card detail-card">
+        <div class="section-title">
+          <div class="section-title-left">
+            <span class="tile tile-rounded tile-soft-primary seccion-icono">
+              <tui-icon icon="@tui.message-square-text" />
+            </span>
+            <div>
+              <h3>Observaciones del evaluador</h3>
+              <p class="seccion-desc">Indicaciones para tu seguimiento</p>
+            </div>
+          </div>
+        </div>
+        <blockquote class="obs-cita">
+          <tui-icon icon="@tui.quote" class="obs-comilla" />
+          <p>{{ n.observaciones || 'Sin observaciones registradas.' }}</p>
+        </blockquote>
+        <footer class="solo-lectura"><span class="pill pill-neutral">Solo lectura</span></footer>
+      </section>
+    }
+  }
+
+  <!-- ════════════ APTITUD ════════════ -->
+  @if (apt(); as a) {
+    <div class="card hero-card">
+      <div class="hero-banner hero-banner-apt" aria-hidden="true">
+        <span class="hero-orb hero-orb-a"></span>
+        <span class="hero-orb hero-orb-b"></span>
+      </div>
+      <div class="hero-body">
+        <span class="tile tile-rounded tile-soft-violet hero-icono">
+          <tui-icon icon="@tui.activity" />
+        </span>
+        <div class="hero-info">
+          <div class="hero-title-row">
+            <h1 class="hero-titulo">Mi evaluación de aptitud #{{ a.id }}</h1>
+            <span class="pill {{ claseDictamen(a.dictamenGlobal) }}">{{ etiquetaDictamen(a.dictamenGlobal) }}</span>
+          </div>
+          <div class="hero-chips">
+            <span class="meta-chip">
+              <tui-icon icon="@tui.calendar" />
+              {{ a.fechaEvaluacion | date: 'dd/MM/yyyy' }}
+            </span>
+            <span class="meta-chip">
+              <tui-icon icon="@tui.trophy" />
+              {{ a.fitnessScore ?? '—' }} pts · {{ etiquetaFitness(a.fitnessScore) }}
+            </span>
+            @if (a.areaTrabajoAlMomento) {
+              <span class="meta-chip meta-chip-soft">
+                <tui-icon icon="@tui.map-pin" />
+                {{ a.areaTrabajoAlMomento }}
+              </span>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card tabs-card">
+      <tui-tabs [activeItemIndex]="tab()" (activeItemIndexChange)="tab.set($event)">
+        <button tuiTab type="button">
+          <tui-icon icon="@tui.dumbbell" />
+          Fuerza
+        </button>
+        <button tuiTab type="button">
+          <tui-icon icon="@tui.heart-pulse" />
+          Cardio
+        </button>
+        <button tuiTab type="button">
+          <tui-icon icon="@tui.message-square-text" />
+          Restricciones
+        </button>
+      </tui-tabs>
+    </div>
+
+    @if (tab() === 0) {
+      <section class="card detail-card">
+        <div class="section-title">
+          <div class="section-title-left">
+            <span class="tile tile-rounded tile-soft-violet seccion-icono">
+              <tui-icon icon="@tui.dumbbell" />
+            </span>
+            <div>
+              <h3>Fuerza</h3>
+              <p class="seccion-desc">Pruebas de fuerza muscular</p>
+            </div>
+          </div>
+        </div>
+        @if (a.detalleFuerza; as f) {
+          <div class="metricas">
+            <div class="metrica">
+              <div class="metrica-body">
+                <span class="metrica-label">Abdominales</span>
+                <strong class="metrica-val">{{ f.repeticionesAbdominales ?? '—' }} <span class="unit">rep</span></strong>
+              </div>
+            </div>
+            <div class="metrica">
+              <div class="metrica-body">
+                <span class="metrica-label">Flexión de brazo</span>
+                <strong class="metrica-val">{{ f.repeticionesFlexionBrazo ?? '—' }} <span class="unit">rep</span></strong>
+              </div>
+            </div>
+            <div class="metrica">
+              <div class="metrica-body">
+                <span class="metrica-label">Salto longitud</span>
+                <strong class="metrica-val">{{ f.saltoLongitudCm ?? '—' }} <span class="unit">cm</span></strong>
+              </div>
+            </div>
+            <div class="metrica">
+              <div class="metrica-body">
+                <span class="metrica-label">Core / Abdomen</span>
+                <span class="pill {{ claseDx(f.dxCore) }}">{{ etiquetaDx(f.dxCore) }}</span>
+              </div>
+            </div>
+            <div class="metrica">
+              <div class="metrica-body">
+                <span class="metrica-label">Tren superior</span>
+                <span class="pill {{ claseDx(f.dxTrenSuperior) }}">{{ etiquetaDx(f.dxTrenSuperior) }}</span>
+              </div>
+            </div>
+            <div class="metrica">
+              <div class="metrica-body">
+                <span class="metrica-label">Tren inferior</span>
+                <span class="pill {{ claseDx(f.dxTrenInferior) }}">{{ etiquetaDx(f.dxTrenInferior) }}</span>
+              </div>
+            </div>
+            <div class="metrica">
+              <div class="metrica-body">
+                <span class="metrica-label">Fuerza global</span>
+                <span class="pill {{ claseDx(f.dxFuerzaGlobal) }}">{{ etiquetaDx(f.dxFuerzaGlobal) }}</span>
+              </div>
+            </div>
+          </div>
+        } @else {
+          <p class="text-soft">Sin registro de fuerza en esta evaluación.</p>
+        }
+      </section>
+    }
+
+    @if (tab() === 1) {
+      <section class="card detail-card">
+        <div class="section-title">
+          <div class="section-title-left">
+            <span class="tile tile-rounded tile-soft-error seccion-icono">
+              <tui-icon icon="@tui.heart-pulse" />
+            </span>
+            <div>
+              <h3>Cardio</h3>
+              <p class="seccion-desc">Resistencia cardiovascular</p>
+            </div>
+          </div>
+          @if (a.detalleCardio; as c) {
+            <span class="pill {{ claseDx(c.dxCardiovascular) }}">{{ etiquetaDx(c.dxCardiovascular) }}</span>
+          }
+        </div>
+        @if (a.detalleCardio; as c) {
+          <div class="metricas">
+            <div class="metrica">
+              <div class="metrica-body">
+                <span class="metrica-label">Soga 30 seg</span>
+                <strong class="metrica-val">{{ c.repeticionesSoga30s ?? '—' }} <span class="unit">rep</span></strong>
+              </div>
+            </div>
+            <div class="metrica">
+              <div class="metrica-body">
+                <span class="metrica-label">Carrera 400 m</span>
+                <strong class="metrica-val">{{ c.tiempoCarrera400mSeg ?? '—' }} <span class="unit">seg</span></strong>
+              </div>
+            </div>
+          </div>
+        } @else {
+          <p class="text-soft">Sin registro cardiovascular en esta evaluación.</p>
+        }
+      </section>
+    }
+
+    @if (tab() === 2) {
+      <section class="card detail-card">
+        <div class="section-title">
+          <div class="section-title-left">
+            <span class="tile tile-rounded tile-soft-warning seccion-icono">
+              <tui-icon icon="@tui.triangle-alert" />
+            </span>
+            <div>
+              <h3>Restricciones</h3>
+              <p class="seccion-desc">Indicaciones del evaluador</p>
+            </div>
+          </div>
+        </div>
+        <blockquote class="obs-cita">
+          <tui-icon icon="@tui.quote" class="obs-comilla" />
+          <p>{{ a.observacionesRestricciones || 'Sin restricciones registradas.' }}</p>
+        </blockquote>
+        <footer class="solo-lectura"><span class="pill pill-neutral">Solo lectura</span></footer>
+      </section>
+    }
+  }
+</div>

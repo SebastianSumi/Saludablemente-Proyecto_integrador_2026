@@ -1,0 +1,149 @@
+<div class="page-banner card">
+  <div class="page-banner-body">
+    <div class="page-banner-icon tile tile-rounded tile-soft-warning">
+      <tui-icon icon="@tui.file-text" />
+    </div>
+    <div>
+      <h2 class="card-title">Reportes y documentos</h2>
+      <p class="card-subtitle">
+        Genera fichas clínicas en PDF, consolidados en Excel y el resumen de alertas.
+      </p>
+    </div>
+  </div>
+</div>
+
+@if (error()) {
+  <div class="card error-caja">
+    <tui-icon icon="@tui.triangle-alert" class="icono-alerta" />
+    <p class="error-msg">{{ error() }}</p>
+  </div>
+}
+
+@if (mensaje()) {
+  <div class="card exito-caja">
+    <tui-icon icon="@tui.circle-check" class="icono-exito" />
+    <p class="exito-msg">{{ mensaje() }}</p>
+  </div>
+}
+
+<div class="seccion-grid">
+  <section class="card">
+    <div class="seccion-titulo">
+      <span class="tile tile-rounded tile-soft-success seccion-icono">
+        <tui-icon icon="@tui.file-text" />
+      </span>
+      <div>
+        <h3 class="seccion-nombre">Ficha clínica nutricional (PDF)</h3>
+        <p class="seccion-desc">Descarga la ficha de una evaluación por su ID</p>
+      </div>
+    </div>
+    <label tuiLabel class="field campo-full">
+      <span class="field-label">ID de evaluación</span>
+      <tui-textfield>
+        <input tuiInput type="number" [(ngModel)]="idEvaluacion" placeholder="Ej. 128" />
+      </tui-textfield>
+    </label>
+    <div class="form-acciones">
+      <button
+        tuiButton
+        appearance="primary"
+        size="m"
+        type="button"
+        [loading]="descargando()"
+        (click)="descargarFicha()"
+      >
+        <tui-icon icon="@tui.download" />
+        Descargar ficha PDF
+      </button>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="seccion-titulo">
+      <span class="tile tile-rounded tile-soft-primary seccion-icono">
+        <tui-icon icon="@tui.file-spreadsheet" />
+      </span>
+      <div>
+        <h3 class="seccion-nombre">Consolidado nutricional (Excel)</h3>
+        <p class="seccion-desc">Exporta las evaluaciones de un periodo</p>
+      </div>
+    </div>
+    <label tuiLabel class="field campo-full">
+      <span class="field-label">Periodo</span>
+      <select class="select-nativo" [(ngModel)]="periodoCodigo">
+        <option value="">— Seleccione periodo —</option>
+        @for (p of periodos(); track p.id) {
+          <option [value]="p.codigo">{{ p.label }}</option>
+        }
+      </select>
+    </label>
+    <div class="form-acciones">
+      <button
+        tuiButton
+        appearance="primary"
+        size="m"
+        type="button"
+        [loading]="descargando()"
+        (click)="exportarConsolidado()"
+      >
+        <tui-icon icon="@tui.download" />
+        Exportar consolidado
+      </button>
+    </div>
+  </section>
+</div>
+
+<section class="card">
+  <div class="seccion-titulo">
+    <span class="tile tile-rounded tile-soft-error seccion-icono">
+      <tui-icon icon="@tui.bell" />
+    </span>
+    <div>
+      <h3 class="seccion-nombre">Resumen de alertas clínicas</h3>
+      <p class="seccion-desc">Filtra por rango de fechas y consulta los totales</p>
+    </div>
+  </div>
+
+  <div class="filtros-linea">
+    <label tuiLabel class="filtro-item">
+      <span class="filtro-etiqueta">Desde</span>
+      <tui-textfield>
+        <input tuiInput type="date" [(ngModel)]="alertaDesde" />
+      </tui-textfield>
+    </label>
+    <label tuiLabel class="filtro-item">
+      <span class="filtro-etiqueta">Hasta</span>
+      <tui-textfield>
+        <input tuiInput type="date" [(ngModel)]="alertaHasta" />
+      </tui-textfield>
+    </label>
+    <button
+      tuiButton
+      appearance="outline"
+      size="m"
+      type="button"
+      class="btn-limpiar"
+      (click)="cargarResumenAlertas()"
+    >
+      <tui-icon icon="@tui.refresh-cw" />
+      Actualizar
+    </button>
+  </div>
+
+  @if (alertaAgregado(); as a) {
+    <div class="metric-grid">
+      <div class="metric-card">
+        <span class="metric-label">Total de alertas</span>
+        <span class="metric-value">{{ a.totalAlertas }}</span>
+      </div>
+      <div class="metric-card">
+        <span class="metric-label">Críticas</span>
+        <span class="metric-value">{{ a.totalCriticas }}</span>
+      </div>
+      <div class="metric-card">
+        <span class="metric-label">Atendidas</span>
+        <span class="metric-value">{{ a.totalAtendidas }}</span>
+      </div>
+    </div>
+  }
+</section>

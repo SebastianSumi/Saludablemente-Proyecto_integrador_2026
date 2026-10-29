@@ -1,0 +1,146 @@
+<div class="detail-shell">
+  <div class="detail-nav">
+    <a tuiButton appearance="flat" size="s" routerLink="/seguridad/usuarios">
+      <tui-icon icon="@tui.arrow-left" />
+      Volver al listado
+    </a>
+  </div>
+
+  @if (loading()) {
+    <div class="card cargando-caja">
+      <p class="hint">Cargando información del usuario…</p>
+    </div>
+  }
+
+  @if (error()) {
+    <div class="card error-caja">
+      <tui-icon icon="@tui.triangle-alert" class="icono-alerta" />
+      <p class="error-msg">{{ error() }}</p>
+    </div>
+  }
+
+  @if (usuario(); as u) {
+    <!-- ======================================
+         HERO DEL USUARIO
+         ====================================== -->
+    <div class="perfil-hero card">
+      <div class="perfil-hero-avatar">
+        <span [tuiAvatar]="iniciales(nombreCompleto(u))" size="xxl" [round]="true"></span>
+      </div>
+
+      <div class="perfil-hero-body">
+        <h2 class="perfil-hero-nombre">{{ nombreCompleto(u) }}</h2>
+        <div class="perfil-hero-email">
+          <tui-icon icon="@tui.mail" />
+          <span class="font-mono">{{ u.email }}</span>
+        </div>
+        <div class="perfil-hero-roles">
+          <tui-icon icon="@tui.shield" />
+          @for (r of u.roles; track r.id) {
+            <span class="pill pill-soft-primary">{{ r.nombre }}</span>
+          } @empty {
+            <span class="pill pill-soft-neutral">Sin roles</span>
+          }
+        </div>
+      </div>
+
+      <div class="estado-badge-hero">
+        @if (u.activo) {
+          <span class="pill pill-soft-success">Activo</span>
+        } @else {
+          <span class="pill pill-soft-neutral">Inactivo</span>
+        }
+      </div>
+    </div>
+
+    <div class="acciones-barra">
+      <button tuiButton appearance="outline" size="m" type="button" (click)="editarRoles()">
+        <tui-icon icon="@tui.pencil" />
+        Editar roles
+      </button>
+      <button tuiButton appearance="outline" size="m" type="button" (click)="cambiarPassword()">
+        <tui-icon icon="@tui.key" />
+        Cambiar contraseña
+      </button>
+      @if (u.activo) {
+        <button tuiButton appearance="destructive" size="m" type="button" [loading]="procesando()" (click)="inactivar()">
+          <tui-icon icon="@tui.ban" />
+          Inactivar usuario
+        </button>
+      } @else {
+        <button tuiButton appearance="primary" size="m" type="button" [loading]="procesando()" (click)="reactivar()">
+          <tui-icon icon="@tui.check" />
+          Reactivar usuario
+        </button>
+      }
+    </div>
+
+    <div class="perfil-grid">
+      <section class="card detail-card">
+        <div class="seccion-titulo">
+          <span class="tile tile-rounded tile-soft-primary seccion-icono">
+            <tui-icon icon="@tui.user" />
+          </span>
+          <div>
+            <h3 class="seccion-nombre">Información de la Cuenta</h3>
+          </div>
+        </div>
+        <dl class="detail-grid">
+          <div class="detail-item">
+            <dt class="detail-etiqueta">Correo Electrónico</dt>
+            <dd class="detail-valor font-mono">{{ u.email }}</dd>
+          </div>
+          <div class="detail-item">
+            <dt class="detail-etiqueta">Fecha de Creación</dt>
+            <dd class="detail-valor">{{ u.fechaCreacion ?? '—' }}</dd>
+          </div>
+          <div class="detail-item">
+            <dt class="detail-etiqueta">Estado de Cuenta</dt>
+            <dd class="detail-valor">
+              @if (u.activo) {
+                <span class="pill pill-soft-success">Activa</span>
+              } @else {
+                <span class="pill pill-soft-neutral">Inactiva</span>
+              }
+            </dd>
+          </div>
+        </dl>
+      </section>
+
+      <section class="card detail-card">
+        <div class="seccion-titulo">
+          <span class="tile tile-rounded tile-soft-primary seccion-icono">
+            <tui-icon icon="@tui.id-card" />
+          </span>
+          <div>
+            <h3 class="seccion-nombre">Datos del Personal RRHH</h3>
+          </div>
+        </div>
+        <dl class="detail-grid">
+          <div class="detail-item">
+            <dt class="detail-etiqueta">ID de Persona</dt>
+            <dd class="detail-valor font-mono">{{ u.idPersona }}</dd>
+          </div>
+          <div class="detail-item">
+            <dt class="detail-etiqueta">Documento de Identidad</dt>
+            <dd class="detail-valor font-mono">{{ u.documentoIdentidad ?? '—' }}</dd>
+          </div>
+          <div class="detail-item">
+            <dt class="detail-etiqueta">Área de Trabajo</dt>
+            <dd class="detail-valor">{{ u.areaTrabajo ?? '—' }}</dd>
+          </div>
+          <div class="detail-item">
+            <dt class="detail-etiqueta">Persona Activa en RRHH</dt>
+            <dd class="detail-valor">
+              @if (u.activoPersona !== false) {
+                <span class="pill pill-soft-success">Sí</span>
+              } @else {
+                <span class="pill pill-soft-neutral">No</span>
+              }
+            </dd>
+          </div>
+        </dl>
+      </section>
+    </div>
+  }
+</div>

@@ -1,0 +1,62 @@
+<form [formGroup]="form" (ngSubmit)="guardar()">
+  <div class="form-grid">
+    <label tuiLabel class="field">
+      Código de evento
+      <tui-textfield>
+        <input tuiInput type="text" formControlName="codigoEvento" maxlength="60" placeholder="EVALUACION_COMPLETADA" />
+      </tui-textfield>
+      <tui-error formControlName="codigoEvento" />
+    </label>
+
+    <label tuiLabel class="field">
+      Canal
+      <tui-textfield>
+        <select formControlName="canal" class="canal-select">
+          @for (c of canales; track c) {
+            <option [value]="c">{{ c }}</option>
+          }
+        </select>
+      </tui-textfield>
+      <tui-error formControlName="canal" />
+    </label>
+
+    <label tuiLabel class="field">
+      Asunto (opcional)
+      <tui-textfield>
+        <input tuiInput type="text" formControlName="asunto" maxlength="200" />
+      </tui-textfield>
+      <tui-error formControlName="asunto" />
+    </label>
+
+    <label tuiLabel class="check-fila">
+      <input tuiCheckbox type="checkbox" formControlName="activo" />
+      Activa
+    </label>
+  </div>
+
+  <label tuiLabel class="field">
+    Cuerpo HTML (admite variables entre llaves dobles)
+    <tui-textfield>
+      <textarea tuiTextarea formControlName="cuerpoHtml" rows="8"></textarea>
+    </tui-textfield>
+    <tui-error formControlName="cuerpoHtml" />
+  </label>
+
+  <div class="hint placeholders-ayuda" ngNonBindable>
+    <strong>Placeholders disponibles:</strong> escribe {{clave}} y el
+    módulo que notifica lo reemplaza al enviar. Convención sugerida:
+    {{nombre}}, {{titulo}}, {{mensaje}},
+    {{fecha}}. Si una clave no llega, se reemplaza por vacío.
+  </div>
+
+  @if (error()) {
+    <p class="error">{{ error() }}</p>
+  }
+
+  <div class="form-actions">
+    <button tuiButton appearance="primary" size="m" type="submit" [loading]="guardando()">
+      Guardar
+    </button>
+    <button tuiButton appearance="outline" size="m" type="button" (click)="cancelar()">Cancelar</button>
+  </div>
+</form>

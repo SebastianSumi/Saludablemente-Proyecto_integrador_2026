@@ -1,0 +1,30 @@
+<form [formGroup]="form" (ngSubmit)="resolver()">
+  @if (error()) {
+    <p class="error">{{ error() }}</p>
+  }
+
+  <label tuiLabel class="field">
+    Decisión
+    <tui-textfield tuiChevron>
+      <input tuiComboBox formControlName="decision" />
+      <tui-data-list-wrapper *tuiDropdown [items]="decisiones | tuiFilterByInput" />
+    </tui-textfield>
+    <tui-error formControlName="decision" />
+  </label>
+
+  <label tuiLabel class="field">
+    Observaciones (opcional)
+    <tui-textfield>
+      <input tuiInput type="text" formControlName="observaciones" maxlength="300" />
+    </tui-textfield>
+  </label>
+
+  <div class="form-actions">
+    <button tuiButton appearance="primary" size="m" type="submit" [loading]="guardando()">
+      Resolver
+    </button>
+    <button tuiButton appearance="outline" size="m" type="button" (click)="cancelar()">
+      Cancelar
+    </button>
+  </div>
+</form>

@@ -1,0 +1,145 @@
+@if (loading() && !jornada()) {
+  <div class="card estado-caja">
+    <p class="card-subtitle">Cargando jornada…</p>
+  </div>
+} @else if (jornada(); as j) {
+  <div class="page-banner card">
+    <div class="page-banner-body">
+      <div class="page-banner-icon tile tile-rounded tile-soft-success">
+        <tui-icon icon="@tui.calendar-heart" />
+      </div>
+      <div>
+        <h2 class="card-title">{{ j.nombre }}</h2>
+        <p class="card-subtitle">
+          {{ formatearFecha(j.fecha) }} · {{ formatearHora(j.hora) }}
+          @if (j.periodoCodigo) {
+            · Periodo {{ j.periodoCodigo }}
+          }
+        </p>
+      </div>
+    </div>
+    <div class="page-banner-actions">
+      <span [class]="claseEstado(j.estado)">{{ etiquetaEstado(j.estado) }}</span>
+      <a tuiButton appearance="outline" size="m" routerLink="/nutricional/jornadas">
+        <tui-icon icon="@tui.arrow-left" />
+        Volver
+      </a>
+      @if (esAdmin()) {
+        <a
+          tuiButton
+          appearance="outline"
+          size="m"
+          [routerLink]="['/admin/nutricional/jornadas', j.idJornada, 'editar']"
+        >
+          <tui-icon icon="@tui.pencil" />
+          Editar
+        </a>
+        <a
+          tuiButton
+          appearance="primary"
+          size="m"
+          [routerLink]="['/admin/nutricional/jornadas', j.idJornada, 'inscritos']"
+        >
+          <tui-icon icon="@tui.list-ordered" />
+          Inscritos
+        </a>
+      }
+    </div>
+  </div>
+
+  @if (error()) {
+    <div class="card error-caja">
+      <tui-icon icon="@tui.triangle-alert" class="icono-alerta" />
+      <p class="error-msg">{{ error() }}</p>
+    </div>
+  }
+
+  @if (exito()) {
+    <div class="card exito-caja">
+      <tui-icon icon="@tui.circle-check" class="icono-exito" />
+      <p class="exito-msg">{{ exito() }}</p>
+    </div>
+  }
+
+  <div class="detalle-grid">
+    <section class="card">
+      <h3 class="section-title">Información de la jornada</h3>
+
+      @if (j.descripcion) {
+        <p class="descripcion">{{ j.descripcion }}</p>
+      }
+
+      <dl class="datos">
+        <div class="dato">
+          <dt>Fecha</dt>
+          <dd>{{ formatearFecha(j.fecha) }}</dd>
+        </div>
+        <div class="dato">
+          <dt>Hora</dt>
+          <dd>{{ formatearHora(j.hora) }}</dd>
+        </div>
+        <div class="dato">
+          <dt>Periodo</dt>
+          <dd>{{ j.periodoCodigo ?? '—' }}</dd>
+        </div>
+        <div class="dato">
+          <dt>Capacidad</dt>
+          <dd>{{ j.capacidad }} persona(s)</dd>
+        </div>
+        <div class="dato">
+          <dt>Inscritos</dt>
+          <dd>{{ j.inscritos }}</dd>
+        </div>
+        <div class="dato">
+          <dt>Cupos disponibles</dt>
+          <dd>{{ j.cuposDisponibles }}</dd>
+        </div>
+      </dl>
+    </section>
+
+    <section class="card inscripcion-card">
+      <h3 class="section-title">Mi turno</h3>
+
+      @if (miInscripcion(); as mi) {
+        <div class="turno-box">
+          <span class="turno-label">Número de turno</span>
+          <strong class="turno-numero">{{ mi.numeroTurno }}</strong>
+          <span [class]="claseInscripcion(mi.estado)">
+            {{ mi.estado === 'ASISTIO' ? 'Asistió' : 'Activa' }}
+          </span>
+        </div>
+        <p class="card-subtitle">
+          Inscrito el {{ formatearFecha(mi.fechaInscripcion.slice(0, 10)) }}.
+          Preséntate con tu documento de identidad.
+        </p>
+      } @else {
+        <p class="card-subtitle">
+          Aún no tienes un turno asignado en esta jornada.
+        </p>
+
+        @if (j.estado !== 'ABIERTA') {
+          <p class="aviso">La jornada no está abierta para inscripciones.</p>
+        } @else if (j.cuposDisponibles <= 0) {
+          <p class="aviso">La jornada alcanzó su capacidad máxima.</p>
+        } @else {
+          <button
+            tuiButton
+            appearance="primary"
+            size="m"
+            type="button"
+            [loading]="inscribiendo()"
+            (click)="inscribirme()"
+          >
+            <tui-icon icon="@tui.ticket" />
+            Inscribirme y obtener turno
+          </button>
+        }
+      }
+    </section>
+  </div>
+} @else if (error()) {
+  <div class="card error-caja">
+    <tui-icon icon="@tui.triangle-alert" class="icono-alerta" />
+    <p class="error-msg">{{ error() }}</p>
+  </div>
+}

@@ -1,0 +1,261 @@
+<app-loading-bar />
+
+<header class="topbar">
+  <a routerLink="/" class="branding">
+    <img src="img/logo-icon.svg" alt="" height="32" />
+    <span class="branding-nombre">Saludablemente</span>
+  </a>
+
+  <span class="topbar-sep"></span>
+
+  <nav class="migas" aria-label="Migas de pan">
+    @for (m of migas(); track m.titulo; let last = $last) {
+      @if (!last && m.ruta) {
+        <a [routerLink]="m.ruta" [fragment]="m.fragment">{{ m.titulo }}</a>
+        <span class="migas-sep">/</span>
+      } @else {
+        <span class="migas-actual">{{ m.titulo }}</span>
+      }
+    }
+  </nav>
+
+  <span class="flex-auto"></span>
+
+  <button
+    tuiButton
+    appearance="flat"
+    size="s"
+    type="button"
+    class="theme-toggle"
+    [attr.aria-pressed]="theme.esOscuro()"
+    [title]="theme.esOscuro() ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'"
+    (click)="theme.alternar()"
+  >
+    <tui-icon [icon]="theme.esOscuro() ? '@tui.sun' : '@tui.moon'" />
+  </button>
+
+  @if (auth.estaAutenticado()) {
+    <div
+      class="noti-wrapper"
+      [tuiDropdown]="campanaMenu"
+      [tuiDropdownOpen]="campanaAbierta()"
+      (tuiDropdownOpenChange)="campanaAbierta.set($event)"
+    >
+      <button
+        tuiButton
+        appearance="flat"
+        size="s"
+        type="button"
+        class="noti-boton"
+        title="Mis notificaciones"
+        (click)="alternarCampana()"
+      >
+        <tui-icon icon="@tui.bell" />
+        @if (noLeidas() > 0) {
+          <span tuiBadge appearance="negative" size="s">{{ noLeidas() }}</span>
+        }
+      </button>
+    </div>
+    <div
+      class="user-chip-wrapper"
+      [tuiDropdown]="perfilMenu"
+      [tuiDropdownOpen]="menuAbierto()"
+      (tuiDropdownOpenChange)="menuAbierto.set($event)"
+    >
+      <button type="button" class="user-chip" (click)="abrirMenu()">
+        <app-avatar [foto]="fotoUrl()" [iniciales]="inicialesUsuario()" size="s" />
+        <span class="user-chip-name">{{ auth.obtenerNombre() }}</span>
+        <tui-icon icon="@tui.chevron-down" class="user-chip-caret" />
+      </button>
+    </div>
+  }
+</header>
+
+<!-- ==== Campana de notificaciones ==== -->
+<ng-template #campanaMenu>
+  <tui-data-list>
+    <div class="dropdown-campana">
+      <div class="campana-head">
+        <strong>Notificaciones</strong>
+        @if (noLeidas() > 0) {
+          <span class="pill pill-error">{{ noLeidas() }} sin leer</span>
+        }
+      </div>
+      @if (campanaLoading()) {
+        <p class="hint">Cargando…</p>
+      } @else if (campanaError()) {
+        <p class="error">{{ campanaError() }}</p>
+      } @else if (ultimas().length === 0) {
+        <p class="empty">Sin notificaciones. Todo bajo control.</p>
+      } @else {
+        @for (n of ultimas(); track n.idNotificacion) {
+          <button type="button" class="campana-item" [class.leida]="n.leido" (click)="abrirNotificacion(n)">
+            @if (esAlertaClinica(n)) {
+              <span class="campana-icono alerta"><tui-icon icon="@tui.bell-ring" /></span>
+            } @else {
+              <span class="campana-punto" [class.leida]="n.leido"></span>
+            }
+            <span class="campana-texto">
+              <strong>{{ n.titulo }}</strong>
+              <span class="hint">{{ n.mensaje }}</span>
+              <span class="campana-tiempo">{{ haceCuanto(n.fechaEnvio) }}@if (esAlertaClinica(n)) { · Ver alerta → }</span>
+            </span>
+          </button>
+        }
+      }
+      <button
+        tuiButton
+        appearance="outline"
+        size="s"
+        type="button"
+        class="campana-todas"
+        (click)="verTodasNotificaciones()"
+      >
+        Ver todas las notificaciones
+      </button>
+    </div>
+  </tui-data-list>
+</ng-template>
+
+<!-- ==== Insignia de perfil ==== -->
+<ng-template #perfilMenu>
+  <tui-data-list>
+    <div class="dropdown-perfil">
+      @if (perfilLoading()) {
+        <p class="hint">Cargando perfil...</p>
+      } @else if (perfilError()) {
+        <p class="error">{{ perfilError() }}</p>
+      } @else if (perfil(); as p) {
+        <!-- Credencial -->
+        <div class="dropdown-perfil-credencial">
+          <app-avatar
+            [foto]="fotoUrl()"
+            [iniciales]="inicialesUsuario()"
+            size="xl"
+            class="dropdown-perfil-avatar"
+          />
+          <strong class="dropdown-perfil-nombre">{{ p.nombreCompleto }}</strong>
+          <p class="hint dropdown-perfil-email">
+            <tui-icon icon="@tui.mail" />
+            {{ p.email }}
+          </p>
+          <span tuiBadge [appearance]="p.activo ? 'positive' : 'negative'" size="s">
+            {{ p.activo ? 'Activo' : 'Inactivo' }}
+          </span>
+        </div>
+
+        <!-- Insignias de rol -->
+        <div class="dropdown-perfil-chips">
+          <tui-icon icon="@tui.shield" />
+          @for (rol of p.roles; track rol) {
+            <span tuiBadge appearance="primary" size="s">{{ rol }}</span>
+          }
+        </div>
+
+        <hr class="dropdown-perfil-separator" />
+
+        <!-- Datos -->
+        <div class="dropdown-perfil-dato">
+          <span>
+            <tui-icon icon="@tui.id-card" />
+            Documento
+          </span>
+          <strong>{{ p.documentoIdentidad }}</strong>
+        </div>
+        <div class="dropdown-perfil-dato">
+          <span>
+            <tui-icon icon="@tui.map-pin" />
+            Área
+          </span>
+          <strong>{{ p.areaTrabajo ?? '—' }}</strong>
+        </div>
+        <div class="dropdown-perfil-dato">
+          <span>
+            <tui-icon icon="@tui.calendar" />
+            Miembro desde
+          </span>
+          <strong>{{ p.fechaCreacion | date: 'MM/yyyy' }}</strong>
+        </div>
+
+        <hr class="dropdown-perfil-separator" />
+
+        <!-- Acciones -->
+        <div class="dropdown-perfil-acciones">
+          <a tuiButton appearance="secondary" size="m" routerLink="/mi-equipo" (click)="cerrarDropdown()">
+            <tui-icon icon="@tui.users" /> Mi equipo
+          </a>
+          <a
+            tuiButton
+            appearance="secondary"
+            size="m"
+            [routerLink]="esAdmin() ? '/mi-perfil' : '/colaborador/mi-perfil'"
+            (click)="cerrarDropdown()"
+          >
+            <tui-icon icon="@tui.user" />
+            Ver perfil completo
+          </a>
+
+          <button
+            type="button"
+            tuiButton
+            appearance="destructive"
+            size="m"
+            (click)="cerrarSesion()"
+          >
+            <tui-icon icon="@tui.log-out" />
+            Cerrar sesión
+          </button>
+        </div>
+      }
+    </div>
+  </tui-data-list>
+</ng-template>
+
+@if (auth.estaAutenticado() && esEvaluador()) {
+  <nav class="col-nav" aria-label="Navegación evaluador">
+    @for (item of navEvaluador; track item.ruta) {
+      <a
+        tuiButton
+        appearance="flat"
+        size="s"
+        [routerLink]="item.ruta"
+        class="col-nav-link"
+      >
+        <tui-icon [icon]="item.icono" />
+        {{ item.titulo }}
+      </a>
+    }
+  </nav>
+} @else if (auth.estaAutenticado() && esAdmin()) {
+  <nav class="col-nav" aria-label="Accesos administración">
+    <a tuiButton appearance="flat" size="s" routerLink="/admin" [fragment]="anclaModulo()" class="col-nav-link">
+      <tui-icon icon="@tui.shield" />
+      Centro de administración
+    </a>
+    <a tuiButton appearance="flat" size="s" routerLink="/colaborador" class="col-nav-link">
+      <tui-icon icon="@tui.user" />
+      Vista colaborador
+    </a>
+  </nav>
+} @else if (auth.estaAutenticado()) {
+  <nav class="col-nav" aria-label="Navegación colaborador">
+    @for (item of navColaborador; track item.ruta) {
+      <a
+        tuiButton
+        appearance="flat"
+        size="s"
+        [routerLink]="item.ruta"
+        class="col-nav-link"
+      >
+        <tui-icon [icon]="item.icono" />
+        {{ item.titulo }}
+      </a>
+    }
+  </nav>
+}
+
+<div class="body">
+  <main class="content" appAutoReveal appAutoParallax>
+    <router-outlet />
+  </main>
+</div>

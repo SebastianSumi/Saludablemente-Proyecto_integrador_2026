@@ -1,0 +1,283 @@
+@if (loading()) {
+  <div class="card estado-caja">
+    <p class="hint">Cargando evaluación de aptitud…</p>
+  </div>
+}
+
+@if (error()) {
+  <div class="card error-caja">
+    <tui-icon icon="@tui.triangle-alert" class="icono-alerta" />
+    <p class="error-msg">{{ error() }}</p>
+  </div>
+}
+
+@if (mensajeExito()) {
+  <div class="card exito-caja">
+    <tui-icon icon="@tui.circle-check" class="icono-exito" />
+    <p class="exito-msg">{{ mensajeExito() }}</p>
+  </div>
+}
+
+@if (evaluacion(); as e) {
+  <div class="detail-nav">
+    <a tuiButton appearance="flat" size="s" routerLink="/evaluador/aptitud">
+      <tui-icon icon="@tui.arrow-left" />
+      Volver a evaluaciones
+    </a>
+    <a tuiButton appearance="outline" size="s" [routerLink]="['/evaluador/colaboradores', e.idPersona]">
+      <tui-icon icon="@tui.user" />
+      Ver ficha del colaborador
+    </a>
+  </div>
+
+  <section class="hero-card card">
+    <app-avatar [iniciales]="iniciales(e.nombresCompletosAlMomento)" size="xl" />
+    <div class="hero-body">
+      <div class="hero-meta">
+        @if (e.dictamenGlobal) {
+          <span [class]="pillDictamen(e.dictamenGlobal)">{{ e.dictamenGlobal }}</span>
+        }
+        @if (e.estadoEvaluacion === 'COMPLETA') {
+          <span class="pill pill-success">Completa</span>
+        } @else if (e.estadoEvaluacion === 'PENDIENTE') {
+          <span class="pill pill-warning">Pendiente</span>
+        } @else {
+          <span class="pill pill-neutral">{{ e.estadoEvaluacion }}</span>
+        }
+      </div>
+      <h2 class="card-title">{{ e.nombresCompletosAlMomento ?? 'Evaluación de aptitud' }}</h2>
+      <p class="card-subtitle">
+        DNI {{ e.documentoIdentidadAlMomento ?? '—' }} · {{ e.edadAlMomento ?? '—' }} años ·
+        Área: {{ e.areaTrabajoAlMomento ?? '—' }} · Fecha: {{ e.fechaEvaluacion }}
+      </p>
+    </div>
+    <div class="metric-card">
+      <span class="metric-label">Fitness score</span>
+      <span class="metric-value">{{ e.fitnessScore ?? '—' }}</span>
+    </div>
+  </section>
+
+  <div class="tabs-shell card">
+    <tui-tabs [activeItemIndex]="tabActivo()" (activeItemIndexChange)="tabActivo.set($event)">
+      <button tuiTab>
+        <tui-icon icon="@tui.activity" />
+        Fuerza
+      </button>
+      <button tuiTab>
+        <tui-icon icon="@tui.heart-pulse" />
+        Cardio
+      </button>
+      <button tuiTab>
+        <tui-icon icon="@tui.file-text" />
+        Observaciones
+      </button>
+    </tui-tabs>
+  </div>
+
+  @if (tabActivo() === 0) {
+    <div class="seccion-grid">
+      <section class="card">
+        <div class="seccion-titulo">
+          <span class="tile tile-rounded tile-soft-secondary seccion-icono">
+            <tui-icon icon="@tui.dumbbell" />
+          </span>
+          <div>
+            <h3 class="seccion-nombre">{{ tieneFuerza() ? 'Editar pruebas de fuerza' : 'Registrar pruebas de fuerza' }}</h3>
+            <p class="seccion-desc">Resultados de las pruebas físicas</p>
+          </div>
+        </div>
+        <form [formGroup]="fuerzaForm" (ngSubmit)="guardarFuerza()">
+          <div class="form-grid">
+            <label tuiLabel class="field">
+              <span class="field-label">Abdominales (0–100 rep)</span>
+              <tui-textfield>
+                <input tuiInput type="number" formControlName="repeticionesAbdominales" min="0" max="100" />
+              </tui-textfield>
+              <tui-error formControlName="repeticionesAbdominales" />
+            </label>
+            <label tuiLabel class="field">
+              <span class="field-label">Flexiones de brazo (0–100 rep)</span>
+              <tui-textfield>
+                <input tuiInput type="number" formControlName="repeticionesFlexionBrazo" min="0" max="100" />
+              </tui-textfield>
+              <tui-error formControlName="repeticionesFlexionBrazo" />
+            </label>
+            <label tuiLabel class="field">
+              <span class="field-label">Salto de longitud (0–400 cm)</span>
+              <tui-textfield>
+                <input tuiInput type="number" formControlName="saltoLongitudCm" min="0" max="400" />
+              </tui-textfield>
+              <tui-error formControlName="saltoLongitudCm" />
+            </label>
+          </div>
+          <div class="form-acciones">
+            <button tuiButton appearance="primary" size="m" type="submit" [loading]="guardando()" [disabled]="soloLectura()">
+              <tui-icon icon="@tui.circle-check" />
+              {{ tieneFuerza() ? 'Actualizar fuerza' : 'Guardar fuerza' }}
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <aside class="card">
+        <div class="seccion-titulo">
+          <span class="tile tile-rounded tile-soft-primary seccion-icono">
+            <tui-icon icon="@tui.gauge" />
+          </span>
+          <div>
+            <h3 class="seccion-nombre">Diagnósticos de fuerza</h3>
+          </div>
+        </div>
+        @if (e.detalleFuerza; as f) {
+          <div class="metric-grid">
+            <div class="metric-card">
+              <span class="metric-label">Core / abdomen</span>
+              <span [class]="clasificacionDiagnostico(f.dxCore).clase">
+                {{ clasificacionDiagnostico(f.dxCore).label }}
+              </span>
+            </div>
+            <div class="metric-card">
+              <span class="metric-label">Tren superior</span>
+              <span [class]="clasificacionDiagnostico(f.dxTrenSuperior).clase">
+                {{ clasificacionDiagnostico(f.dxTrenSuperior).label }}
+              </span>
+            </div>
+            <div class="metric-card">
+              <span class="metric-label">Tren inferior</span>
+              <span [class]="clasificacionDiagnostico(f.dxTrenInferior).clase">
+                {{ clasificacionDiagnostico(f.dxTrenInferior).label }}
+              </span>
+            </div>
+            <div class="metric-card">
+              <span class="metric-label">Fuerza global</span>
+              <span [class]="clasificacionDiagnostico(f.dxFuerzaGlobal).clase">
+                {{ clasificacionDiagnostico(f.dxFuerzaGlobal).label }}
+              </span>
+            </div>
+          </div>
+        } @else {
+          <p class="empty-small">Sin registro de fuerza guardado todavía.</p>
+        }
+      </aside>
+    </div>
+  }
+
+  @if (tabActivo() === 1) {
+    <div class="seccion-grid">
+      <section class="card">
+        <div class="seccion-titulo">
+          <span class="tile tile-rounded tile-soft-error seccion-icono">
+            <tui-icon icon="@tui.heart-pulse" />
+          </span>
+          <div>
+            <h3 class="seccion-nombre">{{ tieneCardio() ? 'Editar pruebas cardiovasculares' : 'Registrar pruebas cardiovasculares' }}</h3>
+            <p class="seccion-desc">Tiempos y repeticiones del test de resistencia</p>
+          </div>
+        </div>
+        <form [formGroup]="cardioForm" (ngSubmit)="guardarCardio()">
+          <div class="form-grid">
+            <label tuiLabel class="field">
+              <span class="field-label">Salto de soga en 30 s (0–200 rep)</span>
+              <tui-textfield>
+                <input tuiInput type="number" formControlName="repeticionesSoga30s" min="0" max="200" />
+              </tui-textfield>
+              <tui-error formControlName="repeticionesSoga30s" />
+            </label>
+            <label tuiLabel class="field">
+              <span class="field-label">Carrera 400 m en segundos (30–900 s)</span>
+              <tui-textfield>
+                <input tuiInput type="number" formControlName="tiempoCarrera400mSeg" min="30" max="900" />
+              </tui-textfield>
+              <tui-error formControlName="tiempoCarrera400mSeg" />
+            </label>
+          </div>
+          <div class="form-acciones">
+            <button tuiButton appearance="primary" size="m" type="submit" [loading]="guardando()" [disabled]="soloLectura()">
+              <tui-icon icon="@tui.circle-check" />
+              {{ tieneCardio() ? 'Actualizar cardio' : 'Guardar cardio' }}
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <aside class="card">
+        <div class="seccion-titulo">
+          <span class="tile tile-rounded tile-soft-error seccion-icono">
+            <tui-icon icon="@tui.gauge" />
+          </span>
+          <div>
+            <h3 class="seccion-nombre">Diagnóstico cardiovascular</h3>
+          </div>
+        </div>
+        @if (e.detalleCardio; as c) {
+          <div class="metric-grid">
+            <div class="metric-card">
+              <span class="metric-label">Diagnóstico</span>
+              <span [class]="clasificacionDiagnostico(c.dxCardiovascular).clase">
+                {{ clasificacionDiagnostico(c.dxCardiovascular).label }}
+              </span>
+            </div>
+            <div class="metric-card">
+              <span class="metric-label">Soga 30 s</span>
+              <span class="metric-value">{{ c.repeticionesSoga30s ?? '—' }} rep</span>
+            </div>
+            <div class="metric-card">
+              <span class="metric-label">Carrera 400 m</span>
+              <span class="metric-value">{{ c.tiempoCarrera400mSeg ?? '—' }} s</span>
+            </div>
+          </div>
+        } @else {
+          <p class="empty-small">Sin registro de cardio guardado todavía.</p>
+        }
+      </aside>
+    </div>
+  }
+
+  @if (tabActivo() === 2) {
+    <section class="card">
+      <div class="seccion-titulo">
+        <span class="tile tile-rounded tile-soft-primary seccion-icono">
+          <tui-icon icon="@tui.file-text" />
+        </span>
+        <div>
+          <h3 class="seccion-nombre">Observaciones y restricciones</h3>
+          <p class="seccion-desc">Notas médicas y recomendaciones físicas</p>
+        </div>
+      </div>
+
+      @if (!editandoObs() || soloLectura()) {
+        <p class="text-soft">{{ e.observacionesRestricciones || 'Sin observaciones registradas.' }}</p>
+        @if (!soloLectura()) {
+          <div class="form-acciones">
+            <button tuiButton appearance="outline" size="m" type="button" (click)="editandoObs.set(true)">
+              <tui-icon icon="@tui.pencil" />
+              Editar observaciones
+            </button>
+          </div>
+        }
+      } @else {
+        <form [formGroup]="obsForm" (ngSubmit)="guardarObservaciones()">
+          <label tuiLabel class="field campo-full">
+            <span class="field-label">Observaciones (máximo 500 caracteres)</span>
+            <tui-textfield>
+              <textarea
+                tuiTextarea
+                formControlName="observaciones"
+                rows="5"
+                maxlength="500"
+                placeholder="Escribe aquí las observaciones…"
+              ></textarea>
+            </tui-textfield>
+            <tui-error formControlName="observaciones" />
+          </label>
+          <div class="form-acciones">
+            <button tuiButton appearance="primary" size="m" type="submit" [loading]="guardando()">
+              <tui-icon icon="@tui.circle-check" />
+              Guardar observaciones
+            </button>
+          </div>
+        </form>
+      }
+    </section>
+  }
+}

@@ -1,0 +1,58 @@
+<div class="kanban">
+  @for (col of columnas(); track col.id) {
+    @if (col.id === 'otros' && col.items.length === 0) {
+      <!-- se omite la columna vacía -->
+    } @else if (col.id === 'otros') {
+      <section class="kanban-col" [attr.aria-label]="col.titulo">
+        <header class="kanban-head">
+          <tui-icon [icon]="col.icono" />
+          <strong>{{ col.titulo }}</strong>
+          <span class="kanban-count">{{ col.items.length }}</span>
+        </header>
+        @for (f of col.items; track f.idPersona) {
+          <article class="kanban-card kanban-card--fija">
+            <span tuiAvatar size="s" [round]="true">{{ f.nombre.slice(0, 2).toUpperCase() }}</span>
+            <span class="kanban-nombre">{{ f.nombre }}</span>
+          </article>
+        }
+      </section>
+    } @else {
+      <section
+        class="kanban-col"
+        cdkDropList
+        [id]="col.id"
+        [cdkDropListData]="col.items"
+        [cdkDropListConnectedTo]="idsConectados()"
+        [cdkDropListDisabled]="deshabilitado()"
+        (cdkDropListDropped)="soltar($event, col.marca)"
+        [attr.aria-label]="col.titulo"
+      >
+        <header class="kanban-head">
+          <tui-icon [icon]="col.icono" />
+          <strong>{{ col.titulo }}</strong>
+          <span class="kanban-count">{{ col.items.length }}</span>
+        </header>
+        @for (f of col.items; track f.idPersona) {
+          <article
+            class="kanban-card"
+            cdkDrag
+            [cdkDragData]="f"
+            [cdkDragDisabled]="deshabilitado()"
+            (click)="tocar(f)"
+            [attr.aria-label]="f.nombre + ': ' + metaDe(f.visible).etiqueta"
+            title="Toca para ciclar o arrastra a otra columna"
+          >
+            <tui-icon icon="@tui.grip-vertical" class="kanban-grip" />
+            <span tuiAvatar size="s" [round]="true">{{ f.nombre.slice(0, 2).toUpperCase() }}</span>
+            <span class="kanban-nombre">{{ f.nombre }}</span>
+            @if (f.modificado) {
+              <span class="dot-sin-guardar" title="Sin guardar"></span>
+            }
+          </article>
+        } @empty {
+          <p class="kanban-vacio">Suelta aquí</p>
+        }
+      </section>
+    }
+  }
+</div>

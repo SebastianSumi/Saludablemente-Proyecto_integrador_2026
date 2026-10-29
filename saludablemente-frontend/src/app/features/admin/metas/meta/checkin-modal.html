@@ -1,0 +1,35 @@
+<form [formGroup]="form" (ngSubmit)="guardar()">
+  @if (error()) {
+    <p class="error">{{ error() }}</p>
+  }
+
+  @if (esCuantitativa) {
+    <label tuiLabel class="field">
+      Valor reportado
+      <tui-textfield>
+        <input tuiInput type="number" formControlName="valorReportado" min="0" />
+      </tui-textfield>
+    </label>
+  } @else {
+    <label tuiLabel class="checkbox-label">
+      <input tuiCheckbox type="checkbox" formControlName="logrado" />
+      Lo logré hoy
+    </label>
+  }
+
+  <label tuiLabel class="field">
+    Nota (opcional)
+    <tui-textfield>
+      <input tuiInput type="text" formControlName="nota" maxlength="300" />
+    </tui-textfield>
+  </label>
+
+  <div class="form-actions">
+    <button tuiButton appearance="primary" size="m" type="submit" [loading]="guardando()">
+      Registrar
+    </button>
+    <button tuiButton appearance="outline" size="m" type="button" (click)="cancelar()">
+      Cancelar
+    </button>
+  </div>
+</form>

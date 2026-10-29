@@ -1,0 +1,48 @@
+<section class="cx-card" [attr.aria-busy]="cargando() || ocupado()">
+  <div class="cx-head">
+    <div class="cx-title"><span class="tile tile-rounded tile-soft-primary"><tui-icon icon="@tui.link" /></span><div><h2>{{ titulo() }}</h2><p class="cx-muted">Agrega o retira elementos y guarda todos los cambios juntos.</p></div></div>
+    <button tuiButton appearance="outline" size="m" type="button" [disabled]="!listo() || cargando() || ocupado() || bloqueado() || !permiteAgregar()" (click)="abrir()" [attr.aria-expanded]="selector()"><tui-icon icon="@tui.plus" />{{ selector() ? 'Cerrar selección' : 'Agregar' }}</button>
+  </div>
+  @if (cargando()) { <div class="cx-loading" role="status">Cargando asociaciones…</div> }
+  @if (error()) { <div class="cx-error" role="alert">{{ error() }} <button tuiButton appearance="flat" size="s" type="button" [disabled]="ocupado()" (click)="recargar()">Recargar datos</button></div> }
+  @if (exito()) { <p class="cx-success" role="status">{{ exito() }}</p> }
+  @if (listo() && !cargando()) {
+    @if (!permiteAgregar()) { <p class="cx-note">Reactiva la etiqueta para agregar nuevas asociaciones. Puedes retirar las asignaciones manuales existentes.</p> }
+    @if (automaticas()) { <p class="cx-note">{{ automaticas() }} asociación(es) automática(s) del motor. Se conservan para mantener la trazabilidad.</p> }
+    @if (selector()) {
+      <div class="cx-picker">
+        <form (ngSubmit)="buscar(0)" class="cx-fields">
+          @if (tipo() === 'etiqueta-alertas') {
+            <label class="cx-field"><span>Persona evaluada</span><select class="cx-select" name="persona" [(ngModel)]="personaId" [disabled]="ocupado() || bloqueado()"><option value="">Todas las personas</option>@for (p of personasOpciones(); track p.id) { <option [value]="p.id">{{ p.nombre }}</option> }</select></label>
+            <label class="cx-field"><span>Estado de alerta</span><select class="cx-select" name="estado" [(ngModel)]="estado" [disabled]="ocupado() || bloqueado()"><option value="">Todos</option><option value="PENDIENTE">Pendiente</option><option value="ATENDIDA">Atendida</option><option value="ANULADA">Anulada</option></select></label>
+            <label class="cx-field"><span>Generada desde</span><input class="cx-input" type="date" name="desde" [(ngModel)]="desde" [disabled]="ocupado() || bloqueado()" /></label>
+            <label class="cx-field"><span>Generada hasta</span><input class="cx-input" type="date" name="hasta" [(ngModel)]="hasta" [disabled]="ocupado() || bloqueado()" /></label>
+          } @else {
+            <label class="cx-field"><span>Buscar por nombre o código</span><input class="cx-input" name="texto" [(ngModel)]="texto" placeholder="Escribe para buscar" [disabled]="ocupado() || bloqueado()" /></label>
+          }
+          <div class="cx-actions"><button tuiButton appearance="secondary" size="m" type="submit" [disabled]="buscando() || ocupado() || bloqueado()">Buscar</button></div>
+        </form>
+        @if (errorOpciones()) { <p class="cx-error" role="alert">{{ errorOpciones() }}</p> }
+        @if (buscando()) { <p class="cx-muted" role="status">Buscando opciones…</p> } @else if (!errorOpciones()) {
+          <ul class="cx-list" aria-label="Resultados disponibles">
+            @for (fila of opciones(); track fila.id) {
+              <li class="cx-row"><div class="cx-row-main"><span class="cx-dot" [style.background]="color(fila.color)"></span><div><strong>{{ nombre(fila) }}</strong><p class="cx-muted">{{ fila.codigo }} @if (fila.descripcion) { · {{ fila.descripcion }} }</p></div></div><button tuiButton appearance="outline" size="s" type="button" [disabled]="draft.contiene(fila.id) || ocupado() || bloqueado() || draft.filas().length >= 500" (click)="agregar(fila)" [attr.aria-label]="'Agregar ' + nombre(fila)">{{ draft.contiene(fila.id) ? 'Agregada' : 'Agregar' }}</button></li>
+            } @empty { <li class="cx-empty">No hay resultados. Ajusta la búsqueda o los filtros.</li> }
+          </ul>
+          @if (totalPaginas() > 1) { <div class="cx-pagination"><span class="cx-muted">Página {{ pagina() + 1 }} de {{ totalPaginas() }} · {{ totalOpciones() }} resultados</span><div class="cx-actions"><button tuiButton appearance="flat" size="s" type="button" [disabled]="pagina() === 0 || ocupado()" (click)="buscar(pagina() - 1)">Anterior</button><button tuiButton appearance="flat" size="s" type="button" [disabled]="pagina() + 1 >= totalPaginas() || ocupado()" (click)="buscar(pagina() + 1)">Siguiente</button></div></div> }
+        }
+      </div>
+    }
+    <ul class="cx-list" aria-label="Asociaciones seleccionadas">
+      @for (fila of draft.filas(); track fila.id) {
+        <li class="cx-row" [class.cx-row-new]="draft.esNueva(fila.id)">
+          <div class="cx-row-main"><span class="cx-dot" [style.background]="color(fila.color)"></span><div>@if (fila.ruta) { <a [routerLink]="fila.ruta">{{ nombre(fila) }}</a> } @else { <strong>{{ nombre(fila) }}</strong> }<p class="cx-muted">{{ fila.codigo }} @if (fila.descripcion) { · {{ fila.descripcion }} }</p><div class="cx-tags">@if (fila.origen) { <span class="cx-badge">{{ fila.origen === 'MOTOR' ? 'Automática · Protegida' : 'Manual' }}</span> } @if (draft.esNueva(fila.id)) { <span class="cx-badge cx-badge-new">Nueva · Sin guardar</span> } @if (fila.fecha) { <span class="cx-muted">{{ fila.fecha | date:'dd/MM/yyyy HH:mm' }}</span> }</div></div></div>
+          @if (fila.origen !== 'MOTOR') { <button tuiButton appearance="flat" size="s" type="button" [disabled]="ocupado() || bloqueado()" (click)="quitar(fila)" [attr.aria-label]="'Quitar ' + nombre(fila)">Quitar</button> }
+        </li>
+      } @empty { <li class="cx-empty">Todavía no hay asociaciones seleccionadas. Usa «Agregar» para incorporarlas.</li> }
+    </ul>
+    @if (draft.retiradas().length) { <p class="cx-note">Se retirarán al guardar: @for (fila of draft.retiradas(); track fila.id; let ultimo = $last) { {{ nombre(fila) }}{{ ultimo ? '.' : ', ' }} }</p> }
+    <div class="cx-bottom"><div aria-live="polite"><strong>{{ draft.filas().length }} en total</strong><p class="cx-muted">{{ draft.agregadas().length }} por agregar · {{ draft.retiradas().length }} por retirar</p></div><div class="cx-actions"><button tuiButton appearance="flat" size="m" type="button" [disabled]="!draft.pendiente() || ocupado() || bloqueado()" (click)="restaurar()">Cancelar cambios</button><button tuiButton appearance="primary" size="m" type="button" [disabled]="!draft.pendiente() || ocupado() || bloqueado() || conflicto()" (click)="guardar()">{{ ocupado() ? 'Procesando…' : 'Revisar cambios' }}</button></div></div>
+  }
+</section>
+

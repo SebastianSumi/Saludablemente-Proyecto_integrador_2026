@@ -1,0 +1,146 @@
+<!-- ══════════════════════════════════════
+     CABECERA DE PÁGINA
+     ══════════════════════════════════════ -->
+<div class="page-banner card">
+  <div class="page-banner-body">
+    <div class="page-banner-icon tile tile-rounded tile-soft-primary">
+      <tui-icon icon="@tui.target" />
+    </div>
+    <div>
+      <h2 class="card-title">Metas de Salud</h2>
+      <p class="card-subtitle">
+        @if (loading()) {
+          Cargando metas…
+        } @else if (items().length > 0) {
+          {{ items().length }} meta(s) encontrada(s)
+        } @else {
+          Gestión y seguimiento de objetivos de salud y bienestar
+        }
+      </p>
+    </div>
+  </div>
+  <a tuiButton appearance="primary" size="m" routerLink="/metas/nueva">
+    <tui-icon icon="@tui.plus" />
+    Nueva meta
+  </a>
+</div>
+
+<!-- ══════════════════════════════════════
+     FILTROS EN LÍNEA
+     ══════════════════════════════════════ -->
+<div class="filtros-card">
+  <div class="filtros-linea">
+    <!-- Persona -->
+    <div class="filtro-item filtro-persona">
+      <label class="filtro-etiqueta">Persona (escribe para buscar)</label>
+      <tui-textfield tuiChevron>
+        <input tuiComboBox [formControl]="personaCtrl" [strict]="true" placeholder="— Seleccione una persona —" />
+        <tui-data-list-wrapper *tuiDropdown [items]="personas() | tuiFilterByInput" [itemContent]="per" />
+      </tui-textfield>
+    </div>
+
+    <!-- Estado -->
+    <div class="filtro-item">
+      <label class="filtro-etiqueta">Estado</label>
+      <tui-textfield tuiChevron>
+        <input tuiComboBox [formControl]="estadoCtrl" [strict]="true" placeholder="— Todos los estados —" />
+        <tui-data-list-wrapper *tuiDropdown [items]="estadoOpts | tuiFilterByInput" [itemContent]="opt" />
+      </tui-textfield>
+    </div>
+
+    <!-- Limpiar -->
+    <button
+      tuiButton
+      appearance="outline"
+      size="m"
+      type="button"
+      (click)="limpiarFiltros()"
+      class="btn-limpiar"
+    >
+      <tui-icon icon="@tui.filter-x" />
+      Limpiar
+    </button>
+  </div>
+</div>
+
+<ng-template #per let-item>{{ nombrePersona(item) }}</ng-template>
+<ng-template #opt let-item>{{ item.label }}</ng-template>
+
+@if (error()) {
+  <div class="card error-caja">
+    <tui-icon icon="@tui.triangle-alert" class="icono-alerta" />
+    <p class="error-msg">{{ error() }}</p>
+  </div>
+}
+
+<!-- ══════════════════════════════════════
+     TABLA DE METAS
+     ══════════════════════════════════════ -->
+<div class="card tabla-card flush">
+  <div class="table-wrapper flush">
+    <table tuiTable>
+      <thead>
+        <tr>
+          <th tuiTh>Indicador</th>
+          <th tuiTh>Pilar</th>
+          <th tuiTh>Modalidad</th>
+          <th tuiTh>Avance Actual / Meta</th>
+          <th tuiTh>Estado</th>
+          <th tuiTh>Fecha Objetivo</th>
+          <th tuiTh class="th-acciones"><span class="sr-only">Acciones</span></th>
+        </tr>
+      </thead>
+      <tbody tuiTbody>
+        @for (m of items(); track m.id) {
+          <tr>
+            <td tuiTd>
+              <a class="fila-nombre" [routerLink]="['/metas', m.id]">{{ m.indicador }}</a>
+              <div class="text-soft">{{ m.descripcion }}</div>
+            </td>
+            <td tuiTd>
+              <span class="pill pill-soft-primary">{{ m.pilar }}</span>
+            </td>
+            <td tuiTd class="text-soft">{{ m.modalidad }}</td>
+            <td tuiTd>
+              <div class="progreso-texto">
+                <span class="font-mono fw-bold">{{ m.valorActual }}</span> / <span class="font-mono">{{ m.valorObjetivo }}</span> {{ m.unidad ?? '' }}
+              </div>
+            </td>
+            <td tuiTd>
+              @if (m.estado === 'ACTIVA') {
+                <span class="pill pill-soft-primary">Activa</span>
+              } @else if (m.estado === 'COMPLETADA') {
+                <span class="pill pill-soft-success">Completada</span>
+              } @else if (m.estado === 'DESVIADA') {
+                <span class="pill pill-soft-warning">Desviada</span>
+              } @else {
+                <span class="pill pill-soft-neutral">{{ m.estado }}</span>
+              }
+            </td>
+            <td tuiTd class="text-soft">{{ m.fechaObjetivo }}</td>
+            <td tuiTd class="td-acciones">
+              <div class="row-actions">
+                <a tuiButton appearance="flat" size="s" [routerLink]="['/metas', m.id]" title="Ver detalle">
+                  <tui-icon icon="@tui.eye" />
+                  Ver detalle
+                </a>
+              </div>
+            </td>
+          </tr>
+        } @empty {
+          @if (!loading() && !error()) {
+            <tr>
+              <td tuiTd colspan="7" class="empty">
+                @if (personaCtrl.value) {
+                  No se encontraron metas para la persona seleccionada.
+                } @else {
+                  Selecciona una persona arriba para consultar sus metas de salud.
+                }
+              </td>
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

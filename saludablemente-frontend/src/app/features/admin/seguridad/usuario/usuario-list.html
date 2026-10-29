@@ -1,0 +1,160 @@
+<!-- ══════════════════════════════════════
+     CABECERA DE PÁGINA
+     ══════════════════════════════════════ -->
+<div class="page-banner card">
+  <div class="page-banner-body">
+    <div class="page-banner-icon tile tile-rounded tile-soft-primary">
+      <tui-icon icon="@tui.shield" />
+    </div>
+    <div>
+      <h2 class="card-title">Usuarios del Sistema</h2>
+      <p class="card-subtitle">
+        @if (loading()) {
+          Cargando cuentas…
+        } @else {
+          {{ total() }} usuario(s) registrado(s)
+        }
+      </p>
+    </div>
+  </div>
+  <a tuiButton appearance="primary" size="m" routerLink="/seguridad/usuarios/nuevo">
+    <tui-icon icon="@tui.plus" />
+    Nuevo usuario
+  </a>
+</div>
+
+<!-- ══════════════════════════════════════
+     FILTROS EN LÍNEA
+     ══════════════════════════════════════ -->
+<div class="filtros-card">
+  <div class="filtros-linea">
+    <!-- Email -->
+    <label class="filtro-item filtro-email">
+      <span class="filtro-etiqueta">Buscar por Email</span>
+      <tui-textfield tuiChevron>
+        <input
+          tuiComboBox
+          [formControl]="emailCtrl"
+          [strict]="true"
+          placeholder="— Todos los correos —"
+          (keydown.enter)="aplicarEmailTexto($any($event.target).value)"
+        />
+        <tui-data-list-wrapper *tuiDropdown [items]="emailsSugeridos() | tuiFilterByInput" [itemContent]="opt" />
+      </tui-textfield>
+    </label>
+
+    <!-- Estado -->
+    <label class="filtro-item">
+      <span class="filtro-etiqueta">Estado</span>
+      <tui-textfield tuiChevron>
+        <input tuiComboBox [formControl]="estadoCtrl" [strict]="true" placeholder="— Todos —" />
+        <tui-data-list-wrapper *tuiDropdown [items]="estadoOpts | tuiFilterByInput" [itemContent]="opt" />
+      </tui-textfield>
+    </label>
+
+    <!-- Limpiar -->
+    <button
+      tuiButton
+      appearance="outline"
+      size="m"
+      type="button"
+      (click)="limpiarFiltros()"
+      class="btn-limpiar"
+    >
+      <tui-icon icon="@tui.filter-x" />
+      Limpiar
+    </button>
+  </div>
+</div>
+
+<ng-template #opt let-item>{{ item.label }}</ng-template>
+
+@if (error()) {
+  <div class="card error-caja">
+    <tui-icon icon="@tui.triangle-alert" class="icono-alerta" />
+    <p class="error-msg">{{ error() }}</p>
+  </div>
+}
+
+<!-- ══════════════════════════════════════
+     TABLA DE USUARIOS
+     ══════════════════════════════════════ -->
+<div class="card tabla-card flush">
+  <div class="table-wrapper flush">
+    <table tuiTable>
+      <thead>
+        <tr>
+          <th tuiTh>Usuario</th>
+          <th tuiTh>Email</th>
+          <th tuiTh>Roles Asignados</th>
+          <th tuiTh>Estado</th>
+          <th tuiTh class="th-acciones"><span class="sr-only">Acciones</span></th>
+        </tr>
+      </thead>
+      <tbody tuiTbody>
+        @for (u of items(); track u.id) {
+          <tr>
+            <td tuiTd>
+              <div class="fila-persona">
+                <span [tuiAvatar]="iniciales(nombreUsuario(u))" size="s" [round]="true"></span>
+                <a class="fila-nombre" [routerLink]="['/seguridad/usuarios', u.id]">
+                  {{ nombreUsuario(u) }}
+                </a>
+              </div>
+            </td>
+            <td tuiTd class="text-soft font-mono">{{ u.email }}</td>
+            <td tuiTd>
+              <div class="roles-badges">
+                @for (r of u.roles; track r.id) {
+                  <span class="pill pill-soft-primary">{{ r.nombre }}</span>
+                } @empty {
+                  <span class="text-soft italic">Sin roles</span>
+                }
+              </div>
+            </td>
+            <td tuiTd>
+              @if (u.activo) {
+                <span class="pill pill-soft-success">Activo</span>
+              } @else {
+                <span class="pill pill-soft-neutral">Inactivo</span>
+              }
+            </td>
+            <td tuiTd class="td-acciones">
+              <div class="row-actions">
+                <a tuiButton appearance="flat" size="s" [routerLink]="['/seguridad/usuarios', u.id]" title="Ver detalle">
+                  <tui-icon icon="@tui.eye" />
+                  Ver detalle
+                </a>
+              </div>
+            </td>
+          </tr>
+        } @empty {
+          @if (!loading() && !error()) {
+            <tr>
+              <td tuiTd colspan="5" class="empty">No se encontraron usuarios con esos filtros.</td>
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     PAGINACIÓN
+     ══════════════════════════════════════ -->
+<div class="card paginacion-card">
+  <button tuiButton appearance="outline" size="s" type="button" [disabled]="page() === 0" (click)="paginaAnterior()">
+    <tui-icon icon="@tui.chevron-left" />
+    Anterior
+  </button>
+  <span class="paginacion-info">Página {{ page() + 1 }} de {{ totalPages() || 1 }}</span>
+  <button
+    tuiButton appearance="outline" size="s" type="button"
+    [disabled]="page() + 1 >= totalPages()"
+    (click)="paginaSiguiente()"
+  >
+    Siguiente
+    <tui-icon icon="@tui.chevron-right" />
+  </button>
+</div>

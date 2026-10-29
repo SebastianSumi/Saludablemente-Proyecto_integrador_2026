@@ -1,0 +1,73 @@
+<div class="guardar-modal">
+  <p class="guardar-sub">
+    {{ datos.actividadNombre }} · {{ datos.cambios.length }} cambio(s):
+    <strong>{{ resumen.presentes }} presente</strong> ·
+    <strong>{{ resumen.tarde }} tarde</strong> ·
+    <strong>{{ resumen.falta }} falta</strong>
+  </p>
+
+  @if (!terminado()) {
+    <div class="guardar-lista">
+      @for (c of datos.cambios; track c.idPersona) {
+        <div class="guardar-fila">
+          <span class="fw-bold">{{ c.nombre }}</span>
+          <span class="guardar-antes-despues">
+            <span class="pill pill-soft-neutral">{{ etiquetaEstado(c.de) }}</span>
+            <tui-icon icon="@tui.arrow-right" />
+            <span
+              class="pill"
+              [class.pill-soft-success]="c.a === 'PRESENTE'"
+              [class.pill-soft-warning]="c.a === 'TARDE'"
+              [class.pill-soft-error]="c.a === 'FALTA'"
+            >
+              {{ etiquetaMarca(c.a) }}
+            </span>
+          </span>
+        </div>
+      }
+    </div>
+  }
+
+  @if (guardando() || terminado()) {
+    <div class="guardar-progreso">
+      <div class="progreso-barra">
+        <div
+          class="progreso-relleno"
+          [style.width.%]="totalPasos > 0 ? (hechos() * 100) / totalPasos : 100"
+        ></div>
+      </div>
+      <p class="seccion-desc">Guardando {{ hechos() }}/{{ totalPasos }}…</p>
+    </div>
+  }
+
+  @if (terminado() && fallidos().length > 0) {
+    <div class="guardar-errores">
+      <p class="error-msg">No se pudieron guardar {{ fallidos().length }}:</p>
+      @for (f of fallidos(); track f.idPersona) {
+        <p class="error-msg">· {{ f.nombre }}: {{ f.motivo }}</p>
+      }
+      <p class="seccion-desc">No se guardó ningún cambio. La lista completa se conserva en el borrador.</p>
+    </div>
+  }
+
+  @if (terminado() && fallidos().length === 0) {
+    <p class="exito-msg">Guardado completo: {{ datos.cambios.length }} cambio(s).</p>
+  }
+
+  <div class="form-acciones">
+    @if (!terminado()) {
+      <button tuiButton appearance="outline" size="m" type="button" [disabled]="guardando()" (click)="cancelar()">
+        Cancelar
+      </button>
+      <button tuiButton appearance="primary" size="m" type="button" [loading]="guardando()" (click)="confirmar()">
+        <tui-icon icon="@tui.circle-check" />
+        Confirmar guardado
+      </button>
+    } @else {
+      <button tuiButton appearance="primary" size="m" type="button" (click)="cerrar()">
+        Cerrar
+      </button>
+    }
+  </div>
+</div>
+

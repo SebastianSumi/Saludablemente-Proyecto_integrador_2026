@@ -1,0 +1,42 @@
+<form [formGroup]="form" (ngSubmit)="guardar()">
+  @if (error()) {
+    <p class="error">{{ error() }}</p>
+  }
+
+  <label tuiLabel class="field">
+    Canal preferido
+    <tui-textfield tuiChevron>
+      <input tuiComboBox formControlName="canalPreferido" />
+      <tui-data-list-wrapper *tuiDropdown [items]="canales | tuiFilterByInput" />
+    </tui-textfield>
+    <tui-error formControlName="canalPreferido" />
+  </label>
+
+  <label tuiLabel class="field">
+    Horario de contacto — inicio
+    <tui-textfield>
+      <input tuiInput type="time" formControlName="horarioContactoInicio" />
+    </tui-textfield>
+  </label>
+
+  <label tuiLabel class="field">
+    Horario de contacto — fin
+    <tui-textfield>
+      <input tuiInput type="time" formControlName="horarioContactoFin" />
+    </tui-textfield>
+  </label>
+
+  <label tuiLabel class="checkbox-label">
+    <input tuiCheckbox type="checkbox" formControlName="aceptaRecordatorios" />
+    Acepta recordatorios
+  </label>
+
+  <div class="form-actions">
+    <button tuiButton appearance="primary" size="m" type="submit" [loading]="guardando()">
+      Guardar
+    </button>
+    <button tuiButton appearance="outline" size="m" type="button" (click)="cancelar()">
+      Cancelar
+    </button>
+  </div>
+</form>

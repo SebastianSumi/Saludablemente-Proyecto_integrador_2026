@@ -1,0 +1,175 @@
+<div class="page-banner card">
+  <div class="page-banner-body">
+    <div class="page-banner-icon tile tile-rounded tile-soft-success">
+      <tui-icon icon="@tui.calendar-heart" />
+    </div>
+    <div>
+      <h2 class="card-title">{{ id() ? 'Editar Jornada' : 'Nueva Jornada' }}</h2>
+      <p class="card-subtitle">
+        Define fecha, capacidad y periodo. Las inscripciones solo se aceptan cuando la jornada está Abierta.
+      </p>
+    </div>
+  </div>
+</div>
+
+@if (cargando() && id()) {
+  <div class="card cargando-caja">
+    <p class="hint">Cargando datos de la jornada…</p>
+  </div>
+}
+
+<form [formGroup]="form" (ngSubmit)="guardar()" class="formulario-jornada">
+  <section class="card form-card">
+    <div class="section-header">
+      <h3 class="section-title">Datos de la Jornada</h3>
+      <p class="section-subtitle">Información general, programación y cupos disponibles.</p>
+    </div>
+
+    <div class="form-grid">
+      <label tuiLabel class="field span-2">
+        Nombre de la jornada
+        <tui-textfield>
+          <input
+            tuiInput
+            type="text"
+            formControlName="nombre"
+            maxlength="150"
+            placeholder="Ej. Jornada de Evaluación Nutricional 2026-I"
+          />
+        </tui-textfield>
+        <tui-error formControlName="nombre" />
+      </label>
+
+      <label tuiLabel class="field span-2">
+        Descripción (opcional)
+        <tui-textfield>
+          <input
+            tuiInput
+            type="text"
+            formControlName="descripcion"
+            maxlength="500"
+            placeholder="Detalle de la jornada, ubicación u observaciones"
+          />
+        </tui-textfield>
+        <tui-error formControlName="descripcion" />
+      </label>
+
+      <label tuiLabel class="field">
+        Fecha
+        <tui-textfield>
+          <input tuiInputDate formControlName="fecha" />
+          <ng-template tuiDropdown>
+            <tui-calendar />
+            <div class="cal-acciones">
+              <button
+                tuiButton
+                appearance="secondary"
+                size="s"
+                type="button"
+                (click)="fijarHoy()"
+              >
+                <tui-icon icon="@tui.calendar-check" />
+                Hoy
+              </button>
+              <button
+                tuiButton
+                appearance="flat"
+                size="s"
+                type="button"
+                (click)="limpiarFecha()"
+              >
+                <tui-icon icon="@tui.eraser" />
+                Limpiar
+              </button>
+            </div>
+          </ng-template>
+        </tui-textfield>
+        <tui-error formControlName="fecha" />
+      </label>
+
+      <label tuiLabel class="field">
+        Hora
+        <tui-textfield>
+          <input tuiInput type="time" formControlName="hora" />
+        </tui-textfield>
+        <tui-error formControlName="hora" />
+      </label>
+
+      <label tuiLabel class="field">
+        Capacidad (personas)
+        <tui-textfield>
+          <input tuiInput type="number" formControlName="capacidad" min="1" max="10000" />
+        </tui-textfield>
+        <tui-error formControlName="capacidad" />
+      </label>
+
+      <label tuiLabel class="field">
+        Periodo
+        <tui-textfield tuiChevron>
+          <input
+            tuiComboBox
+            formControlName="periodo"
+            [strict]="true"
+            placeholder="— Seleccione periodo —"
+          />
+          <tui-data-list-wrapper
+            *tuiDropdown
+            [items]="periodos() | tuiFilterByInput"
+            [itemContent]="periodoOpt"
+          />
+        </tui-textfield>
+        <tui-error formControlName="periodo" />
+      </label>
+
+      <label tuiLabel class="field">
+        Estado
+        <tui-textfield tuiChevron>
+          <input
+            tuiComboBox
+            formControlName="estado"
+            [strict]="true"
+            placeholder="— Seleccione estado —"
+          />
+          <tui-data-list-wrapper
+            *tuiDropdown
+            [items]="estadoOpts | tuiFilterByInput"
+            [itemContent]="estadoOpt"
+          />
+        </tui-textfield>
+        <tui-error formControlName="estado" />
+      </label>
+    </div>
+
+    <p class="hint aviso-form">
+      <tui-icon icon="@tui.info" />
+      Abrir una jornada antes de su fecha permite que los colaboradores reserven su turno.
+    </p>
+  </section>
+
+  @if (error()) {
+    <div class="card error-caja">
+      <tui-icon icon="@tui.triangle-alert" class="icono-alerta" />
+      <p class="error-msg">{{ error() }}</p>
+    </div>
+  }
+
+  <div class="form-acciones">
+    <button
+      tuiButton
+      appearance="primary"
+      size="m"
+      type="submit"
+      [loading]="guardando()"
+      [disabled]="cargando()"
+    >
+      <tui-icon icon="@tui.check" />
+      {{ id() ? 'Guardar cambios' : 'Crear jornada' }}
+    </button>
+    <button tuiButton appearance="outline" size="m" type="button" (click)="cancelar()">
+      Cancelar
+    </button>
+  </div>
+</form>
+
+<ng-template #periodoOpt let-item>{{ item.label }}</ng-template>
+<ng-template #estadoOpt let-item>{{ item.label }}</ng-template>
