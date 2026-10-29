@@ -1,0 +1,23 @@
+[vars]
+# Environment variables (populated via wrangler secrets)
+# DB connection string for Neon Hyperdrive
+# DB_URL = "postgresql://user:pass@..."
+
+[env.dev]
+# Local development
+account_id = "YOUR_ACCOUNT_ID"
+workers_dev = true
+name = "saludablemente-backend-hono-dev"
+main = "src/index.ts"
+compatibility_date = "2024-10-01"
+
+[env.production]
+account_id = "YOUR_ACCOUNT_ID"
+workers_dev = false
+name = "saludablemente-backend-hono"
+main = "src/index.ts"
+compatibility_date = "2024-10-01"
+
+[site]
+bucket = "./public"
+# optional: "entry-point" for SPA routing
