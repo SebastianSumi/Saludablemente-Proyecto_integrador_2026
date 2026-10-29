@@ -1,0 +1,334 @@
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] --------------------< upeu.edu.pe:SaludabementeERP >--------------------
+[INFO] Building  0.0.1-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ SaludabementeERP ---
+[INFO] Copying 3 resources from src\main\resources to target\classes
+[INFO] Copying 2 resources from src\main\resources to target\classes
+[INFO] 
+[INFO] --- compiler:3.15.0:compile (default-compile) @ SaludabementeERP ---
+[INFO] Recompiling the module because of changed source code.
+[INFO] Compiling 706 source files with javac [debug parameters release 21] to target\classes
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ SaludabementeERP ---
+[INFO] Copying 1 resource from src\test\resources to target\test-classes
+[INFO] 
+[INFO] --- compiler:3.15.0:testCompile (default-testCompile) @ SaludabementeERP ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 19 source files with javac [debug parameters release 21] to target\test-classes
+[INFO] -------------------------------------------------------------
+[ERROR] COMPILATION ERROR : 
+[INFO] -------------------------------------------------------------
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/catalogo/area/controller/AreaControllerTest.java:[211,16] constructor AreaResponse in class upeu.edu.pe.Saludabemente.catalogo.area.dto.response.AreaResponse cannot be applied to given types;
+  required: no arguments
+  found:    java.lang.Long,java.lang.String,java.lang.String,java.lang.Boolean
+  reason: actual and formal argument lists differ in length
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/catalogo/area/service/AreaServiceIT.java:[31,26] cannot find symbol
+  symbol:   method id()
+  location: variable creada of type upeu.edu.pe.Saludabemente.catalogo.area.dto.response.AreaResponse
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/catalogo/area/service/AreaServiceIT.java:[32,26] cannot find symbol
+  symbol:   method nombre()
+  location: variable creada of type upeu.edu.pe.Saludabemente.catalogo.area.dto.response.AreaResponse
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/catalogo/area/service/AreaServiceIT.java:[33,26] cannot find symbol
+  symbol:   method activo()
+  location: variable creada of type upeu.edu.pe.Saludabemente.catalogo.area.dto.response.AreaResponse
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/catalogo/area/service/AreaServiceIT.java:[53,65] cannot find symbol
+  symbol:   method id()
+  location: variable creada of type upeu.edu.pe.Saludabemente.catalogo.area.dto.response.AreaResponse
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/catalogo/area/service/AreaServiceIT.java:[55,31] cannot find symbol
+  symbol:   method nombre()
+  location: variable actualizada of type upeu.edu.pe.Saludabemente.catalogo.area.dto.response.AreaResponse
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/catalogo/area/service/AreaServiceIT.java:[56,31] cannot find symbol
+  symbol:   method descripcion()
+  location: variable actualizada of type upeu.edu.pe.Saludabemente.catalogo.area.dto.response.AreaResponse
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/catalogo/area/service/AreaServiceIT.java:[63,37] cannot find symbol
+  symbol:   method id()
+  location: variable creada of type upeu.edu.pe.Saludabemente.catalogo.area.dto.response.AreaResponse
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/catalogo/area/service/AreaServiceIT.java:[65,61] cannot find symbol
+  symbol:   method id()
+  location: variable creada of type upeu.edu.pe.Saludabemente.catalogo.area.dto.response.AreaResponse
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/catalogo/area/service/AreaServiceIT.java:[66,30] cannot find symbol
+  symbol:   method activo()
+  location: variable consultada of type upeu.edu.pe.Saludabemente.catalogo.area.dto.response.AreaResponse
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/catalogo/area/service/AreaServiceIT.java:[72,37] cannot find symbol
+  symbol:   method id()
+  location: variable creada of type upeu.edu.pe.Saludabemente.catalogo.area.dto.response.AreaResponse
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/catalogo/area/service/AreaServiceIT.java:[74,62] cannot find symbol
+  symbol:   method id()
+  location: variable creada of type upeu.edu.pe.Saludabemente.catalogo.area.dto.response.AreaResponse
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/catalogo/area/service/AreaServiceIT.java:[87,39] cannot find symbol
+  symbol:   method id()
+  location: variable inactiva of type upeu.edu.pe.Saludabemente.catalogo.area.dto.response.AreaResponse
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/catalogo/area/service/AreaServiceIT.java:[92,40] invalid method reference
+  cannot find symbol
+    symbol:   method nombre()
+    location: class upeu.edu.pe.Saludabemente.catalogo.area.dto.response.AreaResponse
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/catalogo/area/service/AreaServiceIT.java:[92,77] cannot find symbol
+  symbol:   method nombre()
+  location: variable activa of type upeu.edu.pe.Saludabemente.catalogo.area.dto.response.AreaResponse
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/catalogo/area/service/AreaServiceIT.java:[93,40] invalid method reference
+  cannot find symbol
+    symbol:   method nombre()
+    location: class upeu.edu.pe.Saludabemente.catalogo.area.dto.response.AreaResponse
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/catalogo/area/service/AreaServiceIT.java:[93,85] cannot find symbol
+  symbol:   method nombre()
+  location: variable inactiva of type upeu.edu.pe.Saludabemente.catalogo.area.dto.response.AreaResponse
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/catalogo/area/service/AreaServiceIT.java:[95,42] invalid method reference
+  cannot find symbol
+    symbol:   method nombre()
+    location: class upeu.edu.pe.Saludabemente.catalogo.area.dto.response.AreaResponse
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/catalogo/area/service/AreaServiceIT.java:[95,81] cannot find symbol
+  symbol:   method nombre()
+  location: variable inactiva of type upeu.edu.pe.Saludabemente.catalogo.area.dto.response.AreaResponse
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/catalogo/area/service/AreaServiceIT.java:[96,42] invalid method reference
+  cannot find symbol
+    symbol:   method nombre()
+    location: class upeu.edu.pe.Saludabemente.catalogo.area.dto.response.AreaResponse
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/catalogo/area/service/AreaServiceIT.java:[96,85] cannot find symbol
+  symbol:   method nombre()
+  location: variable activa of type upeu.edu.pe.Saludabemente.catalogo.area.dto.response.AreaResponse
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/catalogo/area/service/AreaServiceIT.java:[107,39] cannot find symbol
+  symbol:   method id()
+  location: variable inactiva of type upeu.edu.pe.Saludabemente.catalogo.area.dto.response.AreaResponse
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/catalogo/area/service/AreaServiceIT.java:[111,72] cannot find symbol
+  symbol:   method nombre()
+  location: variable activa of type upeu.edu.pe.Saludabemente.catalogo.area.dto.response.AreaResponse
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/catalogo/area/service/AreaServiceIT.java:[112,80] cannot find symbol
+  symbol:   method nombre()
+  location: variable inactiva of type upeu.edu.pe.Saludabemente.catalogo.area.dto.response.AreaResponse
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/catalogo/periodo/controller/PeriodoControllerTest.java:[284,16] constructor PeriodoResponse in class upeu.edu.pe.Saludabemente.catalogo.periodo.dto.response.PeriodoResponse cannot be applied to given types;
+  required: no arguments
+  found:    java.lang.Long,java.lang.String,java.lang.String,java.time.LocalDate,java.time.LocalDate,upeu.edu.pe.Saludabemente.catalogo.periodo.dto.EstadoPeriodo,<nulltype>,<nulltype>
+  reason: actual and formal argument lists differ in length
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/catalogo/periodo/service/PeriodoServiceIT.java:[30,26] cannot find symbol
+  symbol:   method id()
+  location: variable creado of type upeu.edu.pe.Saludabemente.catalogo.periodo.dto.response.PeriodoResponse
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/catalogo/periodo/service/PeriodoServiceIT.java:[31,26] cannot find symbol
+  symbol:   method codigo()
+  location: variable creado of type upeu.edu.pe.Saludabemente.catalogo.periodo.dto.response.PeriodoResponse
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/catalogo/periodo/service/PeriodoServiceIT.java:[32,26] cannot find symbol
+  symbol:   method estado()
+  location: variable creado of type upeu.edu.pe.Saludabemente.catalogo.periodo.dto.response.PeriodoResponse
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/catalogo/periodo/service/PeriodoServiceIT.java:[64,70] cannot find symbol
+  symbol:   method id()
+  location: variable creado of type upeu.edu.pe.Saludabemente.catalogo.periodo.dto.response.PeriodoResponse
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/catalogo/periodo/service/PeriodoServiceIT.java:[66,27] cannot find symbol
+  symbol:   method estado()
+  location: variable vigente of type upeu.edu.pe.Saludabemente.catalogo.periodo.dto.response.PeriodoResponse
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/catalogo/periodo/service/PeriodoServiceIT.java:[69,37] cannot find symbol
+  symbol:   method id()
+  location: variable vigenteConsultado of type upeu.edu.pe.Saludabemente.catalogo.periodo.dto.response.PeriodoResponse
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/catalogo/periodo/service/PeriodoServiceIT.java:[69,60] cannot find symbol
+  symbol:   method id()
+  location: variable creado of type upeu.edu.pe.Saludabemente.catalogo.periodo.dto.response.PeriodoResponse
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/catalogo/periodo/service/PeriodoServiceIT.java:[75,40] cannot find symbol
+  symbol:   method id()
+  location: variable p1 of type upeu.edu.pe.Saludabemente.catalogo.periodo.dto.response.PeriodoResponse
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/catalogo/periodo/service/PeriodoServiceIT.java:[79,65] cannot find symbol
+  symbol:   method id()
+  location: variable p2 of type upeu.edu.pe.Saludabemente.catalogo.periodo.dto.response.PeriodoResponse
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/catalogo/periodo/service/PeriodoServiceIT.java:[93,44] cannot find symbol
+  symbol:   method id()
+  location: variable creado of type upeu.edu.pe.Saludabemente.catalogo.periodo.dto.response.PeriodoResponse
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/catalogo/periodo/service/PeriodoServiceIT.java:[95,63] cannot find symbol
+  symbol:   method id()
+  location: variable creado of type upeu.edu.pe.Saludabemente.catalogo.periodo.dto.response.PeriodoResponse
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/catalogo/periodo/service/PeriodoServiceIT.java:[97,27] cannot find symbol
+  symbol:   method estado()
+  location: variable cerrado of type upeu.edu.pe.Saludabemente.catalogo.periodo.dto.response.PeriodoResponse
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/catalogo/periodo/service/PeriodoServiceIT.java:[98,27] cannot find symbol
+  symbol:   method cerradoEn()
+  location: variable cerrado of type upeu.edu.pe.Saludabemente.catalogo.periodo.dto.response.PeriodoResponse
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/catalogo/periodo/service/PeriodoServiceIT.java:[99,27] cannot find symbol
+  symbol:   method cerradoPor()
+  location: variable cerrado of type upeu.edu.pe.Saludabemente.catalogo.periodo.dto.response.PeriodoResponse
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/catalogo/periodo/service/PeriodoServiceIT.java:[105,37] cannot find symbol
+  symbol:   method id()
+  location: variable creado of type upeu.edu.pe.Saludabemente.catalogo.periodo.dto.response.PeriodoResponse
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/catalogo/periodo/service/PeriodoServiceIT.java:[107,62] cannot find symbol
+  symbol:   method id()
+  location: variable creado of type upeu.edu.pe.Saludabemente.catalogo.periodo.dto.response.PeriodoResponse
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/catalogo/periodo/service/PeriodoServiceIT.java:[117,30] cannot find symbol
+  symbol:   method codigo()
+  location: variable encontrado of type upeu.edu.pe.Saludabemente.catalogo.periodo.dto.response.PeriodoResponse
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/personal/persona/service/PersonaServiceIT.java:[53,67] cannot find symbol
+  symbol:   method id()
+  location: class upeu.edu.pe.Saludabemente.catalogo.area.dto.response.AreaResponse
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/personal/persona/service/PersonaServiceIT.java:[130,66] cannot find symbol
+  symbol:   method id()
+  location: class upeu.edu.pe.Saludabemente.catalogo.area.dto.response.AreaResponse
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/personal/persona/service/PersonaServiceIT.java:[192,62] cannot find symbol
+  symbol:   method id()
+  location: class upeu.edu.pe.Saludabemente.catalogo.area.dto.response.AreaResponse
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/personal/persona/service/PersonaServiceIT.java:[193,62] cannot find symbol
+  symbol:   method id()
+  location: class upeu.edu.pe.Saludabemente.catalogo.area.dto.response.AreaResponse
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/personal/persona/service/PersonaServiceIT.java:[314,73] cannot find symbol
+  symbol:   method id()
+  location: class upeu.edu.pe.Saludabemente.catalogo.area.dto.response.AreaResponse
+[INFO] 47 errors 
+[INFO] -------------------------------------------------------------
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  31.729 s
+[INFO] Finished at: 2026-10-09T08:42:32-05:00
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:3.15.0:testCompile (default-testCompile) on project SaludabementeERP: Compilation failure: Compilation failure: 
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/catalogo/area/controller/AreaControllerTest.java:[211,16] constructor AreaResponse in class upeu.edu.pe.Saludabemente.catalogo.area.dto.response.AreaResponse cannot be applied to given types;
+[ERROR]   required: no arguments
+[ERROR]   found:    java.lang.Long,java.lang.String,java.lang.String,java.lang.Boolean
+[ERROR]   reason: actual and formal argument lists differ in length
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/catalogo/area/service/AreaServiceIT.java:[31,26] cannot find symbol
+[ERROR]   symbol:   method id()
+[ERROR]   location: variable creada of type upeu.edu.pe.Saludabemente.catalogo.area.dto.response.AreaResponse
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/catalogo/area/service/AreaServiceIT.java:[32,26] cannot find symbol
+[ERROR]   symbol:   method nombre()
+[ERROR]   location: variable creada of type upeu.edu.pe.Saludabemente.catalogo.area.dto.response.AreaResponse
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/catalogo/area/service/AreaServiceIT.java:[33,26] cannot find symbol
+[ERROR]   symbol:   method activo()
+[ERROR]   location: variable creada of type upeu.edu.pe.Saludabemente.catalogo.area.dto.response.AreaResponse
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/catalogo/area/service/AreaServiceIT.java:[53,65] cannot find symbol
+[ERROR]   symbol:   method id()
+[ERROR]   location: variable creada of type upeu.edu.pe.Saludabemente.catalogo.area.dto.response.AreaResponse
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/catalogo/area/service/AreaServiceIT.java:[55,31] cannot find symbol
+[ERROR]   symbol:   method nombre()
+[ERROR]   location: variable actualizada of type upeu.edu.pe.Saludabemente.catalogo.area.dto.response.AreaResponse
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/catalogo/area/service/AreaServiceIT.java:[56,31] cannot find symbol
+[ERROR]   symbol:   method descripcion()
+[ERROR]   location: variable actualizada of type upeu.edu.pe.Saludabemente.catalogo.area.dto.response.AreaResponse
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/catalogo/area/service/AreaServiceIT.java:[63,37] cannot find symbol
+[ERROR]   symbol:   method id()
+[ERROR]   location: variable creada of type upeu.edu.pe.Saludabemente.catalogo.area.dto.response.AreaResponse
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/catalogo/area/service/AreaServiceIT.java:[65,61] cannot find symbol
+[ERROR]   symbol:   method id()
+[ERROR]   location: variable creada of type upeu.edu.pe.Saludabemente.catalogo.area.dto.response.AreaResponse
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/catalogo/area/service/AreaServiceIT.java:[66,30] cannot find symbol
+[ERROR]   symbol:   method activo()
+[ERROR]   location: variable consultada of type upeu.edu.pe.Saludabemente.catalogo.area.dto.response.AreaResponse
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/catalogo/area/service/AreaServiceIT.java:[72,37] cannot find symbol
+[ERROR]   symbol:   method id()
+[ERROR]   location: variable creada of type upeu.edu.pe.Saludabemente.catalogo.area.dto.response.AreaResponse
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/catalogo/area/service/AreaServiceIT.java:[74,62] cannot find symbol
+[ERROR]   symbol:   method id()
+[ERROR]   location: variable creada of type upeu.edu.pe.Saludabemente.catalogo.area.dto.response.AreaResponse
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/catalogo/area/service/AreaServiceIT.java:[87,39] cannot find symbol
+[ERROR]   symbol:   method id()
+[ERROR]   location: variable inactiva of type upeu.edu.pe.Saludabemente.catalogo.area.dto.response.AreaResponse
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/catalogo/area/service/AreaServiceIT.java:[92,40] invalid method reference
+[ERROR]   cannot find symbol
+[ERROR]     symbol:   method nombre()
+[ERROR]     location: class upeu.edu.pe.Saludabemente.catalogo.area.dto.response.AreaResponse
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/catalogo/area/service/AreaServiceIT.java:[92,77] cannot find symbol
+[ERROR]   symbol:   method nombre()
+[ERROR]   location: variable activa of type upeu.edu.pe.Saludabemente.catalogo.area.dto.response.AreaResponse
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/catalogo/area/service/AreaServiceIT.java:[93,40] invalid method reference
+[ERROR]   cannot find symbol
+[ERROR]     symbol:   method nombre()
+[ERROR]     location: class upeu.edu.pe.Saludabemente.catalogo.area.dto.response.AreaResponse
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/catalogo/area/service/AreaServiceIT.java:[93,85] cannot find symbol
+[ERROR]   symbol:   method nombre()
+[ERROR]   location: variable inactiva of type upeu.edu.pe.Saludabemente.catalogo.area.dto.response.AreaResponse
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/catalogo/area/service/AreaServiceIT.java:[95,42] invalid method reference
+[ERROR]   cannot find symbol
+[ERROR]     symbol:   method nombre()
+[ERROR]     location: class upeu.edu.pe.Saludabemente.catalogo.area.dto.response.AreaResponse
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/catalogo/area/service/AreaServiceIT.java:[95,81] cannot find symbol
+[ERROR]   symbol:   method nombre()
+[ERROR]   location: variable inactiva of type upeu.edu.pe.Saludabemente.catalogo.area.dto.response.AreaResponse
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/catalogo/area/service/AreaServiceIT.java:[96,42] invalid method reference
+[ERROR]   cannot find symbol
+[ERROR]     symbol:   method nombre()
+[ERROR]     location: class upeu.edu.pe.Saludabemente.catalogo.area.dto.response.AreaResponse
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/catalogo/area/service/AreaServiceIT.java:[96,85] cannot find symbol
+[ERROR]   symbol:   method nombre()
+[ERROR]   location: variable activa of type upeu.edu.pe.Saludabemente.catalogo.area.dto.response.AreaResponse
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/catalogo/area/service/AreaServiceIT.java:[107,39] cannot find symbol
+[ERROR]   symbol:   method id()
+[ERROR]   location: variable inactiva of type upeu.edu.pe.Saludabemente.catalogo.area.dto.response.AreaResponse
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/catalogo/area/service/AreaServiceIT.java:[111,72] cannot find symbol
+[ERROR]   symbol:   method nombre()
+[ERROR]   location: variable activa of type upeu.edu.pe.Saludabemente.catalogo.area.dto.response.AreaResponse
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/catalogo/area/service/AreaServiceIT.java:[112,80] cannot find symbol
+[ERROR]   symbol:   method nombre()
+[ERROR]   location: variable inactiva of type upeu.edu.pe.Saludabemente.catalogo.area.dto.response.AreaResponse
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/catalogo/periodo/controller/PeriodoControllerTest.java:[284,16] constructor PeriodoResponse in class upeu.edu.pe.Saludabemente.catalogo.periodo.dto.response.PeriodoResponse cannot be applied to given types;
+[ERROR]   required: no arguments
+[ERROR]   found:    java.lang.Long,java.lang.String,java.lang.String,java.time.LocalDate,java.time.LocalDate,upeu.edu.pe.Saludabemente.catalogo.periodo.dto.EstadoPeriodo,<nulltype>,<nulltype>
+[ERROR]   reason: actual and formal argument lists differ in length
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/catalogo/periodo/service/PeriodoServiceIT.java:[30,26] cannot find symbol
+[ERROR]   symbol:   method id()
+[ERROR]   location: variable creado of type upeu.edu.pe.Saludabemente.catalogo.periodo.dto.response.PeriodoResponse
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/catalogo/periodo/service/PeriodoServiceIT.java:[31,26] cannot find symbol
+[ERROR]   symbol:   method codigo()
+[ERROR]   location: variable creado of type upeu.edu.pe.Saludabemente.catalogo.periodo.dto.response.PeriodoResponse
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/catalogo/periodo/service/PeriodoServiceIT.java:[32,26] cannot find symbol
+[ERROR]   symbol:   method estado()
+[ERROR]   location: variable creado of type upeu.edu.pe.Saludabemente.catalogo.periodo.dto.response.PeriodoResponse
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/catalogo/periodo/service/PeriodoServiceIT.java:[64,70] cannot find symbol
+[ERROR]   symbol:   method id()
+[ERROR]   location: variable creado of type upeu.edu.pe.Saludabemente.catalogo.periodo.dto.response.PeriodoResponse
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/catalogo/periodo/service/PeriodoServiceIT.java:[66,27] cannot find symbol
+[ERROR]   symbol:   method estado()
+[ERROR]   location: variable vigente of type upeu.edu.pe.Saludabemente.catalogo.periodo.dto.response.PeriodoResponse
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/catalogo/periodo/service/PeriodoServiceIT.java:[69,37] cannot find symbol
+[ERROR]   symbol:   method id()
+[ERROR]   location: variable vigenteConsultado of type upeu.edu.pe.Saludabemente.catalogo.periodo.dto.response.PeriodoResponse
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/catalogo/periodo/service/PeriodoServiceIT.java:[69,60] cannot find symbol
+[ERROR]   symbol:   method id()
+[ERROR]   location: variable creado of type upeu.edu.pe.Saludabemente.catalogo.periodo.dto.response.PeriodoResponse
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/catalogo/periodo/service/PeriodoServiceIT.java:[75,40] cannot find symbol
+[ERROR]   symbol:   method id()
+[ERROR]   location: variable p1 of type upeu.edu.pe.Saludabemente.catalogo.periodo.dto.response.PeriodoResponse
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/catalogo/periodo/service/PeriodoServiceIT.java:[79,65] cannot find symbol
+[ERROR]   symbol:   method id()
+[ERROR]   location: variable p2 of type upeu.edu.pe.Saludabemente.catalogo.periodo.dto.response.PeriodoResponse
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/catalogo/periodo/service/PeriodoServiceIT.java:[93,44] cannot find symbol
+[ERROR]   symbol:   method id()
+[ERROR]   location: variable creado of type upeu.edu.pe.Saludabemente.catalogo.periodo.dto.response.PeriodoResponse
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/catalogo/periodo/service/PeriodoServiceIT.java:[95,63] cannot find symbol
+[ERROR]   symbol:   method id()
+[ERROR]   location: variable creado of type upeu.edu.pe.Saludabemente.catalogo.periodo.dto.response.PeriodoResponse
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/catalogo/periodo/service/PeriodoServiceIT.java:[97,27] cannot find symbol
+[ERROR]   symbol:   method estado()
+[ERROR]   location: variable cerrado of type upeu.edu.pe.Saludabemente.catalogo.periodo.dto.response.PeriodoResponse
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/catalogo/periodo/service/PeriodoServiceIT.java:[98,27] cannot find symbol
+[ERROR]   symbol:   method cerradoEn()
+[ERROR]   location: variable cerrado of type upeu.edu.pe.Saludabemente.catalogo.periodo.dto.response.PeriodoResponse
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/catalogo/periodo/service/PeriodoServiceIT.java:[99,27] cannot find symbol
+[ERROR]   symbol:   method cerradoPor()
+[ERROR]   location: variable cerrado of type upeu.edu.pe.Saludabemente.catalogo.periodo.dto.response.PeriodoResponse
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/catalogo/periodo/service/PeriodoServiceIT.java:[105,37] cannot find symbol
+[ERROR]   symbol:   method id()
+[ERROR]   location: variable creado of type upeu.edu.pe.Saludabemente.catalogo.periodo.dto.response.PeriodoResponse
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/catalogo/periodo/service/PeriodoServiceIT.java:[107,62] cannot find symbol
+[ERROR]   symbol:   method id()
+[ERROR]   location: variable creado of type upeu.edu.pe.Saludabemente.catalogo.periodo.dto.response.PeriodoResponse
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/catalogo/periodo/service/PeriodoServiceIT.java:[117,30] cannot find symbol
+[ERROR]   symbol:   method codigo()
+[ERROR]   location: variable encontrado of type upeu.edu.pe.Saludabemente.catalogo.periodo.dto.response.PeriodoResponse
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/personal/persona/service/PersonaServiceIT.java:[53,67] cannot find symbol
+[ERROR]   symbol:   method id()
+[ERROR]   location: class upeu.edu.pe.Saludabemente.catalogo.area.dto.response.AreaResponse
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/personal/persona/service/PersonaServiceIT.java:[130,66] cannot find symbol
+[ERROR]   symbol:   method id()
+[ERROR]   location: class upeu.edu.pe.Saludabemente.catalogo.area.dto.response.AreaResponse
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/personal/persona/service/PersonaServiceIT.java:[192,62] cannot find symbol
+[ERROR]   symbol:   method id()
+[ERROR]   location: class upeu.edu.pe.Saludabemente.catalogo.area.dto.response.AreaResponse
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/personal/persona/service/PersonaServiceIT.java:[193,62] cannot find symbol
+[ERROR]   symbol:   method id()
+[ERROR]   location: class upeu.edu.pe.Saludabemente.catalogo.area.dto.response.AreaResponse
+[ERROR] /D:/ING SISTEMAS/LP2/PROYECTO 2.0/CODIGO/SaludabementeERP/SaludabementeERP/src/test/java/upeu/edu/pe/Saludabemente/personal/persona/service/PersonaServiceIT.java:[314,73] cannot find symbol
+[ERROR]   symbol:   method id()
+[ERROR]   location: class upeu.edu.pe.Saludabemente.catalogo.area.dto.response.AreaResponse
+[ERROR] -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException

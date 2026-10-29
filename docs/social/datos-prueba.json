@@ -1,0 +1,279 @@
+{
+  "version": "1.0",
+  "fecha": "2026-10-23",
+  "estado": "Ejemplos para pruebas futuras; no ejecutados",
+  "advertencias": [
+    "Los endpoints REST son el objetivo del maestro; todavía no están implementados.",
+    "Sustituir IDs ficticios por IDs del entorno aislado y capturar IDs de las respuestas reales.",
+    "No incluye tokens, contraseñas, respuestas ficticias ni scripts SQL.",
+    "J01 y J02 representan DTOs Java para fixtures internos, no endpoints REST.",
+    "J11 depende de acordar la representación de adjuntos en C05; no enviarlo literalmente.",
+    "Los casos negativos tienen rechazos esperados, pero sus códigos HTTP no se inventan.",
+    "No es una colección Postman ni un seeder ejecutable."
+  ],
+  "baseRestObjetivo": "/api/v1/social",
+  "identidadesFicticias": {
+    "A": { "idUsuario": 101, "idPersona": 1001, "rolPrueba": "Autor activo", "username": "ana.lazaro" },
+    "B": { "idUsuario": 102, "idPersona": 1002, "rolPrueba": "Miembro activo del equipo 301" },
+    "C": { "idUsuario": 103, "idPersona": 1003, "rolPrueba": "Usuario activo que no pertenece al equipo 301" },
+    "D": { "idUsuario": 104, "idPersona": 1004, "rolPrueba": "Administrador global activo" },
+    "E": { "idUsuario": 105, "idPersona": 1005, "rolPrueba": "Usuario inactivo" },
+    "T": { "idUsuario": 106, "idPersona": 1006, "rolPrueba": "Administrador activo del equipo 301" }
+  },
+  "precondiciones": [
+    "Estas identidades deben existir y estar relacionadas mediante contratos reales; no se crean por enviar este JSON.",
+    "Preparar equipo 301, actividad 401 y noticia 501 por los mecanismos propios de sus módulos.",
+    "Los nombres y rolesPrueba describen fixtures; no son nuevos enums ni contratos de seguridad.",
+    "Sustituir {idPost}, {idComentario}, {idRaiz}, {idReporte} con valores capturados.",
+    "Confirmar permisos y membresías sin consultar repositorios de otros módulos desde Social."
+  ],
+  "ejemplos": [
+    {
+      "id": "J01",
+      "nombre": "Sincronizar actividad",
+      "tipo": "DTO_JAVA",
+      "operacion": "SocialApiService.sincronizarPostDeActividad",
+      "casos": ["B03-T01", "B03-T02", "B03-T03", "B03-T05"],
+      "body": {
+        "idActividad": 401,
+        "nombre": "Caminata por el bienestar",
+        "descripcion": "Actividad institucional de bienestar.",
+        "lugar": "Campus principal",
+        "fechaActividad": "2026-11-10",
+        "horaInicio": "09:00:00",
+        "horaFin": "10:00:00",
+        "estado": "PROGRAMADA",
+        "logoUrl": "https://example.invalid/actividades/401/logo/prueba.png",
+        "imagenesUrls": ["https://example.invalid/actividades/401/imagenes/prueba.webp"],
+        "nombreCoordinador": "Ana Lázaro",
+        "idUsuarioCreador": 101,
+        "idEquipoActividad": 301
+      },
+      "variantes": [
+        { "cambiar": { "estado": "EN_CURSO" }, "esperado": "Mismo post actualizado" },
+        { "cambiar": { "estado": "FINALIZADA" }, "esperado": "Mismo post actualizado" },
+        { "cambiar": { "estado": "CANCELADA" }, "esperado": "Mismo post visible con estado cancelado" },
+        { "cambiar": { "fechaActividad": "2026-11-11", "horaInicio": "10:00:00", "horaFin": "11:00:00" }, "esperado": "Reprogramación sin duplicar" },
+        { "cambiar": { "logoUrl": null, "imagenesUrls": [] }, "esperado": "Retirar referencias sin resubir imágenes" }
+      ]
+    },
+    {
+      "id": "J02",
+      "nombre": "Sincronizar noticia oficial",
+      "tipo": "DTO_JAVA",
+      "operacion": "SocialApiService.sincronizarPostDeNoticia",
+      "casos": ["B03-T04", "B05-T08"],
+      "body": {
+        "idNoticia": 501,
+        "titulo": "Semana del bienestar",
+        "resumen": "Conoce las actividades institucionales de esta semana.",
+        "imagenPortadaUrl": "https://example.invalid/noticias/501/portada/prueba.jpg",
+        "fechaPublicacion": "2026-10-23T09:00:00",
+        "estado": "PUBLICADA",
+        "oficial": true,
+        "idUsuarioAutor": 101,
+        "idEquipoAutor": 301,
+        "urlCompleta": "https://example.invalid/noticias/501"
+      }
+    },
+    {
+      "id": "J03",
+      "nombre": "Crear publicación personal",
+      "tipo": "REST_OBJETIVO",
+      "metodo": "POST",
+      "ruta": "/posts",
+      "sesion": "A",
+      "casos": ["B04-T01", "U03-T01"],
+      "body": { "titulo": "Pausa saludable", "resumen": "Hoy compartimos una pausa activa con el equipo.", "idEquipoAutor": null, "imagenesUrls": [] }
+    },
+    {
+      "id": "J04",
+      "nombre": "Crear publicación como equipo",
+      "tipo": "REST_OBJETIVO",
+      "metodo": "POST",
+      "ruta": "/posts",
+      "sesion": "B",
+      "casos": ["B04-T02", "B04-T03", "B10-T07", "U03-T01"],
+      "body": { "titulo": "Actividad del equipo", "resumen": "Invitamos a participar en nuestra próxima actividad.", "idEquipoAutor": 301, "imagenesUrls": [] },
+      "negativo": "Repetir con sesión C: no debe autorizar publicación como equipo."
+    },
+    {
+      "id": "J05",
+      "nombre": "Publicación solo con imagen",
+      "tipo": "REST_OBJETIVO_PENDIENTE_C10",
+      "metodo": "POST",
+      "ruta": "/posts",
+      "sesion": "A",
+      "casos": ["B02-T06", "B04-T08", "U03-T02"],
+      "body": { "titulo": null, "resumen": null, "idEquipoAutor": null, "imagenesUrls": ["https://example.invalid/referencia-autorizada/prueba.png"] },
+      "esperado": "Aceptar solo tras cerrar representación y validación C10; usar imagen referenciable autorizada. No se define upload de posts."
+    },
+    {
+      "id": "J06",
+      "nombre": "Editar publicación manual propia",
+      "tipo": "REST_OBJETIVO",
+      "metodo": "PATCH",
+      "ruta": "/posts/{idPost}",
+      "sesion": "A",
+      "casos": ["B04-T04", "B04-T05"],
+      "body": { "titulo": "Pausa saludable actualizada", "resumen": "La reunión será a las 16:00.", "imagenesUrls": [] }
+    },
+    {
+      "id": "J07",
+      "nombre": "Publicación vacía inválida",
+      "tipo": "REST_OBJETIVO_NEGATIVO",
+      "metodo": "POST",
+      "ruta": "/posts",
+      "sesion": "A",
+      "casos": ["B04-T08", "U03-T02"],
+      "body": { "titulo": "", "resumen": "", "idEquipoAutor": null, "imagenesUrls": [] },
+      "esperado": "Rechazar por RN40; fijar código de validación en contrato."
+    },
+    {
+      "id": "J08",
+      "nombre": "Comentario raíz",
+      "tipo": "REST_OBJETIVO",
+      "metodo": "POST",
+      "ruta": "/posts/{idPost}/comentarios",
+      "sesion": "B",
+      "casos": ["B06-T01", "B10-T03", "U04-T01"],
+      "body": { "contenido": "Excelente actividad para cuidar nuestra salud.", "idComentarioPadre": null, "adjuntosUrls": [] }
+    },
+    {
+      "id": "J09",
+      "nombre": "Respuesta a comentario raíz",
+      "tipo": "REST_OBJETIVO",
+      "metodo": "POST",
+      "ruta": "/posts/{idPost}/comentarios",
+      "sesion": "C",
+      "casos": ["B06-T01", "B06-T02", "B06-T03", "B10-T04", "U04-T01"],
+      "body": { "contenido": "Confirmo mi participación.", "idComentarioPadre": 701, "adjuntosUrls": [] },
+      "sustituir": "701 por el ID real de una raíz del post. Para negativos, usar ID de respuesta o raíz de otro post."
+    },
+    {
+      "id": "J10",
+      "nombre": "Editar comentario propio",
+      "tipo": "REST_OBJETIVO",
+      "metodo": "PATCH",
+      "ruta": "/posts/{idPost}/comentarios/{idComentario}",
+      "sesion": "B",
+      "casos": ["B06-T04", "U04-T07"],
+      "body": { "contenido": "Excelente actividad. Participaré con mi equipo." }
+    },
+    {
+      "id": "J11",
+      "nombre": "Comentario con adjunto previamente subido",
+      "tipo": "PLANTILLA_PENDIENTE_C05",
+      "metodo": "POST",
+      "ruta": "/posts/{idPost}/comentarios",
+      "sesion": "B",
+      "casos": ["B06-T07", "B06-T09", "B06-T10", "U04-T04", "U04-T05"],
+      "body": { "contenido": "Comparto una imagen de la actividad.", "idComentarioPadre": null, "adjuntosUrls": ["REEMPLAZAR_POR_REFERENCIA_REAL_DEVUELTA_POR_UPLOAD"] },
+      "precondicion": "POST multipart a /posts/{idPost}/comentarios/adjuntos; nombre del campo y forma de respuesta por confirmar. No enviar el marcador literal.",
+      "variantes": ["Cuatro adjuntos válidos", "Cinco adjuntos: rechazo", "Referencia de otro post: rechazo", "Referencia fuera del prefijo permitido: rechazo"]
+    },
+    {
+      "id": "J12",
+      "nombre": "Reaccionar con LIKE",
+      "tipo": "REST_OBJETIVO",
+      "metodo": "POST",
+      "ruta": "/posts/{idPost}/reacciones",
+      "sesion": "B",
+      "casos": ["B07-T01", "B07-T03", "B10-T06", "U05-T01"],
+      "body": { "tipo": "LIKE" },
+      "alternativa": "Para comentario: /comentarios/{idComentario}/reacciones con el mismo body."
+    },
+    {
+      "id": "J13",
+      "nombre": "Cambiar reacción a LOVE",
+      "tipo": "REST_OBJETIVO",
+      "metodo": "POST",
+      "ruta": "/posts/{idPost}/reacciones",
+      "sesion": "B",
+      "casos": ["B07-T01", "B07-T04", "U05-T01"],
+      "body": { "tipo": "LOVE" },
+      "tiposValidos": ["LIKE", "LOVE", "HAHA", "WOW", "SAD", "APLAUSO", "ENOJADO"],
+      "tipoInvalidoParaPrueba": "OTRO"
+    },
+    {
+      "id": "J14",
+      "nombre": "Fijar globalmente",
+      "tipo": "REST_OBJETIVO",
+      "metodo": "POST",
+      "ruta": "/posts/{idPost}/fijar",
+      "sesion": "D",
+      "casos": ["B02-T05", "B05-T06", "B05-T07", "B05-T09", "U02-T06"],
+      "body": { "scopeTipo": "GLOBAL", "scopeId": null, "fechaExpiracion": "2026-11-15T23:59:00" },
+      "precondicion": "Ajustar fecha al reloj controlado del test. Cuarto post distinto en mismo scope: 409."
+    },
+    {
+      "id": "J15",
+      "nombre": "Fijar en scope de equipo",
+      "tipo": "REST_OBJETIVO",
+      "metodo": "POST",
+      "ruta": "/posts/{idPost}/fijar",
+      "sesion": "D",
+      "casos": ["B05-T05", "U02-T03"],
+      "body": { "scopeTipo": "EQUIPO", "scopeId": 301, "fechaExpiracion": null },
+      "varianteActividad": { "scopeTipo": "ACTIVIDAD", "scopeId": 401, "fechaExpiracion": null }
+    },
+    {
+      "id": "J16",
+      "nombre": "Compartir publicación",
+      "tipo": "REST_OBJETIVO",
+      "metodo": "POST",
+      "ruta": "/posts/{idPost}/share",
+      "sesion": "B",
+      "casos": ["B07-T05", "B07-T06", "B07-T07", "U05-T07"],
+      "body": { "contenido": "Recomiendo participar en esta actividad.", "idEquipoAutor": null },
+      "variantes": ["Compartir un SHARE: resolver original", "Original inactivo: rechazar", "Repetir autor/original: aplicar unicidad y ciclo de vida C15"]
+    },
+    {
+      "id": "J17",
+      "nombre": "Comentario con usuario mencionado y hashtag",
+      "tipo": "REST_OBJETIVO_TOKEN_USUARIO_DEL_MAESTRO",
+      "metodo": "POST",
+      "ruta": "/posts/{idPost}/comentarios",
+      "sesion": "B",
+      "casos": ["B08-T01", "B08-T03", "B08-T04", "B10-T05", "U06-T01", "U06-T03"],
+      "body": { "contenido": "@ana.lazaro gracias por organizar la actividad #Salud", "idComentarioPadre": null, "adjuntosUrls": [] },
+      "nota": "@ana.lazaro sigue el ejemplo del maestro; confirmar formato final C17 antes de implementar parser. No se inventan tokens de actividad/equipo."
+    },
+    {
+      "id": "J18",
+      "nombre": "Reportar publicación",
+      "tipo": "REST_OBJETIVO",
+      "metodo": "POST",
+      "ruta": "/posts/{idPost}/reportar",
+      "sesion": "C",
+      "casos": ["B09-T01", "B09-T02", "B09-T03", "U08-T01", "U08-T02"],
+      "body": { "motivo": "SPAM", "detalle": "Contenido repetido sin relación con la actividad." },
+      "motivosValidos": ["SPAM", "OFENSIVO", "ACOSO", "FALSO", "OTRO"],
+      "alternativa": "Para comentario: /posts/{idPost}/comentarios/{idComentario}/reportar con el mismo body."
+    },
+    {
+      "id": "J19",
+      "nombre": "Aceptar reporte",
+      "tipo": "REST_OBJETIVO",
+      "metodo": "PATCH",
+      "ruta": "/admin/reportes/{idReporte}",
+      "sesion": "D",
+      "casos": ["B09-T04", "B09-T05", "B09-T06", "U08-T03"],
+      "body": { "estado": "ACEPTADO", "comentario": "Se verificó el motivo del reporte." },
+      "varianteRechazo": { "estado": "RECHAZADO", "comentario": "No se encontró incumplimiento." },
+      "nota": "Cerrar dónde se conserva comentario de resolución; no inventar columna ni respuesta."
+    }
+  ],
+  "peticionesSinBody": [
+    { "metodo": "GET", "ruta": "/muro?tab=RECIENTES&page=0&size=20", "casos": ["B05-T01", "B07-T10"] },
+    { "metodo": "GET", "ruta": "/posts/{idPost}", "casos": ["B07-T09", "B07-T10", "B07-T11"] },
+    { "metodo": "DELETE", "ruta": "/posts/{idPost}", "casos": ["B04-T06", "B04-T07"] },
+    { "metodo": "POST", "ruta": "/posts/{idPost}/guardar", "casos": ["B07-T08"] },
+    { "metodo": "DELETE", "ruta": "/posts/{idPost}/guardar", "casos": ["B07-T08"] },
+    { "metodo": "DELETE", "ruta": "/posts/{idPost}/reacciones", "casos": ["B07-T02"] },
+    { "metodo": "GET", "ruta": "/posts/{idPost}/reacciones/usuarios?tipo=LOVE&page=0&size=20", "casos": ["B07-T03"] },
+    { "metodo": "GET", "ruta": "/mi-contenido?tab=GUARDADOS&page=0&size=20", "casos": ["B08-T08"] },
+    { "metodo": "GET", "ruta": "/buscar?q=salud&tipo=POST&page=0&size=20", "casos": ["B08-T06"] },
+    { "metodo": "GET", "ruta": "/admin/metricas?desde=2026-10-01&hasta=2026-10-31", "casos": ["B10-T01", "B10-T02"] }
+  ]
+}

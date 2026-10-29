@@ -1,0 +1,36 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb;MODE=Oracle;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;INIT=CREATE SCHEMA IF NOT EXISTS SLB_NUTRICIONAL\;CREATE SCHEMA IF NOT EXISTS SLB_ALERTAS\;CREATE SCHEMA IF NOT EXISTS SLB_PERSONAL\;CREATE SCHEMA IF NOT EXISTS SLB_CATALOGO\;CREATE SCHEMA IF NOT EXISTS SLB_ACTIVIDADES\;CREATE SCHEMA IF NOT EXISTS SLB_ASISTENCIAS\;CREATE SCHEMA IF NOT EXISTS SLB_SEGURIDAD\;CREATE SCHEMA IF NOT EXISTS SLB_TEAMS
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        format_sql: true
+        default_schema: SLB_NUTRICIONAL
+    show-sql: false
+
+logging:
+  level:
+    upeu.edu.pe.Saludabemente: WARN
+
+saludablemente:
+  cors:
+    allowed-origins: http://localhost:4200
+  security:
+    qr-salt: test-salt-cambiar-en-produccion
+  asistencia:
+    qr-actividad:
+      rotacion-segundos: 180
+      tolerancia-reloj-segundos: 90
+      ventana-anticipacion-min: 15
+      ventana-cierre-min: 15
+      longitud-hash: 32
+  alertas:
+    severidad:
+      leve-max: 3
+      moderada-max: 7

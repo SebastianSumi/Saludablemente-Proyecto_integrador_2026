@@ -1,0 +1,100 @@
+server:
+  port: 8080
+
+spring:
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 15MB
+      max-request-size: 20MB
+  datasource:
+    url: jdbc:oracle:thin:@localhost:1521/FREEPDB1
+    username: SALUDABLEMENTE_APP
+    password: 123456
+    driver-class-name: oracle.jdbc.OracleDriver
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        format_sql: true
+        default_schema: SLB_PERSONAL
+    show-sql: true
+  devtools:
+    restart:
+      enabled: true
+    livereload:
+      enabled: true
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+
+logging:
+  level:
+    upeu.edu.pe.Saludabemente: DEBUG
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+
+saludablemente:
+  cors:
+    allowed-origins: http://localhost:4200
+  security:
+    qr-salt: ${QR_SALT:dev-salt-cambiar-en-produccion}
+    jwt:
+      secret: ${JWT_SECRET:dev-only-jwt-secret-change-me-0123456789abcdef0123456789abcdef}
+      ttl-minutos: ${JWT_TTL_MINUTOS:60}
+  asistencia:
+    qr-actividad:
+      rotacion-segundos: 180
+      tolerancia-reloj-segundos: 90
+      ventana-anticipacion-min: 15
+      ventana-cierre-min: 15
+      longitud-hash: 32
+  alertas:
+    severidad:
+      leve-max: 3
+      moderada-max: 7
+  notificaciones:
+    reintentos:
+      max-intentos: 5
+      intervalo-minutos: 10
+      backoff-multiplicador: 2
+
+  recomendaciones:
+    ia:
+      provider: gemini
+      temperature: 0.3
+      num-predict: 8192
+      num-ctx: 8192
+      gemini:
+        model: gemini-2.5-flash
+        read-timeout: 120s
+        api-key: ${GEMINI_API_KEY:}
+    outbox:
+      scheduler-interval-ms: 5000
+      max-intentos: 3
+      backoff-inicial-ms: 300000
+      backoff-multiplicador: 3

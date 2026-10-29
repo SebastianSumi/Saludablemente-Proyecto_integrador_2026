@@ -1,0 +1,22 @@
+spring:
+  datasource:
+    # La URL de H2 ahora crea el schema 'SLB_NUTRICIONAL' al iniciar la conexión.
+    url: jdbc:h2:mem:testdb;MODE=Oracle;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;INIT=CREATE SCHEMA IF NOT EXISTS SLB_NUTRICIONAL
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+  jpa:
+    open-in-view: false
+    hibernate:
+      # 'create-drop' creará las tablas en el schema SLB_NUTRICIONAL que H2 acaba de crear.
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        format_sql: true
+        # Apuntamos a 'SLB_NUTRICIONAL' para que coincida con las entidades.
+        default_schema: SLB_NUTRICIONAL
+    show-sql: false
+
+logging:
+  level:
+    upeu.edu.pe.Saludabemente: WARN

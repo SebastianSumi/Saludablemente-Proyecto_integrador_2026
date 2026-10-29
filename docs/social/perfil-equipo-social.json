@@ -1,0 +1,24 @@
+{
+  "estado": "Fixture de contrato Java; no es una respuesta de un endpoint Social existente",
+  "nota": "Datos ficticios. imagenUrl se referencia desde Teams; líder se resuelve en vivo por idUsuario.",
+  "perfil": {
+    "idEquipo": 301,
+    "nombre": "Bienestar",
+    "descripcion": "Equipo institucional de bienestar",
+    "imagenUrl": "https://example.invalid/bucket/teams/301/imagen.png",
+    "color": "#27AE60",
+    "slogan": "Cuidarnos juntos",
+    "referenciaBiblica": "3 Juan 1:2",
+    "textoVersiculo": "Texto de referencia del equipo",
+    "idUsuarioLider": 106,
+    "lider": {
+      "idUsuario": 106,
+      "username": "lider.equipo",
+      "nombreCompleto": "Líder del equipo",
+      "fotoUrl": null,
+      "activo": true
+    },
+    "activo": true,
+    "totalMiembros": 3
+  }
+}

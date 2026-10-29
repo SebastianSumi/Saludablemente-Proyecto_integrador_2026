@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Ficha Clínica Nutricional</title>
+    <style>
+        @page { size: A4; margin: 2cm; }
+        body { font-family: Arial, sans-serif; font-size: 11pt; color: #222; }
+        h1 { color: #1a5490; border-bottom: 2px solid #1a5490; padding-bottom: 8px; }
+        h2 { color: #1a5490; font-size: 13pt; margin-top: 20px; }
+        .encabezado { text-align: center; margin-bottom: 20px; }
+        .encabezado .institucion { font-size: 14pt; font-weight: bold; }
+        .encabezado .titulo { font-size: 16pt; color: #1a5490; margin-top: 10px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+        th, td { border: 1px solid #ccc; padding: 6px 8px; text-align: left; }
+        th { background: #f0f4f8; font-weight: bold; width: 35%; }
+        .estado { padding: 4px 12px; border-radius: 4px; font-weight: bold; }
+        .estado-PENDIENTE { background: #fef3c7; color: #92400e; }
+        .estado-COMPLETA { background: #d1fae5; color: #065f46; }
+        .estado-ANULADA { background: #fee2e2; color: #991b1b; }
+        .pie { margin-top: 40px; font-size: 9pt; color: #666; text-align: center; }
+        .firma { margin-top: 60px; text-align: center; }
+        .firma-linea { border-top: 1px solid #333; width: 200px; margin: 0 auto; padding-top: 4px; }
+    </style>
+</head>
+<body>
+
+<div class="encabezado">
+    <div class="institucion">SALUDABLEMENTE</div>
+    <div class="titulo">Ficha Clínica Nutricional</div>
+</div>
+
+<h2>Datos del colaborador</h2>
+<table>
+    <tr><th>Documento de identidad</th><td th:text="${evaluacion.documentoIdentidad}">—</td></tr>
+    <tr><th>Nombres completos</th><td th:text="${evaluacion.nombresCompletos}">—</td></tr>
+    <tr><th>Edad al momento</th><td th:text="${evaluacion.edadAlMomento} + ' años'">—</td></tr>
+    <tr><th>Sexo</th><td th:text="${evaluacion.sexoAlMomento}">—</td></tr>
+    <tr><th>Área de trabajo</th><td th:text="${evaluacion.areaTrabajoAlMomento}">—</td></tr>
+</table>
+
+<h2>Datos de la evaluación</h2>
+<table>
+    <tr><th>ID</th><td th:text="${evaluacion.idEvaluacion}">—</td></tr>
+    <tr><th>Periodo</th><td th:text="${evaluacion.idPeriodo}">—</td></tr>
+    <tr><th>Fecha</th><td th:text="${evaluacion.fechaEvaluacion}">—</td></tr>
+    <tr>
+        <th>Estado</th>
+        <td>
+            <span class="estado"
+                  th:classappend="'estado-' + ${evaluacion.estadoEvaluacion}"
+                  th:text="${evaluacion.estadoEvaluacion}">—</span>
+        </td>
+    </tr>
+    <tr><th>Observaciones</th><td th:text="${evaluacion.observaciones ?: 'Sin observaciones'}">—</td></tr>
+</table>
+
+<div th:if="${evaluacion.detalleAntropometrico != null}">
+    <h2>Antropometría</h2>
+    <table>
+        <tr><th>Estatura</th><td th:text="${evaluacion.detalleAntropometrico.estaturaCm} + ' cm'">—</td></tr>
+        <tr><th>Peso</th><td th:text="${evaluacion.detalleAntropometrico.pesoKg} + ' kg'">—</td></tr>
+        <tr><th>IMC</th><td th:text="${evaluacion.detalleAntropometrico.imc}">—</td></tr>
+        <tr><th>Diagnóstico IMC</th><td th:text="${evaluacion.detalleAntropometrico.dxImc}">—</td></tr>
+        <tr><th>Perímetro abdominal</th>
+            <td th:text="${evaluacion.detalleAntropometrico.perimetroAbdominalCm} + ' cm'">—</td></tr>
+        <tr><th>Diagnóstico perímetro</th>
+            <td th:text="${evaluacion.detalleAntropometrico.dxPerimetroAbdominal}">—</td></tr>
+        <tr><th>% Grasa</th>
+            <td th:text="${evaluacion.detalleAntropometrico.porcentajeGrasa} + ' (' + ${evaluacion.detalleAntropometrico.dxGrasa} + ')'">—</td></tr>
+        <tr><th>% Masa muscular</th>
+            <td th:text="${evaluacion.detalleAntropometrico.porcentajeMasaMuscular} + ' (' + ${evaluacion.detalleAntropometrico.dxMasaMuscular} + ')'">—</td></tr>
+        <tr><th>% Grasa visceral</th>
+            <td th:text="${evaluacion.detalleAntropometrico.porcentajeGrasaVisceral} + ' (' + ${evaluacion.detalleAntropometrico.dxGrasaVisceral} + ')'">—</td></tr>
+    </table>
+</div>
+
+<div th:if="${evaluacion.detalleBioquimico != null}">
+    <h2>Bioquímica</h2>
+    <table>
+        <tr><th>Glucosa</th><td th:text="${evaluacion.detalleBioquimico.glucosa} + ' mg/dL'">—</td></tr>
+        <tr><th>Colesterol</th><td th:text="${evaluacion.detalleBioquimico.colesterol} + ' mg/dL'">—</td></tr>
+        <tr><th>Triglicéridos</th><td th:text="${evaluacion.detalleBioquimico.trigliceridos} + ' mg/dL'">—</td></tr>
+        <tr>
+            <th>Presión arterial</th>
+            <td th:text="${evaluacion.detalleBioquimico.presionSistolica} + '/' + ${evaluacion.detalleBioquimico.presionDiastolica} + ' mmHg'">—</td>
+        </tr>
+        <tr><th>Diagnóstico global</th><td th:text="${evaluacion.detalleBioquimico.dxBioquimico}">—</td></tr>
+    </table>
+</div>
+
+<div class="firma">
+    <div class="firma-linea">Nutricionista responsable</div>
+</div>
+
+<div class="pie">
+    Documento generado por SaludableMente — módulo Evaluación Nutricional.
+</div>
+
+</body>
+</html>

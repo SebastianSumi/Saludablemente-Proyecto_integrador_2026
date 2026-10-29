@@ -1,0 +1,17 @@
+{
+  "estado": "Contrato de plantillas IN_APP; provisión y prueba real pendientes de F14",
+  "reglas": [
+    "No ejecutar como seeder automáticamente.",
+    "No sobrescribir plantillas existentes editadas por usuarios.",
+    "idEvento es una cadena UUID; los demás identificadores son números.",
+    "No incluir contenido HTML enviado por el usuario en las variables.",
+    "Las pantallas se resolverán desde IDs; no se presupone una ruta Angular."
+  ],
+  "plantillas": [
+    { "codigoEvento": "SOCIAL_COMENTARIO_POST", "canal": "IN_APP", "asunto": "Nuevo comentario", "cuerpoHtml": "<p>Tu publicación {{idPost}} recibió un comentario.</p>", "variables": ["idEvento", "idPost", "idComentario"] },
+    { "codigoEvento": "SOCIAL_RESPUESTA_COMENTARIO", "canal": "IN_APP", "asunto": "Nueva respuesta", "cuerpoHtml": "<p>Tu comentario recibió una respuesta en la publicación {{idPost}}.</p>", "variables": ["idEvento", "idPost", "idComentario"] },
+    { "codigoEvento": "SOCIAL_MENCION", "canal": "IN_APP", "asunto": "Te mencionaron", "cuerpoHtml": "<p>Te mencionaron en la publicación {{idPost}}.</p>", "variables": ["idEvento", "idPost"] },
+    { "codigoEvento": "SOCIAL_REACCION_POST", "canal": "IN_APP", "asunto": "Nueva reacción", "cuerpoHtml": "<p>Tu publicación {{idPost}} recibió una reacción.</p>", "variables": ["idEvento", "idPost"] },
+    { "codigoEvento": "SOCIAL_NUEVO_POST_EQUIPO", "canal": "IN_APP", "asunto": "Nueva publicación de tu equipo", "cuerpoHtml": "<p>El equipo {{idEquipo}} publicó contenido nuevo: {{idPost}}.</p>", "variables": ["idEvento", "idPost", "idEquipo"] }
+  ]
+}

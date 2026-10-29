@@ -1,0 +1,84 @@
+﻿[INFO] Scanning for projects...
+[WARNING] 
+[WARNING] Some problems were encountered while building the effective model for upeu.edu.pe:SaludabementeERP:jar:0.0.1-SNAPSHOT
+[WARNING] 'dependencies.dependency.(groupId:artifactId:type:classifier)' must be unique: com.google.zxing:core:jar -> duplicate declaration of version 3.5.3 @ line 131, column 21
+[WARNING] 'dependencies.dependency.(groupId:artifactId:type:classifier)' must be unique: com.google.zxing:javase:jar -> duplicate declaration of version 3.5.3 @ line 136, column 21
+[WARNING] 
+[WARNING] It is highly recommended to fix these problems because they threaten the stability of your build.
+[WARNING] 
+[WARNING] For this reason, future Maven versions might no longer support building such malformed projects.
+[WARNING] 
+[INFO] 
+[INFO] --------------------< upeu.edu.pe:SaludabementeERP >--------------------
+[INFO] Building  0.0.1-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ SaludabementeERP ---
+[INFO] Copying 2 resources from src\main\resources to target\classes
+[INFO] Copying 1 resource from src\main\resources to target\classes
+[INFO] 
+[INFO] --- compiler:3.15.0:compile (default-compile) @ SaludabementeERP ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ SaludabementeERP ---
+[INFO] skip non existing resourceDirectory D:\ING SISTEMAS\LP2\PROYECTO 2.0\CODIGO\LOCAL\SaludabementeERP\src\test\resources
+[INFO] 
+[INFO] --- compiler:3.15.0:testCompile (default-testCompile) @ SaludabementeERP ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- surefire:3.5.6:test (default-test) @ SaludabementeERP ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running upeu.edu.pe.Saludabemente.personal.persona.controller.PersonaControllerTest
+20:36:34.305 [main] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [upeu.edu.pe.Saludabemente.personal.persona.controller.PersonaControllerTest]: PersonaControllerTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+20:36:34.486 [main] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration upeu.edu.pe.Saludabemente.SaludabementeErpApplication for test class upeu.edu.pe.Saludabemente.personal.persona.controller.PersonaControllerTest
+20:36:34.487 [main] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [upeu.edu.pe.Saludabemente.personal.persona.controller.PersonaControllerTest]: PersonaControllerTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+20:36:34.496 [main] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration upeu.edu.pe.Saludabemente.SaludabementeErpApplication for test class upeu.edu.pe.Saludabemente.personal.persona.controller.PersonaControllerTest
+20:36:34.564 [main] INFO org.springframework.boot.devtools.restart.RestartApplicationListener -- Restart disabled due to context in which it is running
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.1.1)
+
+2026-09-21 20:36:35.196 [] INFO  u.e.p.S.p.p.c.PersonaControllerTest - Starting PersonaControllerTest using Java 21.0.12 with PID 12892 (started by Ultra in D:\ING SISTEMAS\LP2\PROYECTO 2.0\CODIGO\LOCAL\SaludabementeERP)
+2026-09-21 20:36:35.197 [] DEBUG u.e.p.S.p.p.c.PersonaControllerTest - Running with Spring Boot v4.1.1, Spring v7.0.9
+2026-09-21 20:36:35.198 [] INFO  u.e.p.S.p.p.c.PersonaControllerTest - The following 1 profile is active: "dev"
+./mvnw : Mockito is currently self-attaching to enable the inline-mock-maker. This will no longer work in future releases of the JDK. Please add Mockito as an 
+agent to your build as described in Mockito's documentation: https://javadoc.io/doc/org.mockito/mockito-core/latest/org.mockito/org/mockito/Mockito.html#0.3
+En línea: 1 Carácter: 1
++ ./mvnw test -Dtest=PersonaControllerTest 2>&1 | Out-File -Encoding ut ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Mockito is curr...ockito.html#0.3:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+WARNING: A Java agent has been loaded dynamically (C:\Users\Ultra\.m2\repository\net\bytebuddy\byte-buddy-agent\1.18.11\byte-buddy-agent-1.18.11.jar)
+WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
+WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
+WARNING: Dynamic loading of agents will be disallowed by default in a future release
+2026-09-21 20:36:38.167 [] DEBUG u.e.p.S.filter.CorrelationIdFilter - Filter 'correlationIdFilter' configured for use
+2026-09-21 20:36:38.180 [] INFO  o.s.b.t.m.w.SpringBootMockServletContext - Initializing Spring TestDispatcherServlet ''
+2026-09-21 20:36:38.181 [] INFO  o.s.t.w.s.TestDispatcherServlet - Initializing Servlet ''
+2026-09-21 20:36:38.190 [] INFO  o.s.t.w.s.TestDispatcherServlet - Completed initialization in 5 ms
+2026-09-21 20:36:38.243 [] INFO  u.e.p.S.p.p.c.PersonaControllerTest - Started PersonaControllerTest in 3.676 seconds (process running for 4.882)
+[INFO] Tests run: 21, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 4.999 s -- in upeu.edu.pe.Saludabemente.personal.persona.controller.PersonaControllerTest
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 21, Failures: 0, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  7.565 s
+[INFO] Finished at: 2026-09-21T20:36:39-05:00
+[INFO] ------------------------------------------------------------------------

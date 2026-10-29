@@ -1,0 +1,38 @@
+package upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.aptitud_fisica.dto;
+
+import jakarta.validation.constraints.*;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.enums.DireccionRiesgo;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.enums.SexoBiologico;
+import upeu.edu.pe.Saludabemente.alertaclinica.shared.reglas.enums.clasificaciones.ClasificacionPruebaFisica;
+
+public record ReglaPlanchasRequestDto(
+
+        @NotNull(message = "El sexo es obligatorio")
+        SexoBiologico sexo,
+
+        @NotNull(message = "La edad minima es obligatoria")
+        @Min(value = 0, message = "La edad minima no puede ser negativa")
+        Integer edadMin,
+
+        @NotNull(message = "La edad maxima es obligatoria")
+        @Max(value = 120, message = "La edad maxima no es realista")
+        Integer edadMax,
+
+        @NotNull(message = "Las repeticiones minimas son obligatorias")
+        @Min(value = 0, message = "Las repeticiones minimas no pueden ser negativas")
+        Integer repeticionesMin,
+
+        @NotNull(message = "Las repeticiones maximas son obligatorias")
+        @Max(value = 300, message = "Las repeticiones maximas son irreales")
+        Integer repeticionesMax,
+
+        @NotNull(message = "La direccion del riesgo es obligatoria")
+        DireccionRiesgo direccionRiesgo,
+
+        @NotNull(message = "Los puntos de riesgo son obligatorios")
+        @Min(value = 0, message = "Los puntos no pueden ser negativos")
+        Integer puntosRiesgo,
+
+        @NotNull(message = "La clasificacion es obligatoria")
+        ClasificacionPruebaFisica clasificacion
+) {}
