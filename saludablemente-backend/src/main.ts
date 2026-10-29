@@ -1,5 +1,60 @@
 import { NestFactory } from '@nestjs/core';
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
+import { ValidationPipe, Logger } from '@nestjs/common';
+import { AppModule } from './app.module';
+import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
+
+/**
+ * Bootstrap the NestJS application using Fastify.
+ * This version is optimized for a standard Node environment (no Cloudflare Workers).
+ */
+async function bootstrap() {
+  const logger = new Logger('Bootstrap');
+
+  // Create Fastify adapter with optional logger based on NODE_ENV
+  const app = await NestFactory.create<NestFastifyApplication>(
+    AppModule,
+    new FastifyAdapter({ logger: process.env.NODE_ENV !== 'production' }),
+  );
+
+  // Global API prefix (must match Angular frontend expectations)
+  app.setGlobalPrefix('api/v1');
+
+  // CORS configuration – allow local dev and production domains
+  app.enableCors({
+    origin: [
+      'http://localhost:4200',
+      /^https:\/\/.*\.trycloudflare\.com$/,
+    ],
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['*'],
+    exposedHeaders: ['X-Trace-ID'],
+    credentials: true,
+  });
+
+  // Global validation pipe (class‑validator) – mirrors Spring's @Valid behaviour
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+    }),
+  );
+
+  // Global exception handling – same JSON structure as Spring's GlobalExceptionHandler
+  app.useGlobalFilters(new GlobalExceptionFilter());
+
+  // Enable graceful shutdown hooks (e.g., DB pool close)
+  app.enableShutdownHooks();
+
+  const port = Number(process.env.PORT) || 8080;
+  await app.listen(port, '0.0.0.0');
+  logger.log(`Saludablemente Backend (NestJS + Fastify) listening on http://localhost:${port}/api/v1`);
+}
+
+bootstrap();
+
+import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
 import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
 import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
@@ -37,6 +92,61 @@ async function bootstrap() {
   );
 
   import { NestFactory } from '@nestjs/core';
+import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
+import { ValidationPipe, Logger } from '@nestjs/common';
+import { AppModule } from './app.module';
+import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
+
+/**
+ * Bootstrap the NestJS application using Fastify.
+ * This version is optimized for a standard Node environment (no Cloudflare Workers).
+ */
+async function bootstrap() {
+  const logger = new Logger('Bootstrap');
+
+  // Create Fastify adapter with optional logger based on NODE_ENV
+  const app = await NestFactory.create<NestFastifyApplication>(
+    AppModule,
+    new FastifyAdapter({ logger: process.env.NODE_ENV !== 'production' }),
+  );
+
+  // Global API prefix (must match Angular frontend expectations)
+  app.setGlobalPrefix('api/v1');
+
+  // CORS configuration – allow local dev and production domains
+  app.enableCors({
+    origin: [
+      'http://localhost:4200',
+      /^https:\/\/.*\.trycloudflare\.com$/,
+    ],
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['*'],
+    exposedHeaders: ['X-Trace-ID'],
+    credentials: true,
+  });
+
+  // Global validation pipe (class‑validator) – mirrors Spring's @Valid behaviour
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+    }),
+  );
+
+  // Global exception handling – same JSON structure as Spring's GlobalExceptionHandler
+  app.useGlobalFilters(new GlobalExceptionFilter());
+
+  // Enable graceful shutdown hooks (e.g., DB pool close)
+  app.enableShutdownHooks();
+
+  const port = Number(process.env.PORT) || 8080;
+  await app.listen(port, '0.0.0.0');
+  logger.log(`Saludablemente Backend (NestJS + Fastify) listening on http://localhost:${port}/api/v1`);
+}
+
+bootstrap();
+
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
 import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
