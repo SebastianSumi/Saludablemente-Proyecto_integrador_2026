@@ -173,10 +173,7 @@ public class PersonaServiceImpl implements PersonaService {
         if (avatarUrl == null || avatarUrl.isBlank()) {
             return;
         }
-        String objeto = avatarUrl.substring(avatarUrl.lastIndexOf('/') + 1);
-        int idx = avatarUrl.lastIndexOf('/', avatarUrl.lastIndexOf('/') - 1);
-        String conPrefijo = idx >= 0 ? avatarUrl.substring(idx + 1) : objeto;
-        almacenamientoImagenService.eliminar(conPrefijo);
+        almacenamientoImagenService.eliminar(avatarUrl);
     }
 
     @Override

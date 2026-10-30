@@ -8,18 +8,17 @@ spring:
       max-file-size: 15MB
       max-request-size: 20MB
   datasource:
-    url: jdbc:oracle:thin:@localhost:1521/FREEPDB1
-    username: SALUDABLEMENTE_APP
-    password: 123456
-    driver-class-name: oracle.jdbc.OracleDriver
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/saludablemente}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:123456}
+    driver-class-name: org.postgresql.Driver
   jpa:
     open-in-view: false
     hibernate:
-      ddl-auto: create
+      ddl-auto: validate
     properties:
       hibernate:
         format_sql: true
-        default_schema: SLB_PERSONAL
     show-sql: true
   devtools:
     restart:
@@ -60,7 +59,7 @@ management:
 
 saludablemente:
   cors:
-    allowed-origins: http://localhost:4200
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:4200,https://*.trycloudflare.com}
   security:
     qr-salt: ${QR_SALT:dev-salt-cambiar-en-produccion}
     jwt:

@@ -136,16 +136,11 @@ public class NoticiaServiceImpl implements NoticiaService {
         socialSync.sincronizar(id);
     }
 
-    /**
-     * Extrae el nombre del objeto (último segmento) antes de pedir su
-     * eliminación: en BD puede haber URL pública completa o nombre suelto.
-     */
     private void eliminarObjetoAnterior(String imagenUrl) {
         if (imagenUrl == null || imagenUrl.isBlank()) {
             return;
         }
-        String objeto = imagenUrl.substring(imagenUrl.lastIndexOf('/') + 1);
-        almacenamientoImagenService.eliminar(objeto);
+        almacenamientoImagenService.eliminar(imagenUrl);
     }
 
     @Override

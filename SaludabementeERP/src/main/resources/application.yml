@@ -1,3 +1,101 @@
 spring:
+  application:
+    name: saludablemente
+
   profiles:
-    active: dev
+    default: ${SPRING_PROFILES_DEFAULT:dev}
+
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 15MB
+      max-request-size: 20MB
+
+  jpa:
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: never
+
+saludablemente:
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:4200}
+  security:
+    qr-salt: ${QR_SALT:dev-salt-cambiar-en-produccion}
+    jwt:
+      secret: ${JWT_SECRET:dev-only-jwt-secret-change-me-0123456789abcdef0123456789abcdef}
+      ttl-minutos: ${JWT_TTL_MINUTOS:60}
+
+  asistencia:
+    qr-actividad:
+      rotacion-segundos: 180
+      tolerancia-reloj-segundos: 90
+      ventana-anticipacion-min: 15
+      ventana-cierre-min: 15
+      longitud-hash: 32
+
+  alertas:
+    severidad:
+      leve-max: 3
+      moderada-max: 7
+
+  notificaciones:
+    reintentos:
+      max-intentos: 5
+      intervalo-minutos: 10
+      backoff-multiplicador: 2
+
+  recomendaciones:
+    ia:
+      provider: gemini
+      temperature: 0.3
+      num-predict: 8192
+      num-ctx: 8192
+      gemini:
+        model: gemini-2.5-flash
+        read-timeout: 120s
+        api-key: ${GEMINI_API_KEY:}
+    outbox:
+      scheduler-interval-ms: 5000
+      max-intentos: 3
+      backoff-inicial-ms: 300000
+      backoff-multiplicador: 3
+
+  storage:
+    r2:
+      enabled: ${R2_ENABLED:false}
+      account-id: ${R2_ACCOUNT_ID:}
+      endpoint: ${R2_ENDPOINT:}
+      access-key-id: ${R2_ACCESS_KEY_ID:}
+      secret-access-key: ${R2_SECRET_ACCESS_KEY:}
+      bucket: ${R2_BUCKET:${R2_BUCKET_NAME:saludablemente-assets}}
+      public-base-url: ${R2_PUBLIC_BASE_URL:${R2_PUBLIC_URL:}}
+      region: ${R2_REGION:auto}
