@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
  * alfabético que use el módulo Personal al listar.</p>
  */
 @Component
-@Profile("dev")
+@Profile("prod")
 @Order(5)
 @RequiredArgsConstructor
 @Slf4j
