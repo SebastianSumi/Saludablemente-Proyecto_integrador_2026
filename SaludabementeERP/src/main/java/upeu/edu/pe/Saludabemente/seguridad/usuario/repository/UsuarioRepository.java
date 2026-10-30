@@ -48,19 +48,24 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
      */
     @Query("""
         SELECT u FROM Usuario u
-        WHERE (:email IS NULL OR LOWER(u.email) LIKE LOWER(CONCAT('%', :email, '%')))
-          AND (:activo IS NULL OR u.activo = :activo)
-          AND (:excluirRoot = false OR NOT EXISTS (
+        WHERE (
+            COALESCE(:email, '') = ''
+            OR LOWER(u.email) LIKE CONCAT('%', LOWER(CAST(:email AS string)), '%')
+        )
+        AND (:activo IS NULL OR u.activo = :activo)
+        AND (
+            :excluirRoot = false
+            OR NOT EXISTS (
                 SELECT 1 FROM u.roles r WHERE r.nombre = 'ROOT'
-          ))
-    """)
+            )
+        )
+        """)
     Page<Usuario> buscarDinamico(
             @Param("email") String email,
             @Param("activo") Boolean activo,
             @Param("excluirRoot") boolean excluirRoot,
             Pageable pageable
     );
-
     /**
      * ¿El usuario indicado tiene el rol ROOT?
      * Usado por el filtro fantasma y por las guard clauses de Sub-fase 2.
@@ -127,19 +132,23 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
      * el resultado a 20 vía {@link Pageable}.</p>
      */
     @Query("""
-    SELECT DISTINCT u FROM Usuario u
-    WHERE u.activo = true
-      AND (
-        LOWER(u.username) LIKE LOWER(CONCAT('%', :q, '%'))
-        OR LOWER(u.email) LIKE LOWER(CONCAT('%', :q, '%'))
-        OR LOWER(CONCAT(u.nombresSnapshot, ' ', u.apellidoPaternoSnapshot,
-                  ' ', COALESCE(u.apellidoMaternoSnapshot, '')))
-             LIKE LOWER(CONCAT('%', :q, '%'))
-      )
-    ORDER BY u.apellidoPaternoSnapshot, u.nombresSnapshot
-""")
-    List<Usuario> buscarParaMenciones(@Param("q") String query, Pageable pageable);
-
+        SELECT DISTINCT u FROM Usuario u
+        WHERE u.activo = true
+          AND (
+            LOWER(u.username) LIKE CONCAT('%', LOWER(CAST(:q AS string)), '%')
+            OR LOWER(u.email) LIKE CONCAT('%', LOWER(CAST(:q AS string)), '%')
+            OR LOWER(CONCAT(
+                u.nombresSnapshot, ' ',
+                u.apellidoPaternoSnapshot, ' ',
+                COALESCE(u.apellidoMaternoSnapshot, '')
+            )) LIKE CONCAT('%', LOWER(CAST(:q AS string)), '%')
+          )
+        ORDER BY u.apellidoPaternoSnapshot, u.nombresSnapshot
+        """)
+    List<Usuario> buscarParaMenciones(
+            @Param("q") String query,
+            Pageable pageable
+    );
     /**
      * Batch lookup de usuarios activos por IDs.
      * Usado por el contrato hacia Social (obtenerPorIds) para resolver
