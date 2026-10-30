@@ -24,23 +24,19 @@ spring:
   jpa:
     open-in-view: false
     hibernate:
-      ddl-auto: ${JPA_DDL_AUTO:update}
+      ddl-auto: ${JPA_DDL_AUTO:validate}
     properties:
       hibernate:
         format_sql: false
         jdbc:
           time_zone: UTC
-  sql:
-    init:
-      mode: always
-      schema-locations: classpath:db/schema-prod.sql
-      continue-on-error: false
 
 logging:
   level:
     root: INFO
     upeu.edu.pe.Saludabemente: INFO
     org.hibernate.SQL: WARN
+    org.hibernate.orm.jdbc.bind: WARN
 
 management:
   endpoints:
@@ -50,6 +46,9 @@ management:
   endpoint:
     health:
       show-details: never
+  health:
+    mail:
+      enabled: false
 
 saludablemente:
   cors:
