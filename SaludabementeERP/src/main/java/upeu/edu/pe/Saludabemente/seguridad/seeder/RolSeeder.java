@@ -36,7 +36,7 @@ import java.util.List;
  * junto con el bootstrap del primer usuario raíz.</p>
  */
 @Component
-@Profile("dev")
+@Profile("prod")
 @Order(3)
 @RequiredArgsConstructor
 @Slf4j
