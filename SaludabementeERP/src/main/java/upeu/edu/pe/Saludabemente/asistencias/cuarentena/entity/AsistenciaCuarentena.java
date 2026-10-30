@@ -56,8 +56,7 @@ public class AsistenciaCuarentena {
     @Column(name = "motivo", nullable = false, length = 40)
     private MotivoCuarentena motivo;
 
-    @Lob
-    @Column(name = "payload_json")
+    @Column(name = "payload_json", columnDefinition = "text")
     private String payloadJson;
 
     @Enumerated(EnumType.STRING)

@@ -30,12 +30,10 @@ public class DetalleFuerzaResistencia extends AuditableEntity {
     private EvaluacionAptitud evaluacion;
 
     // ---- Métricas crudas (Excel) ----
-    @Column(name = "repeticiones_abdominales", nullable = false,
-            columnDefinition = "NUMBER(3)")
+    @Column(name = "repeticiones_abdominales", nullable = false)
     private Integer repeticionesAbdominales;
 
-    @Column(name = "repeticiones_flexion_brazo", nullable = false,
-            columnDefinition = "NUMBER(3)")
+    @Column(name = "repeticiones_flexion_brazo", nullable = false)
     private Integer repeticionesFlexionBrazo;
 
     @Column(name = "salto_longitud_cm", nullable = false,

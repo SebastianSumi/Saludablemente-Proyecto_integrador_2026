@@ -7,7 +7,6 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -36,8 +35,7 @@ public class PlantillaMensaje {
     @Column(name = "ASUNTO", length = 200)
     private String asunto;
 
-    @Lob
-    @Column(name = "CUERPO_HTML", nullable = false)
+    @Column(name = "CUERPO_HTML", nullable = false, columnDefinition = "text")
     private String cuerpoHtml;
 
     @Column(name = "ACTIVO", nullable = false)

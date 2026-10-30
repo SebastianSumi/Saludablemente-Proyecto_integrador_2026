@@ -5,7 +5,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -34,8 +33,7 @@ public class NotificacionDlq {
     @Column(name = "CODIGO_EVENTO", length = 60)
     private String codigoEvento;
 
-    @Lob
-    @Column(name = "PAYLOAD")
+    @Column(name = "PAYLOAD", columnDefinition = "text")
     private String payload;
 
     @Column(name = "ERROR", length = 500)

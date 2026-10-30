@@ -40,8 +40,7 @@ public class NoticiaEntity extends AuditableEntity {
     @Column(name = "URL_COMPLETA", length = 500)
     private String urlCompleta;
 
-    @Lob
-    @Column(name = "CONTENIDO", nullable = false)
+    @Column(name = "CONTENIDO", nullable = false, columnDefinition = "text")
     private String contenido;
 
     @Column(name = "IMAGEN_URL", length = 250)

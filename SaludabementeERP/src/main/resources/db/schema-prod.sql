@@ -1,3 +1,5 @@
+-- Este archivo solo crea los esquemas.
+-- Para crear todas las tablas manualmente en Neon usa db/neon-schema-manual.sql.
 CREATE SCHEMA IF NOT EXISTS SLB_ACTIVIDADES;
 CREATE SCHEMA IF NOT EXISTS SLB_ALERTAS;
 CREATE SCHEMA IF NOT EXISTS SLB_APTITUD_FISICA;

@@ -28,12 +28,10 @@ public class RecomendacionIa {
     @Column(name = "TIPO", nullable = false, length = 20)
     private String tipo;
 
-    @Lob
-    @Column(name = "CONTENIDO_GENERADO")
+    @Column(name = "CONTENIDO_GENERADO", columnDefinition = "text")
     private String contenidoGenerado;
 
-    @Lob
-    @Column(name = "PROMPT_CONTEXTO")
+    @Column(name = "PROMPT_CONTEXTO", columnDefinition = "text")
     private String promptContexto;
 
     @Column(name = "MODELO_IA_USADO", length = 60)

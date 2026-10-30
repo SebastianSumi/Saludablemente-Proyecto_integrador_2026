@@ -44,7 +44,7 @@ public class EvaluacionAptitud extends AuditableEntity {
     @Column(name = "nombres_completos_al_momento", length = 150, nullable = false)
     private String nombresCompletosAlMomento;
 
-    @Column(name = "edad_al_momento", nullable = false, columnDefinition = "NUMBER(3)")
+    @Column(name = "edad_al_momento", nullable = false)
     private Integer edadAlMomento;
 
     @Column(name = "sexo_al_momento", length = 1, nullable = false)

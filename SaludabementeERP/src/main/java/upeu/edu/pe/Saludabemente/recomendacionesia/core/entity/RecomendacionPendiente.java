@@ -32,16 +32,13 @@ public class RecomendacionPendiente {
     @Column(name = "ESTADO", nullable = false, length = 20)
     private EstadoPendiente estado;
 
-    @Lob
-    @Column(name = "SNAPSHOT_CONTEXTO")
+    @Column(name = "SNAPSHOT_CONTEXTO", columnDefinition = "text")
     private String snapshotContexto;
 
-    @Lob
-    @Column(name = "JSON_RESULTADO")
+    @Column(name = "JSON_RESULTADO", columnDefinition = "text")
     private String jsonResultado;
 
-    @Lob
-    @Column(name = "PROMPT_ENVIADO")
+    @Column(name = "PROMPT_ENVIADO", columnDefinition = "text")
     private String promptEnviado;
 
     @Column(name = "MODELO_IA_USADO", length = 60)
@@ -62,7 +59,6 @@ public class RecomendacionPendiente {
     @Column(name = "FECHA_COMPLETADO")
     private LocalDateTime fechaCompletado;
 
-    @Lob
-    @Column(name = "ULTIMO_ERROR")
+    @Column(name = "ULTIMO_ERROR", columnDefinition = "text")
     private String ultimoError;
 }

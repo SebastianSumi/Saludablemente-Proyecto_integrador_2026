@@ -28,12 +28,10 @@ public class DetalleCardiovascular extends AuditableEntity {
     private EvaluacionAptitud evaluacion;
 
     // ---- Métricas crudas (Excel) ----
-    @Column(name = "repeticiones_soga_30s", nullable = false,
-            columnDefinition = "NUMBER(3)")
+    @Column(name = "repeticiones_soga_30s", nullable = false)
     private Integer repeticionesSoga30s;
 
-    @Column(name = "tiempo_carrera_400m_seg", nullable = false,
-            columnDefinition = "NUMBER(4)")
+    @Column(name = "tiempo_carrera_400m_seg", nullable = false)
     private Integer tiempoCarrera400mSeg;
 
     // ---- Diagnóstico calculado por MetricasAptitud ----
