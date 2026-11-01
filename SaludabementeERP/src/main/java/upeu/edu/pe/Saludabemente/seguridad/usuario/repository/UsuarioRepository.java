@@ -138,21 +138,6 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
      * el resultado a 20 vía {@link Pageable}.</p>
      */
     @Query("""
-<<<<<<< HEAD
-    SELECT DISTINCT u FROM Usuario u
-    WHERE u.activo = true
-      AND (
-        LOWER(u.username) LIKE LOWER(CONCAT('%', CAST(:q AS string), '%'))
-        OR LOWER(u.email) LIKE LOWER(CONCAT('%', CAST(:q AS string), '%'))
-        OR LOWER(CONCAT(u.nombresSnapshot, ' ', u.apellidoPaternoSnapshot,
-                  ' ', COALESCE(u.apellidoMaternoSnapshot, '')))
-             LIKE LOWER(CONCAT('%', CAST(:q AS string), '%'))
-      )
-    ORDER BY u.apellidoPaternoSnapshot, u.nombresSnapshot
-""")
-    List<Usuario> buscarParaMenciones(@Param("q") String query, Pageable pageable);
-
-=======
         SELECT DISTINCT u FROM Usuario u
         WHERE u.activo = true
           AND (
@@ -170,7 +155,6 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
             @Param("q") String query,
             Pageable pageable
     );
->>>>>>> 75a07c82be6a122f8c84b1de8df4185dadd4faef
     /**
      * Batch lookup de usuarios activos por IDs.
      * Usado por el contrato hacia Social (obtenerPorIds) para resolver
