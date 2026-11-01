@@ -2,7 +2,7 @@
 
 La cabecera es una agrupación JSON por actividad. No se agrega tabla ni ID de
 cabecera: cada persona conserva su `idAsistencia` y la unicidad existente por
-actividad, persona y tipo de asistencia.a
+actividad, persona y tipo de asistencia.
 
 ## Registrar y editar
 
