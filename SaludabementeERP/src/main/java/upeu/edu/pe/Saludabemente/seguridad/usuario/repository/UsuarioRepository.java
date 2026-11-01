@@ -48,11 +48,6 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
      */
     @Query("""
         SELECT u FROM Usuario u
-<<<<<<< HEAD
-        WHERE (CAST(:email AS string) IS NULL OR LOWER(u.email) LIKE LOWER(CONCAT('%', CAST(:email AS string), '%')))
-          AND (:activo IS NULL OR u.activo = :activo)
-          AND (:excluirRoot = false OR NOT EXISTS (
-=======
         WHERE (
             COALESCE(:email, '') = ''
             OR LOWER(u.email) LIKE CONCAT('%', LOWER(CAST(:email AS string)), '%')
@@ -61,7 +56,6 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
         AND (
             :excluirRoot = false
             OR NOT EXISTS (
->>>>>>> 75a07c82be6a122f8c84b1de8df4185dadd4faef
                 SELECT 1 FROM u.roles r WHERE r.nombre = 'ROOT'
             )
         )
