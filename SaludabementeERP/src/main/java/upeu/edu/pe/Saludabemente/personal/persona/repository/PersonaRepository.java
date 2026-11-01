@@ -26,11 +26,21 @@ public interface PersonaRepository extends JpaRepository<Persona, Long> {
           AND (:sexo IS NULL OR p.sexo = :sexo)
           AND (:areaTrabajoId IS NULL OR p.areaTrabajo.id = :areaTrabajoId)
           AND (:equipoId IS NULL OR p.equipo.id = :equipoId)
+<<<<<<< HEAD
           AND (CAST(:texto AS string) IS NULL
                OR LOWER(p.nombres) LIKE LOWER(CONCAT('%', CAST(:texto AS string), '%'))
                OR LOWER(p.apellidoPaterno) LIKE LOWER(CONCAT('%', CAST(:texto AS string), '%'))
                OR LOWER(COALESCE(p.apellidoMaterno, '')) LIKE LOWER(CONCAT('%', CAST(:texto AS string), '%'))
                OR LOWER(p.documentoIdentidad) LIKE LOWER(CONCAT('%', CAST(:texto AS string), '%')))
+=======
+          AND (
+              COALESCE(:texto, '') = ''
+              OR LOWER(p.nombres) LIKE CONCAT('%', LOWER(CAST(:texto AS string)), '%')
+              OR LOWER(p.apellidoPaterno) LIKE CONCAT('%', LOWER(CAST(:texto AS string)), '%')
+              OR LOWER(COALESCE(p.apellidoMaterno, '')) LIKE CONCAT('%', LOWER(CAST(:texto AS string)), '%')
+              OR LOWER(p.documentoIdentidad) LIKE CONCAT('%', LOWER(CAST(:texto AS string)), '%')
+          )
+>>>>>>> 75a07c82be6a122f8c84b1de8df4185dadd4faef
         """)
     List<Persona> buscar(
             @Param("estado") Boolean estado,

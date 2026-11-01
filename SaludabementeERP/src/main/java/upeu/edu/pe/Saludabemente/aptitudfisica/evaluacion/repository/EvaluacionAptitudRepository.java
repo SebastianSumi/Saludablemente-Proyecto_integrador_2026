@@ -28,6 +28,7 @@ public interface EvaluacionAptitudRepository extends JpaRepository<EvaluacionApt
 
     /** Búsqueda dinámica: todos los filtros son opcionales. */
     @Query("""
+<<<<<<< HEAD
             SELECT e FROM EvaluacionAptitud e
             WHERE (:idPeriodo IS NULL OR e.idPeriodo = :idPeriodo)
               AND (:estado    IS NULL OR e.estadoEvaluacion = :estado)
@@ -35,12 +36,31 @@ public interface EvaluacionAptitudRepository extends JpaRepository<EvaluacionApt
               AND (CAST(:texto AS string) IS NULL OR LOWER(e.nombresCompletosAlMomento) LIKE LOWER(CONCAT('%', CAST(:texto AS string), '%'))
                                       OR LOWER(e.documentoIdentidadAlMomento) LIKE LOWER(CONCAT('%', CAST(:texto AS string), '%')))
             """)
+=======
+        SELECT e FROM EvaluacionAptitud e
+        WHERE (:idPeriodo IS NULL OR e.idPeriodo = :idPeriodo)
+          AND (:estado IS NULL OR e.estadoEvaluacion = :estado)
+          AND (
+              COALESCE(:area, '') = ''
+              OR LOWER(e.areaTrabajoAlMomento)
+                 LIKE CONCAT('%', LOWER(CAST(:area AS string)), '%')
+          )
+          AND (
+              COALESCE(:texto, '') = ''
+              OR LOWER(e.nombresCompletosAlMomento)
+                 LIKE CONCAT('%', LOWER(CAST(:texto AS string)), '%')
+              OR LOWER(e.documentoIdentidadAlMomento)
+                 LIKE CONCAT('%', LOWER(CAST(:texto AS string)), '%')
+          )
+        """)
+>>>>>>> 75a07c82be6a122f8c84b1de8df4185dadd4faef
     Page<EvaluacionAptitud> buscar(
             @Param("idPeriodo") Long idPeriodo,
             @Param("estado") EstadoEvaluacion estado,
             @Param("area") String area,
             @Param("texto") String texto,
-            Pageable pageable);
+            Pageable pageable
+    );
 
     /**
      * Métricas agregadas por período para el dashboard.
