@@ -1,0 +1,92 @@
+.social-wrap {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 1012px;
+  padding: 20px 24px;
+}
+.social-hero {
+  padding: 0;
+  margin-bottom: 12px;
+  gap: 12px;
+  border: 0;
+  background: transparent;
+}
+.social-hero > div {
+  flex: 1;
+}
+.social-hero p {
+  margin: 4px 0 0;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.social-hero h1 { margin: 0; font-size: 22px; line-height: 1.2; }
+.eyebrow { display: none; }
+.hero-mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--sal-primary) 12%, var(--sal-card));
+  color: var(--sal-action);
+  flex-shrink: 0;
+}
+.hero-mark social-icon {
+  width: 20px;
+  height: 20px;
+}
+.social-nav {
+  background: var(--sal-card);
+  padding: 4px;
+  gap: 4px;
+  margin-bottom: 18px;
+  border: 1px solid var(--sal-line);
+  border-radius: 10px;
+}
+.social-nav a {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  box-sizing: border-box;
+  min-height: 40px;
+  padding: 6px 12px;
+  font-size: 13px;
+  line-height: 20px;
+  flex: none;
+}
+.social-nav social-icon { width: 17px; height: 17px; }
+.social-nav a.active {
+  background: color-mix(in srgb, var(--sal-primary) 10%, var(--sal-card));
+  box-shadow: none;
+  font-weight: 600;
+}
+@media (max-width: 600px) {
+  .social-wrap { padding: 12px; }
+  .social-hero {
+    padding: 0;
+    gap: 12px;
+    border-radius: 18px;
+  }
+  .hero-mark {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+  }
+  .hero-mark social-icon {
+    width: 20px;
+    height: 20px;
+  }
+  .social-hero h1 {
+    font-size: 22px;
+  }
+  .eyebrow {
+    font-size: 10px;
+    letter-spacing: 0.06em;
+  }
+  .social-nav a {
+    font-size: 13px;
+    min-height: 44px;
+  }
+  .social-nav { flex-wrap: nowrap; overflow-x: auto; margin-bottom: 16px; }
+}

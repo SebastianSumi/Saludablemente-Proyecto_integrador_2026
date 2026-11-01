@@ -115,46 +115,68 @@ export class SocialService {
   sugerir(tipo: S.TipoMencion, q: string): Observable<S.Sugerencia[]> {
     const params = this.params({ tipo, q, limite: 10 });
     if (tipo === 'USUARIO')
-      return this.http
-        .get<S.UsuarioSugerido[]>(this.url('/menciones/buscar'), { params })
-        .pipe(
-          map((items) =>
-            items.map((x) => ({
-              id: x.idUsuario,
-              nombre: x.nombreCompleto,
-              token: `@${x.username}`,
-              tipo,
-            })),
-          ),
-        );
-    if (tipo === 'EQUIPO')
-      return this.http
-        .get<S.EquipoSugerido[]>(this.url('/menciones/buscar'), { params })
-        .pipe(
-          map((items) =>
-            items.map((x) => ({
-              id: x.idEquipo,
-              nombre: x.nombre,
-              token: `@equipo{${x.idEquipo}}`,
-              tipo,
-            })),
-          ),
-        );
-    return this.http
-      .get<S.ActividadSugerida[]>(this.url('/menciones/buscar'), { params })
-      .pipe(
+      return this.http.get<S.UsuarioSugerido[]>(this.url('/menciones/buscar'), { params }).pipe(
         map((items) =>
           items.map((x) => ({
-            id: x.idActividad,
-            nombre: x.nombre,
-            token: `@actividad{${x.idActividad}}`,
+            id: x.idUsuario,
+            nombre: x.nombreCompleto,
+            imagenUrl: x.fotoUrl,
+            detalle: 'Persona de la comunidad',
+            token: `@${x.username}`,
             tipo,
           })),
         ),
       );
+    if (tipo === 'EQUIPO')
+      return this.http.get<S.EquipoSugerido[]>(this.url('/menciones/buscar'), { params }).pipe(
+        map((items) =>
+          items.map((x) => ({
+            id: x.idEquipo,
+            nombre: x.nombre,
+            imagenUrl: x.logoUrl,
+            detalle: 'Equipo',
+            token: `@equipo{${x.idEquipo}}`,
+            tipo,
+          })),
+        ),
+      );
+    return this.http.get<S.ActividadSugerida[]>(this.url('/menciones/buscar'), { params }).pipe(
+      map((items) =>
+        items.map((x) => ({
+          id: x.idActividad,
+          nombre: x.nombre,
+          imagenUrl: x.logoUrl,
+          detalle: [x.estado, x.fechaActividad].filter(Boolean).join(' · '),
+          token: `@actividad{${x.idActividad}}`,
+          tipo,
+        })),
+      ),
+    );
   }
   tendencias() {
     return this.http.get<S.Tendencia[]>(this.url('/hashtags/tendencia'));
+  }
+  cabeceraPerfil(id: number) {
+    return this.http.get<S.PerfilCabecera>(this.url(`/usuarios/${id}/perfil`));
+  }
+  miPerfilSocial() {
+    return this.http.get<S.PerfilCabecera>(this.url('/mi-perfil'));
+  }
+  companeros(id: number, page = 0) {
+    return this.http.get<S.Page<S.Autor>>(this.url(`/usuarios/${id}/companeros`), {
+      params: this.params({ page, size: 9 }),
+    });
+  }
+  editarMiPresentacion(presentacion: string) {
+    return this.http.patch<S.PerfilCabecera>(this.url('/mi-perfil'), { presentacion });
+  }
+  subirFotoPerfil(archivo: File, portada = false) {
+    const form = new FormData();
+    form.append('archivo', archivo);
+    return this.http.post<S.PerfilCabecera>(
+      this.url(portada ? '/mi-perfil/portada' : '/mi-perfil/foto'),
+      form,
+    );
   }
   perfil(id: number, page = 0) {
     return this.http.get<S.PerfilSocial>(this.url(`/usuarios/${id}/actividad`), {

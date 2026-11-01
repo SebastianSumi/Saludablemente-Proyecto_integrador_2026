@@ -76,6 +76,7 @@ export class Layout implements OnInit, OnDestroy {
   );
 
   protected readonly navEvaluador = [
+    { titulo: 'Social', ruta: '/social', icono: '@tui.messages-square' },
     { titulo: 'Panel', ruta: '/evaluador', icono: '@tui.layout-dashboard' },
     { titulo: 'Colaboradores', ruta: '/evaluador/colaboradores', icono: '@tui.users' },
     { titulo: 'Nutricional', ruta: '/evaluador/nutricional', icono: '@tui.apple' },
@@ -93,6 +94,7 @@ export class Layout implements OnInit, OnDestroy {
   );
 
   protected readonly navColaborador = [
+    { titulo: 'Social', ruta: '/social', icono: '@tui.messages-square' },
     { titulo: 'Mi panel', ruta: '/colaborador', icono: '@tui.layout-dashboard' },
     { titulo: 'Mi perfil', ruta: '/colaborador/mi-perfil', icono: '@tui.user' },
     { titulo: 'Mis evaluaciones', ruta: '/colaborador/mis-evaluaciones', icono: '@tui.activity' },
@@ -249,6 +251,9 @@ export class Layout implements OnInit, OnDestroy {
 
   /** Destino del click: la alerta que generó la notificación, o la bandeja como fallback. */
   protected destinoNotificacion(n: BandejaNotificacion): string[] {
+    if ((n.origenModulo ?? '').toLowerCase().trim() === 'social') {
+      return n.idOrigenReferencia ? ['/social/posts', String(n.idOrigenReferencia)] : ['/social'];
+    }
     const esAlerta = (n.origenModulo ?? '').toLowerCase().includes('alerta');
     if (esAlerta && n.idOrigenReferencia) {
       if (this.esAdmin()) {

@@ -18,6 +18,16 @@ export const routes: Routes = [
     loadComponent: () => import('./core/layout/layout').then((m) => m.Layout),
     children: [
       {
+        path: 'social',
+        loadChildren: () => import('./features/social/social.routes').then((m) => m.SOCIAL_ROUTES),
+      },
+      {
+        path: 'reportes',
+        canActivate: [RoleGuard],
+        data: { roles: ['Colaborador', 'Administrador', 'Coordinador', 'Evaluador'] },
+        loadComponent: () => import('./features/reportes/reportes').then((m) => m.Reportes),
+      },
+      {
         path: '',
         loadComponent: () => import('./core/inicio/inicio').then((m) => m.Inicio),
       },

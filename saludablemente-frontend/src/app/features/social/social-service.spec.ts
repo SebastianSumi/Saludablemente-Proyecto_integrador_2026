@@ -42,6 +42,7 @@ describe('SocialService · contratos HTTP', () => {
     const body: CrearPost = {
       titulo: 'Pausa saludable',
       resumen: 'Una pausa para cuidarnos',
+      cuerpo: null,
       idEquipoAutor: null,
       imagenesUrls: [],
     };
@@ -53,6 +54,21 @@ describe('SocialService · contratos HTTP', () => {
     expect(r.request.body.esOficial).toBeUndefined();
     r.flush({});
   });
+  it('edita solo la presentación autenticada, sin ID de otra persona', () => {
+    service.editarMiPresentacion('Mi presentación').subscribe();
+    const req = http.expectOne(base + '/mi-perfil');
+    expect(req.request.method).toBe('PATCH');
+    expect(req.request.body).toEqual({ presentacion: 'Mi presentación' });
+    req.flush({});
+  });
+  it.each([false, true])('foto de perfil portada=%s usa multipart y ruta propia', (portada) => {
+    const file = new File(['png'], 'foto.png', { type: 'image/png' });
+    service.subirFotoPerfil(file, portada).subscribe();
+    const req = http.expectOne(base + (portada ? '/mi-perfil/portada' : '/mi-perfil/foto'));
+    expect(req.request.body.get('archivo')).toBe(file);
+    expect(req.request.body.has('idUsuario')).toBe(false);
+    req.flush({});
+  });
   const writes: [string, (s: SocialService) => Observable<unknown>, string, string, unknown][] = [
     [
       'editar',
@@ -60,11 +76,12 @@ describe('SocialService · contratos HTTP', () => {
         s.editar(1, {
           titulo: null,
           resumen: null,
+          cuerpo: null,
           imagenesUrls: ['https://example.invalid/foto.png'],
         }),
       'PATCH',
       '/posts/1',
-      { titulo: null, resumen: null, imagenesUrls: ['https://example.invalid/foto.png'] },
+      { titulo: null, resumen: null, cuerpo: null, imagenesUrls: ['https://example.invalid/foto.png'] },
     ],
     ['eliminar', (s) => s.eliminar(1), 'DELETE', '/posts/1', null],
     [
@@ -187,19 +204,31 @@ describe('SocialService · contratos HTTP', () => {
     'autocomplete %s genera el token contractual',
     (tipo) => {
       let token = '';
-      service.sugerir(tipo, 'ana').subscribe((x) => (token = x[0].token));
+      let image: string | null | undefined;
+      service.sugerir(tipo, 'ana').subscribe((x) => {
+        token = x[0].token;
+        image = x[0].imagenUrl;
+      });
       const r = http.expectOne((x) => x.url === base + '/menciones/buscar');
       expect(r.request.params.get('tipo')).toBe(tipo);
       r.flush(
         tipo === 'USUARIO'
-          ? [{ idUsuario: 101, username: 'ana.lazaro', nombreCompleto: 'Ana' }]
+          ? [
+              {
+                idUsuario: 101,
+                username: 'ana.lazaro',
+                nombreCompleto: 'Ana',
+                fotoUrl: 'https://example.invalid/foto.png',
+              },
+            ]
           : tipo === 'EQUIPO'
-            ? [{ idEquipo: 301, nombre: 'Bienestar' }]
-            : [{ idActividad: 401, nombre: 'Pausa' }],
+            ? [{ idEquipo: 301, nombre: 'Bienestar', logoUrl: 'https://example.invalid/foto.png' }]
+            : [{ idActividad: 401, nombre: 'Pausa', logoUrl: 'https://example.invalid/foto.png' }],
       );
       expect(token).toBe(
         tipo === 'USUARIO' ? '@ana.lazaro' : tipo === 'EQUIPO' ? '@equipo{301}' : '@actividad{401}',
       );
+      expect(image).toBe('https://example.invalid/foto.png');
     },
   );
   it('busca comentarios y filtra usuarios de reacciones con paginación', () => {

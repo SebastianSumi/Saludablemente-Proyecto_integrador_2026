@@ -11,7 +11,7 @@ import { Actividad, ActividadImagen, urlImagenActividad } from '../../admin/acti
   standalone: true,
   imports: [RouterLink, DatePipe, TuiButton, TuiIcon],
   templateUrl: './col-mis-actividades-detalle.html',
-  styleUrl: './col-mis-actividades-detalle.css',
+  styleUrls: ['./col-mis-actividades-detalle.css', './col-mis-actividades-multimedia.css'],
 })
 export class ColMisActividadesDetalle implements OnInit {
   private readonly route = inject(ActivatedRoute);

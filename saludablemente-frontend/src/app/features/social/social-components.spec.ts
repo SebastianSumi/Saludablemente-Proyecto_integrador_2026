@@ -1,7 +1,9 @@
+import { SocialCurrentAuthor } from './social-current-author';
+import { SocialModal } from './social-modal';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Type } from '@angular/core';
+import { Component, Type } from '@angular/core';
 import { provideRouter } from '@angular/router';
-import { provideTaiga } from '@taiga-ui/core';
+import { provideTaiga, TuiRoot } from '@taiga-ui/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { of, Subject, throwError } from 'rxjs';
 import { AuthService } from '../../core/auth/auth-service';
@@ -18,6 +20,9 @@ import { SocialReactions } from './social-reactions';
 import { SocialReport } from './social-report';
 import { BACKEND } from './testing/backend-fixtures';
 import { Reacciones } from './social.model';
+
+@Component({ imports: [TuiRoot], template: '<tui-root />' })
+class SocialTestRoot {}
 
 describe('Social · componentes con JSON exportado del backend', () => {
   let api: ReturnType<typeof mockApi>;
@@ -59,6 +64,16 @@ describe('Social · componentes con JSON exportado del backend', () => {
   }
   beforeEach(() => {
     api = mockApi();
+    const rect = new DOMRect(0, 0, 320, 44);
+    // JSDOM no calcula layout: Taiga cierra anclas sin rectángulos. El navegador se prueba por separado.
+    vi.spyOn(HTMLElement.prototype, 'getClientRects').mockReturnValue({
+      0: rect,
+      length: 1,
+      item: () => rect,
+      [Symbol.iterator]: function* () {
+        yield rect;
+      },
+    } as unknown as DOMRectList);
     admin = false;
     Object.defineProperty(window, 'matchMedia', {
       writable: true,
@@ -67,9 +82,16 @@ describe('Social · componentes con JSON exportado del backend', () => {
   });
   async function create<T>(component: Type<T>, inputs: Record<string, unknown> = {}) {
     await TestBed.configureTestingModule({
-      imports: [component],
+      imports: [component, SocialTestRoot],
       providers: [
         provideTaiga(),
+        {
+          provide: SocialCurrentAuthor,
+          useValue: {
+            autor$: of({ ...BACKEND.perfil.autor, fotoUrl: 'https://example.invalid/perfil.png' }),
+            refresh: vi.fn(),
+          },
+        },
         provideRouter([]),
         { provide: SocialService, useValue: api },
         {
@@ -79,7 +101,12 @@ describe('Social · componentes con JSON exportado del backend', () => {
         { provide: AuthService, useValue: { tieneRol: () => admin } },
         { provide: ConfirmService, useValue: { confirmar: () => of(true) } },
       ],
-    }).compileComponents();
+    })
+      .overrideComponent(SocialModal, { set: { template: '<ng-content />', imports: [] } })
+      .compileComponents();
+    const root = TestBed.createComponent(SocialTestRoot);
+    root.detectChanges();
+    await root.whenStable();
     const f = TestBed.createComponent(component);
     for (const [key, value] of Object.entries(inputs)) f.componentRef.setInput(key, value);
     await settle(f);
@@ -88,13 +115,17 @@ describe('Social · componentes con JSON exportado del backend', () => {
   async function settle<T>(f: ComponentFixture<T>) {
     f.detectChanges();
     await f.whenStable();
+    await new Promise((resolve) => setTimeout(resolve, 20));
     f.detectChanges();
+    await f.whenStable();
   }
   function click<T>(f: ComponentFixture<T>, text: string) {
-    const button = Array.from((f.nativeElement as HTMLElement).querySelectorAll('button')).find(
-      (x) => x.textContent?.trim() === text,
-    );
+    const button = [
+      ...Array.from((f.nativeElement as HTMLElement).querySelectorAll('button')),
+      ...Array.from(document.querySelectorAll<HTMLButtonElement>('tui-dropdown button')),
+    ].find((x) => x.textContent?.replace(/\s+/g, ' ').trim() === text);
     expect(button, `Botón ${text}`).toBeTruthy();
+    button!.focus();
     button!.click();
   }
   function write<T>(f: ComponentFixture<T>, selector: string, value: string) {
@@ -140,6 +171,7 @@ describe('Social · componentes con JSON exportado del backend', () => {
     expect(api.crear).toHaveBeenCalledWith({
       titulo: null,
       resumen: null,
+      cuerpo: null,
       imagenesUrls: ['https://example.invalid/pausa.png'],
       idEquipoAutor: null,
     });
@@ -190,30 +222,90 @@ describe('Social · componentes con JSON exportado del backend', () => {
     expect(api.detalle).not.toHaveBeenCalled();
     expect(f.nativeElement.textContent).not.toContain('Alcance');
   });
-  it('muestra el guardado real y solo cambia tras confirmar el backend', async () => {
+  // Los portales y sus clics se verifican en Chrome real; aquí se comprueba la transición de estado del componente.
+  it('mantiene el guardado real hasta confirmar el backend', async () => {
     const pending = new Subject<void>();
     api.guardar.mockReturnValue(pending);
     const f = await create(SocialPostCard, { post: BACKEND.muro.pinned[0] });
-    click(f, 'Guardado ✓');
+    expect(f.componentInstance['p']().guardadoPorMi).toBe(true);
+    f.componentInstance['save']();
     await settle(f);
     expect(api.guardar).toHaveBeenCalledWith(BACKEND.muro.pinned[0].idPost, false);
-    expect(f.nativeElement.textContent).toContain('Guardado ✓');
+    expect(f.componentInstance['p']().guardadoPorMi).toBe(true);
     pending.next();
     pending.complete();
     await settle(f);
-    expect(
-      Array.from(f.nativeElement.querySelectorAll('button')).some(
-        (x: unknown) => (x as HTMLElement).textContent?.trim() === 'Guardar',
-      ),
-    ).toBe(true);
+    expect(f.componentInstance['p']().guardadoPorMi).toBe(false);
   });
-  it('un error de guardado no deja la UI en un estado ficticio', async () => {
+  it('un error de guardado conserva el estado confirmado y muestra el error', async () => {
     api.guardar.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 409 })));
     const f = await create(SocialPostCard, { post: BACKEND.muro.pinned[0] });
-    click(f, 'Guardado ✓');
+    f.componentInstance['save']();
     await settle(f);
-    expect(f.nativeElement.textContent).toContain('Guardado ✓');
+    expect(f.componentInstance['p']().guardadoPorMi).toBe(true);
     expect(f.nativeElement.querySelector('[role="alert"]')).toBeTruthy();
+  });
+  it('usa la foto real del autor y vuelve a intentar cargarla cuando cambia', async () => {
+    const c = {
+      ...BACKEND.comentarios.content[0],
+      autor: {
+        ...BACKEND.comentarios.content[0].autor,
+        fotoUrl: 'https://example.invalid/primera.png',
+      },
+      respuestas: [],
+    };
+    const f = await create(SocialComment, { comentario: c });
+    const image = f.nativeElement.querySelector('header app-avatar img') as HTMLImageElement;
+    expect(image.src).toBe(c.autor.fotoUrl);
+    image.dispatchEvent(new Event('error'));
+    await settle(f);
+    expect(f.nativeElement.querySelector('header app-avatar img')).toBeNull();
+    f.componentRef.setInput('comentario', {
+      ...c,
+      autor: { ...c.autor, fotoUrl: 'https://example.invalid/nueva.png' },
+    });
+    await settle(f);
+    expect(f.nativeElement.querySelector('header app-avatar img').src).toBe(
+      'https://example.invalid/nueva.png',
+    );
+  });
+  it('integra archivo y envío en el editor y muestra el avatar del usuario a la derecha', async () => {
+    const f = await create(SocialCommentEditor, { post: BACKEND.detalle.idPost });
+    const toolbar = f.nativeElement.querySelector('.editor-toolbar');
+    expect(toolbar.textContent).toContain('Mencionar');
+    expect(toolbar.textContent).toContain('Hashtag');
+    expect(toolbar.textContent).toContain('Añadir archivo');
+    expect(f.nativeElement.querySelector('.text-box button[type="submit"]').textContent).toContain(
+      'Comentar',
+    );
+    expect(f.nativeElement.querySelector('.composer-avatar img').src).toBe(
+      'https://example.invalid/perfil.png',
+    );
+    const file = f.nativeElement.querySelector('input[type="file"]') as HTMLInputElement;
+    expect(file.hidden).toBe(true);
+    const clicked = vi.spyOn(file, 'click').mockImplementation(() => {});
+    (
+      Array.from(toolbar.querySelectorAll('button')).find((el: unknown) =>
+        (el as HTMLElement).textContent?.includes('Añadir archivo'),
+      ) as HTMLButtonElement
+    ).click();
+    expect(clicked).toHaveBeenCalledOnce();
+  });
+  it('presenta el logo pequeño junto al título y el tipo debajo, con fotos separadas', async () => {
+    const post = {
+      ...BACKEND.muro.pinned[0],
+      tipoContenido: 'ACTIVIDAD',
+      titulo: 'Primera actividad',
+      imagenUrl: 'https://example.invalid/logo.png',
+      imagenes: ['https://example.invalid/foto.jpg'],
+    };
+    const f = await create(SocialPostCard, { post });
+    const heading = f.nativeElement.querySelector('.publication-heading');
+    expect(heading.querySelector('.activity-logo').src).toContain('logo.png');
+    expect(heading.querySelector('h2').textContent).toContain('Primera actividad');
+    expect(heading.querySelector('.post-labels').textContent).toContain('Actividad');
+    expect(f.nativeElement.querySelector('.post-gallery img').src).toContain('foto.jpg');
+    expect(f.nativeElement.querySelector('.post-gallery img').src).not.toContain('logo.png');
   });
   it('no ofrece respuestas ni acciones en tombstone', async () => {
     const c = {
@@ -230,14 +322,26 @@ describe('Social · componentes con JSON exportado del backend', () => {
     expect(f.nativeElement.querySelector('social-reactions')).toBeNull();
     expect(f.nativeElement.querySelector('button')).toBeNull();
   });
-  it('no ofrece nietos al renderizar una respuesta', async () => {
+  it('responde a una respuesta mencionando al autor y enviando el ID raíz, sin nietos', async () => {
     const c = { ...BACKEND.comentarios.content[0], idComentarioPadre: 999, respuestas: [] };
     const f = await create(SocialComment, { comentario: c });
-    expect(
-      Array.from(f.nativeElement.querySelectorAll('button')).some(
-        (x: unknown) => (x as HTMLElement).textContent?.trim() === 'Responder',
-      ),
-    ).toBe(false);
+    const responder = Array.from(f.nativeElement.querySelectorAll('button')).find(
+      (x: unknown) => (x as HTMLElement).textContent?.trim() === 'Responder',
+    ) as HTMLButtonElement;
+    responder.click();
+    await settle(f);
+    expect(f.nativeElement.querySelector('textarea').value).toBe('@' + c.autor.username + ' ');
+    write(f, 'textarea', '@' + c.autor.username + ' Gracias por responder');
+    f.nativeElement
+      .querySelector('social-comment-editor form')
+      .dispatchEvent(new Event('submit', { cancelable: true }));
+    await settle(f);
+    expect(api.comentar).toHaveBeenCalledWith(c.idPost, {
+      contenido: '@' + c.autor.username + ' Gracias por responder',
+      idComentarioPadre: 999,
+      adjuntosUrls: [],
+    });
+    expect(f.nativeElement.querySelector('social-comment-editor')).toBeNull();
   });
   it('marca la edición de un comentario según la respuesta del backend', async () => {
     const c = { ...BACKEND.comentarios.content[0], puedoEditar: true };
@@ -313,19 +417,67 @@ describe('Social · componentes con JSON exportado del backend', () => {
     });
     let emitted: Reacciones | undefined;
     f.componentInstance.changed.subscribe((x) => (emitted = x));
-    f.nativeElement.querySelector('[aria-label="Me encanta"]').click();
+    f.componentInstance['react']('LOVE');
     await settle(f);
     expect(api.reaccionar).toHaveBeenCalledWith(BACKEND.detalle.idPost, 'LOVE', false);
     expect(emitted?.reaccionDelUsuario).toBe('LOVE');
     expect(emitted?.total).toBe(1);
+  });
+  it('reacciones usa tabs con conteo, avatar, nombre enlazado y fecha debajo', async () => {
+    api.quienReacciono.mockReturnValue(
+      of({
+        ...BACKEND.comentarios,
+        content: [
+          {
+            idUsuario: 102,
+            autor: {
+              ...BACKEND.perfil.autor,
+              idUsuario: 102,
+              fotoUrl: 'https://example.invalid/foto.png',
+            },
+            tipo: 'LOVE',
+            fechaReaccion: '2026-10-29T10:30:00',
+          },
+        ],
+      }) as never,
+    );
+    const f = await create(SocialReactions, {
+      id: 1,
+      value: { total: 3, porTipo: { LIKE: 2, LOVE: 1 }, reaccionDelUsuario: null },
+    });
+    expect(f.nativeElement.querySelector('.like-button').textContent.trim()).toBe('');
+    f.nativeElement.querySelector('.reaction-count').click();
+    await settle(f);
+    const tabs = f.nativeElement.querySelector('.reaction-tabs');
+    expect(tabs.querySelectorAll('button').length).toBe(3);
+    expect(tabs.textContent).toContain('Todos (3)');
+    expect(f.nativeElement.querySelector('select')).toBeNull();
+    const row = f.nativeElement.querySelector('.reaction-person');
+    expect(row.querySelector('app-avatar img').src).toContain('foto.png');
+    expect(row.querySelector('a').getAttribute('href')).toBe('/social/usuarios/102');
+    expect(row.querySelector('time span').textContent).toBe('10:30');
+    tabs.querySelector('[title="Me encanta"]').click();
+    await settle(f);
+    expect(api.quienReacciono).toHaveBeenCalledWith(1, false, 'LOVE', 0);
+  });
+  it('sin reacciones muestra únicamente Todos (0)', async () => {
+    const f = await create(SocialReactions, {
+      id: 1,
+      value: { total: 0, porTipo: {}, reaccionDelUsuario: null },
+    });
+    f.nativeElement.querySelector('.reaction-count').click();
+    await settle(f);
+    expect(f.nativeElement.querySelectorAll('.reaction-tabs button').length).toBe(1);
+    expect(f.nativeElement.querySelector('.reaction-tabs').textContent).toContain('Todos (0)');
   });
   it('pulsar la reacción seleccionada la retira', async () => {
     const f = await create(SocialReactions, {
       id: 1,
       value: { total: 1, porTipo: { LIKE: 1 }, reaccionDelUsuario: 'LIKE' },
     });
-    f.nativeElement.querySelector('[aria-label="Me gusta"]').click();
+    f.nativeElement.querySelector('.like-button').click();
     await settle(f);
+
     expect(api.reaccionar).toHaveBeenCalledWith(1, null, false);
   });
   it('ignora una lista antigua de personas cuando cambia el filtro', async () => {
@@ -335,11 +487,9 @@ describe('Social · componentes con JSON exportado del backend', () => {
       id: 1,
       value: { total: 0, porTipo: {}, reaccionDelUsuario: null },
     });
-    click(f, '0 reacciones · Ver personas');
+    f.nativeElement.querySelector('.reaction-count').click();
     await settle(f);
-    const select = f.nativeElement.querySelector('select');
-    select.value = select.options[2].value;
-    select.dispatchEvent(new Event('change'));
+    f.componentInstance['selectType']('LOVE');
     await settle(f);
     old.error(new HttpErrorResponse({ status: 500 }));
     await settle(f);
@@ -371,7 +521,56 @@ describe('Social · componentes con JSON exportado del backend', () => {
     input.dispatchEvent(new Event('input'));
     await new Promise((r) => setTimeout(r, 300));
     await settle(f);
-    click(f, 'Ana · @ana.lazaro');
+    expect(f.nativeElement.querySelector('social-modal select')).toBeNull();
+    expect(f.nativeElement.querySelector('.mention-result app-avatar')).toBeTruthy();
+    expect(f.nativeElement.querySelector('.mention-result').textContent).not.toContain(
+      '@ana.lazaro',
+    );
+    f.nativeElement.querySelector('[aria-label="Ver en tarjetas"]').click();
+    await settle(f);
+    expect(f.nativeElement.querySelector('.mention-results.cards')).toBeTruthy();
+    f.nativeElement.querySelector('.mention-result').click();
     expect(emitted).toContain('@ana.lazaro');
+    await settle(f);
+    expect(f.nativeElement.querySelector('textarea').value).toContain('@Ana');
+    expect(f.nativeElement.querySelector('textarea').value).not.toContain('@ana.lazaro');
+  });
+  it('comenta con el nombre de actividad visible y envía la referencia contractual', async () => {
+    api.sugerir.mockReturnValue(
+      of([
+        {
+          id: 5,
+          nombre: 'Primera actividad',
+          token: '@actividad{5}',
+          tipo: 'ACTIVIDAD',
+          imagenUrl: 'https://example.invalid/logo.png',
+        },
+      ]) as never,
+    );
+    const f = await create(SocialCommentEditor, { post: BACKEND.detalle.idPost });
+    click(f, 'Mencionar');
+    await settle(f);
+    click(f, 'Actividades');
+    write(f, '.mention-search input', 'primera');
+    await new Promise((r) => setTimeout(r, 300));
+    await settle(f);
+    expect(api.sugerir).toHaveBeenLastCalledWith('ACTIVIDAD', 'primera');
+    expect(f.nativeElement.querySelector('.mention-result img').src).toContain('logo.png');
+    f.nativeElement.querySelector('.mention-result').click();
+    await settle(f);
+    const area = f.nativeElement.querySelector('textarea') as HTMLTextAreaElement;
+    expect(area.value).toContain('@Primera actividad');
+    expect(area.value).not.toContain('{5}');
+    area.value += 'Vamos juntos';
+    area.dispatchEvent(new Event('input'));
+    await settle(f);
+    f.nativeElement.querySelector('form').dispatchEvent(new Event('submit', { cancelable: true }));
+    await settle(f);
+    expect(api.comentar).toHaveBeenCalledWith(
+      BACKEND.detalle.idPost,
+      expect.objectContaining({
+        contenido: '@actividad{5} Vamos juntos',
+      }),
+    );
   });
 });

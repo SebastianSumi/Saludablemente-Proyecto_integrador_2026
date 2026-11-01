@@ -7,6 +7,7 @@ import upeu.edu.pe.Saludabemente.actividades.agenda.entity.Actividad;
 import upeu.edu.pe.Saludabemente.actividades.agenda.repository.ActividadRepository;
 import upeu.edu.pe.Saludabemente.actividades.api.ActividadApiService;
 import upeu.edu.pe.Saludabemente.actividades.api.dto.ActividadSnapshotDto;
+import upeu.edu.pe.Saludabemente.actividades.inscripcion.repository.ActividadInscritoRepository;
 import upeu.edu.pe.Saludabemente.actividades.inscripcion.service.InscripcionService;
 import upeu.edu.pe.Saludabemente.exception.ResourceNotFoundException;
 
@@ -19,6 +20,7 @@ import java.util.List;
 public class ActividadApiServiceImpl implements ActividadApiService {
 
     private final ActividadRepository actividadRepository;
+    private final ActividadInscritoRepository inscritosRepository;
     private final InscripcionService inscripcionService;
 
     @Override
@@ -46,6 +48,20 @@ public class ActividadApiServiceImpl implements ActividadApiService {
         }
         return actividadRepository.findBetweenDates(desde, hasta)
                 .stream()
+                .map(this::toSnapshot)
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ActividadSnapshotDto> listarPorPersona(Long idPersona, LocalDate desde, LocalDate hasta) {
+        if (idPersona == null) return List.of();
+        var inscritos = inscritosRepository.findByIdPersona(idPersona);
+        if (inscritos.isEmpty()) return List.of();
+        var ids = inscritos.stream().map(i -> i.getIdActividad()).distinct().toList();
+        return actividadRepository.findAllById(ids).stream()
+                .filter(a -> (desde == null || !a.getFechaActividad().isBefore(desde)))
+                .filter(a -> (hasta == null || !a.getFechaActividad().isAfter(hasta)))
                 .map(this::toSnapshot)
                 .toList();
     }

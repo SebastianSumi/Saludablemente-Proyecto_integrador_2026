@@ -103,6 +103,8 @@ CREATE TABLE IF NOT EXISTS slb_personal.persona (
     activo               BOOLEAN NOT NULL,
     documento_identidad  VARCHAR(15) NOT NULL,
     avatar_url           VARCHAR(250),
+    portada_social_url   VARCHAR(500),
+    presentacion_social  VARCHAR(300),
     CONSTRAINT pk_persona PRIMARY KEY (id_persona),
     CONSTRAINT uq_persona_celular UNIQUE (celular),
     CONSTRAINT uq_persona_documento_identidad UNIQUE (documento_identidad),
@@ -1039,6 +1041,7 @@ CREATE TABLE IF NOT EXISTS slb_social.post (
     id_equipo_autor       BIGINT,
     titulo                VARCHAR(150),
     resumen               VARCHAR(500),
+    cuerpo                TEXT,
     lugar                 VARCHAR(150),
     fecha_evento          DATE,
     hora_inicio           VARCHAR(8),
@@ -1167,5 +1170,16 @@ CREATE TABLE IF NOT EXISTS slb_social.reaccion_post (
     fecha_reaccion    TIMESTAMP(6) NOT NULL,
     CONSTRAINT pk_reaccion_post PRIMARY KEY (id_post, id_usuario)
 );
+
+-- =====================================================================
+-- ACTUALIZACIONES INCREMENTALES (bases ya existentes)
+-- Idempotentes: no fallan si la columna ya existe.
+-- =====================================================================
+ALTER TABLE slb_personal.persona
+    ADD COLUMN IF NOT EXISTS portada_social_url VARCHAR(500),
+    ADD COLUMN IF NOT EXISTS presentacion_social VARCHAR(300);
+
+ALTER TABLE slb_social.post
+    ADD COLUMN IF NOT EXISTS cuerpo TEXT;
 
 COMMIT;

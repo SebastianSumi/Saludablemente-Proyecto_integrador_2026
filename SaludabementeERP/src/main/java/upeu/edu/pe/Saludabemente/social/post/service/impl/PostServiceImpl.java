@@ -15,6 +15,7 @@ import upeu.edu.pe.Saludabemente.social.menciones.service.TextoSocialService;
 import upeu.edu.pe.Saludabemente.seguridad.api.social.SocialUsuarioActualDto;
 import upeu.edu.pe.Saludabemente.personal.api.social.SocialEquipoApi;
 import upeu.edu.pe.Saludabemente.exception.BusinessRuleException;
+import org.springframework.security.access.AccessDeniedException;
 import java.time.*;
 import java.net.URI;
 import java.util.*;
@@ -32,7 +33,11 @@ public class PostServiceImpl implements PostService,SocialApiService {
 
     @Override public Long crear(CrearPostRequest r,SocialUsuarioActualDto u) {
         acceso.equipo(r.idEquipoAutor(),u);validar(r.titulo(),r.resumen(),r.imagenesUrls());
-        Post p=base(TipoContenidoPost.MANUAL,null,u.idUsuario());p.setTitulo(r.titulo());p.setResumen(r.resumen());p.setIdEquipoAutor(r.idEquipoAutor());
+        String cuerpo=r.cuerpo()==null?null:r.cuerpo().trim();
+        if(cuerpo!=null && cuerpo.isBlank()) cuerpo=null;
+        if(cuerpo!=null && cuerpo.length()>10000) throw new BusinessRuleException("Cuerpo demasiado largo");
+        if(cuerpo!=null && !u.esAdministrador()) throw new AccessDeniedException("Solo un administrador puede agregar cuerpo a la publicación");
+        Post p=base(TipoContenidoPost.MANUAL,null,u.idUsuario());p.setTitulo(r.titulo());p.setResumen(r.resumen());p.setCuerpo(cuerpo);p.setIdEquipoAutor(r.idEquipoAutor());
         p=posts.saveAndFlush(p);guardarImagenes(p,r.imagenesUrls());
         texto.procesar(TipoContenidoMencion.POST,p.getIdPost(),contenido(p),u.idUsuario());
         notificarEquipo(p);return p.getIdPost();
@@ -41,6 +46,13 @@ public class PostServiceImpl implements PostService,SocialApiService {
         Post p=acceso.bloquear(id);acceso.exigirVisible(p);acceso.editar(p,u);
         if(p.getTipoContenido()==TipoContenidoPost.MANUAL) validar(r.titulo(),r.resumen(),r.imagenesUrls());
         else if(r.resumen()!=null && r.resumen().length()>500) throw new BusinessRuleException("Texto demasiado largo");
+        if(r.cuerpo()!=null && r.cuerpo().length()>10000) throw new BusinessRuleException("Cuerpo demasiado largo");
+        if(r.cuerpo()!=null && !u.esAdministrador()) {
+            // no-admin: ignorar cuerpo para preservar el existente
+        } else if(u.esAdministrador() && r.cuerpo()!=null) {
+            String cuerpo=r.cuerpo().trim();
+            p.setCuerpo(cuerpo.isBlank()?null:cuerpo);
+        }
         p.setTitulo(r.titulo());p.setResumen(r.resumen());p.setFechaActualizacion(LocalDateTime.now(socialClock));
         guardarImagenes(p,r.imagenesUrls());texto.procesar(TipoContenidoMencion.POST,id,contenido(p),u.idUsuario());
     }
@@ -81,7 +93,7 @@ public class PostServiceImpl implements PostService,SocialApiService {
     private Post base(TipoContenidoPost tipo,Long ref,Long autor) {
         Post p=new Post();p.setTipoContenido(tipo);p.setRefId(ref);p.setAutorId(autor);p.setFechaPublicacion(LocalDateTime.now(socialClock));return p;
     }
-    private String contenido(Post p) { return Objects.toString(p.getTitulo(),"")+"\n"+Objects.toString(p.getResumen(),""); }
+    private String contenido(Post p) { return Objects.toString(p.getTitulo(),"")+"\n"+Objects.toString(p.getResumen(),"")+"\n"+Objects.toString(p.getCuerpo(),""); }
     private void validar(String titulo,String resumen,List<String> urls) {
         if((titulo==null || titulo.isBlank() || resumen==null || resumen.isBlank()) && (urls==null || urls.isEmpty()))
             throw new BusinessRuleException("Se requiere título y resumen, o una imagen");

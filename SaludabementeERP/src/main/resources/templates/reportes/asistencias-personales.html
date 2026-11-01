@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Reporte de asistencias</title>
+    <style>
+        body { font-family: Arial, sans-serif; font-size: 12px; }
+        h1 { font-size: 16px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+        td, th { border: 1px solid #ccc; padding: 6px; }
+        th { background: #f2f2f2; }
+    </style>
+</head>
+<body>
+    <h1>Reporte de asistencias personales</h1>
+    <p>Periodo: <span th:text="${periodo}">2026-1</span></p>
+    <table>
+        <tr><th>Total actividades</th><td th:text="${historial.totalActividades}">0</td></tr>
+        <tr><th>Asistió</th><td th:text="${historial.totalAsistio}">0</td></tr>
+        <tr><th>Ausente</th><td th:text="${historial.totalAusente}">0</td></tr>
+        <tr><th>Exonerado</th><td th:text="${historial.totalExonerado}">0</td></tr>
+        <tr><th>Incompleta</th><td th:text="${historial.totalIncompleta}">0</td></tr>
+        <tr><th>Cumplimiento</th><td th:text="${historial.porcentajeCumplimiento}">0</td></tr>
+    </table>
+</body>
+</html>

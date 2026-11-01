@@ -1,0 +1,37 @@
+.comments-intro { margin: 6px 0 0; color: var(--sal-ink-soft); font-size: 13px; line-height: 1.5; }
+.comments-count { flex-shrink: 0; border-radius: 20px; background: var(--sal-hover); color: var(--sal-action); padding: 6px 10px; font-size: 12px; font-weight: 600; }
+.profile-comment { min-width: 0; border: 1px solid var(--sal-line); border-radius: 14px; background: var(--sal-card); overflow: hidden; }
+.profile-comment-header { display: flex; align-items: center; gap: 12px; padding: 20px 22px 0; }
+.profile-comment-author { flex: 1; min-width: 0; }
+.profile-comment-author a { display: block; color: var(--sal-ink); font-size: 14px; font-weight: 600; text-decoration: none; overflow-wrap: anywhere; }
+.profile-comment-author time { display: block; margin-top: 3px; color: var(--sal-ink-soft); font-size: 12px; line-height: 1.5; }
+.profile-comment-kind { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; color: var(--sal-ink-soft); }
+.profile-comment-kind social-icon { width: 14px; height: 14px; }
+.profile-comment-body { margin: 18px 22px 20px; padding: 14px 16px; background: var(--sal-hover); border-radius: 0 12px 12px; font-size: 14px; line-height: 1.7; overflow-wrap: anywhere; }
+.profile-comment-body > p { margin: 0; }
+.profile-comment-images { display: grid; grid-template-columns: repeat(auto-fit, minmax(90px, 130px)); gap: 8px; margin-top: 14px; }
+.profile-comment-images a { display: flex; aspect-ratio: 1; border: 1px solid var(--sal-line); border-radius: 9px; overflow: hidden; color: var(--sal-ink-soft); }
+.profile-comment-images img { width: 100%; height: 100%; object-fit: cover; transition: transform .15s; }
+.profile-comment-images a:hover img { transform: scale(1.04); }
+.comment-image-fallback { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 6px; padding: 8px; font-size: 11px; }
+.profile-comment-footer { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; border-top: 1px solid var(--sal-line); padding: 12px 22px; }
+.profile-comment-context { display: inline-flex; align-items: center; gap: 7px; color: var(--sal-ink-soft); font-size: 12px; }
+.profile-comment-context social-icon { width: 15px; height: 15px; }
+.profile-comment-open { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 40px; padding: 0 10px; border-radius: 8px; color: var(--sal-action); font-size: 13px; font-weight: 600; text-decoration: none; }
+.profile-comment-open:hover { background: var(--sal-hover); }
+.profile-comment a:focus-visible, .profile-comments-empty a:focus-visible { outline: 2px solid var(--sal-action); outline-offset: 3px; }
+.profile-comments-empty { padding: 42px 24px; text-align: center; border: 1px dashed var(--sal-line); border-radius: 14px; background: var(--sal-card); }
+.comments-empty-icon { display: inline-flex; padding: 16px; border-radius: 50%; background: var(--sal-hover); color: var(--sal-action); }
+.comments-empty-icon social-icon { width: 26px; height: 26px; }
+.profile-comments-empty h3 { margin: 18px 0 8px; font-size: 18px; line-height: 1.4; }
+.profile-comments-empty p { margin: 0 auto 20px; max-width: 340px; color: var(--sal-ink-soft); font-size: 14px; line-height: 1.6; }
+@container (max-width: 480px) {
+  .profile-comment-header { padding: 16px 16px 0; flex-wrap: wrap; gap: 10px; }
+  .profile-comment-kind { margin-left: auto; }
+  .profile-comment-body { margin: 14px 16px 16px; padding: 12px; }
+  .profile-comment-footer { padding: 10px 16px; }
+  .profile-comment-context { width: 100%; }
+  .profile-comment-open { margin-left: auto; }
+  .publication-views:has(.comments-intro) { flex-wrap: wrap; }
+}
+@media (prefers-reduced-motion: reduce) { .profile-comment-images img { transition: none; } }

@@ -37,7 +37,7 @@ import { BioquimicoManualRequest } from '../../admin/nutricional/bioquimico/bioq
     TuiTextfield,
   ],
   templateUrl: './eval-nutricional-detalle.html',
-  styleUrls: ['../evaluador-comun.css'],
+  styleUrls: ['../evaluador-comun.css', '../evaluador-tablas-detalle.css'],
 })
 export class EvalNutricionalDetalle implements OnInit {
   private readonly fb = inject(FormBuilder);

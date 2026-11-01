@@ -24,7 +24,7 @@ import { PerfilService } from '../../admin/perfil/perfil-service';
     TuiTextfield,
   ],
   templateUrl: './eval-alerta-detalle.html',
-  styleUrls: ['../evaluador-comun.css'],
+  styleUrls: ['../evaluador-comun.css', '../evaluador-tablas-detalle.css'],
 })
 export class EvalAlertaDetalle implements OnInit {
   private readonly service = inject(AlertaClinicaService);

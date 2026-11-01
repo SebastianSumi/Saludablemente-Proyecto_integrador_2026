@@ -1,3 +1,7 @@
+import { SocialGallery } from './social-gallery';
+import { SocialIcon } from './social-icon';
+import { SocialActivityMeta } from './social-activity-meta';
+import { SocialModal } from './social-modal';
 import {
   Component,
   computed,
@@ -11,7 +15,7 @@ import {
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { TuiButton } from '@taiga-ui/core';
+import { TuiButton, TuiDropdown, TuiDataList } from '@taiga-ui/core';
 import { finalize, Observable, filter, switchMap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AuthService } from '../../core/auth/auth-service';
@@ -21,7 +25,7 @@ import { TeamService } from '../admin/teams/team-service';
 import { Team } from '../admin/teams/team.model';
 import { SocialService } from './social-service';
 import { PostResumen, Reacciones, Scope } from './social.model';
-import { errorSocial } from './social.utils';
+import { imagenesPublicacion, errorSocial } from './social.utils';
 import { SocialText } from './social-text';
 import { SocialReactions } from './social-reactions';
 import { SocialReport } from './social-report';
@@ -29,6 +33,12 @@ import { SocialPostEditor } from './social-post-editor';
 @Component({
   selector: 'social-post-card',
   imports: [
+    SocialGallery,
+    SocialIcon,
+    SocialActivityMeta,
+    TuiDropdown,
+    TuiDataList,
+    SocialModal,
     DatePipe,
     FormsModule,
     RouterLink,
@@ -39,50 +49,104 @@ import { SocialPostEditor } from './social-post-editor';
     SocialReport,
     SocialPostEditor,
   ],
-  styleUrl: './social.css',
-  template: ` <article class="panel" [attr.aria-label]="p().titulo || 'Publicación'">
-      <header class="identity">
+  styleUrls: ['./social.css', './social-card.css'],
+  template: `<article class="panel post-card" [attr.aria-label]="p().titulo || 'Publicación'">
+      <header class="identity post-header">
         <app-avatar
           [foto]="avatar(p().autor.fotoUrl)"
           [iniciales]="initials(p().autor.nombreCompleto)"
           size="m"
         />
         <div class="grow">
-          <a [routerLink]="['/social/usuarios', p().autor.idUsuario]"
-            ><strong>{{ p().autor.nombreCompleto }}</strong></a
-          ><small>{{ p().autor.rolPrincipal }} · {{ p().fechaPublicacion | date: 'medium' }}</small>
+          <a class="author-name" [routerLink]="['/social/usuarios', p().autor.idUsuario]">{{
+            p().autor.nombreCompleto
+          }}</a
+          ><small
+            ><time>{{ p().fechaPublicacion | date: 'dd/MM/yyyy · HH:mm' }}</time>
+            @if (p().autor.rolPrincipal) {
+              <span class="meta-dot">·</span>{{ p().autor.rolPrincipal }}
+            }
+          </small>
           @if (p().equipo; as team) {
-            <a class="chip" [routerLink]="['/social/equipos', team.idEquipo]">{{ team.nombre }}</a>
+            <a class="team-tag" [routerLink]="['/social/equipos', team.idEquipo]"
+              ><social-icon name="users" />{{ team.nombre }}</a
+            >
           }
         </div>
-        <span class="chip" [class.official]="p().esOficial">{{
-          p().esOficial ? 'Noticia oficial' : tipoLabel(p().tipoContenido)
-        }}</span>
+        <button
+          tuiButton
+          type="button"
+          size="s"
+          appearance="flat"
+          class="icon-button"
+          aria-label="Opciones de publicación"
+          title="Opciones de publicación"
+          [attr.aria-expanded]="more()"
+          [tuiDropdown]="postOptions"
+          [tuiDropdownOpen]="more()"
+          (tuiDropdownOpenChange)="more.set($event)"
+        >
+          <social-icon name="ellipsis" /><span class="sr-only">Opciones</span>
+        </button>
       </header>
-      @if (pinned()) {
-        <p class="official">📌 Publicación fijada</p>
-      }
-      @if (p().titulo) {
-        <h2 class="post-title">
-          <a [routerLink]="['/social/posts', p().idPost]">{{ p().titulo }}</a>
-        </h2>
-      }
-      <social-text [text]="p().resumen" />
-      @if (p().imagenUrl) {
-        <a [routerLink]="['/social/posts', p().idPost]"
-          ><img
-            class="post-photo"
+      <div class="publication-heading">
+        @if (p().tipoContenido === 'ACTIVIDAD' && p().imagenUrl) {
+          <img
+            class="activity-logo"
             [src]="p().imagenUrl"
-            alt="Imagen de la publicación"
-            loading="lazy"
-            (error)="imagen.hidden = true"
-            #imagen
+            [alt]="'Logo de ' + p().titulo"
+            (error)="logo.hidden = true"
+            #logo
+          />
+        }
+        <div class="publication-heading-text">
+          @if (p().titulo) {
+            <h2 class="post-title">
+              <a [routerLink]="['/social/posts', p().idPost]">{{ p().titulo }}</a>
+            </h2>
+          }
+          <div class="post-labels">
+            <span class="chip" [class.official]="p().esOficial"
+              ><social-icon
+                [name]="
+                  p().esOficial
+                    ? 'badge-check'
+                    : p().tipoContenido === 'ACTIVIDAD'
+                      ? 'calendar'
+                      : p().tipoContenido === 'SHARE'
+                        ? 'share-2'
+                        : 'file-text'
+                "
+              />{{ p().esOficial ? 'Noticia oficial' : tipoLabel(p().tipoContenido) }}</span
+            >
+            @if (pinned()) {
+              <span class="chip official"><social-icon name="pin" />Publicación fijada</span>
+            }
+          </div>
+        </div>
+      </div>
+      <social-text [text]="p().resumen ?? (p().cuerpo ? p().cuerpo!.slice(0, 280) : null)" [truncate]="!detail()" />
+      @if (!p().resumen && p().cuerpo) {
+        <a class="ver-mas" [routerLink]="['/social/posts', p().idPost]">Ver más</a>
+      }
+      @if (p().tipoContenido === 'ACTIVIDAD') {
+        <social-activity-meta [post]="p()" /><a
+          class="activity-link"
+          [routerLink]="['/social/actividades', p().refId]"
+          >Muro de esta actividad <social-icon name="arrow-up-right"
         /></a>
+      }
+      @if (gallery(p()).length) {
+        <social-gallery
+          class="post-gallery"
+          [urls]="gallery(p())"
+          [title]="p().titulo || 'Imágenes de la publicación'"
+        />
       }
       @if (p().tipoContenido === 'SHARE' && p().postOriginal; as original) {
         <section class="original">
           <small
-            >Compartido de
+            ><social-icon name="share-2" /> Compartido de
             <a [routerLink]="['/social/usuarios', original.autor.idUsuario]">{{
               original.autor.nombreCompleto
             }}</a></small
@@ -92,126 +156,124 @@ import { SocialPostEditor } from './social-post-editor';
               original.titulo || 'Ver publicación original'
             }}</a>
           </h3>
-          <social-text [text]="original.resumen" />
-          @if (original.imagenUrl) {
-            <img
-              class="post-photo"
-              [src]="original.imagenUrl"
-              alt="Imagen de la publicación original"
-              loading="lazy"
+          <social-text [text]="original.resumen" [truncate]="!detail()" />
+          @if (gallery(original).length) {
+            <social-gallery
+              [urls]="gallery(original)"
+              [title]="original.titulo || 'Publicación original'"
             />
           }
         </section>
       }
-      @if (p().tipoContenido === 'ACTIVIDAD') {
-        <div class="post-meta">
-          <span
-            >{{ p().fechaEvento | date: 'longDate' }} {{ p().horaInicio }}–{{ p().horaFin }}</span
-          ><span>{{ p().lugar }}</span
-          ><span>{{ p().estado }}</span>
-          @if (p().coordinadorNombre) {
-            <span>Coordina: {{ p().coordinadorNombre }}</span>
-          }
-        </div>
-        <a class="chip" [routerLink]="['/social/actividades', p().refId]">Muro de esta actividad</a>
-      }
       @if (p().equipo?.lider; as leader) {
-        <small
-          >Líder del equipo:
-          <a [routerLink]="['/social/usuarios', leader.idUsuario]">{{
-            leader.nombreCompleto
-          }}</a></small
-        >
+        <p class="team-leader">
+          <social-icon name="user-check" /><span
+            >Líder del equipo:
+            <a [routerLink]="['/social/usuarios', leader.idUsuario]">{{
+              leader.nombreCompleto
+            }}</a></span
+          >
+        </p>
       }
-      <social-reactions
-        [id]="p().idPost"
-        [value]="reaction()"
-        (changed)="reactionChanged($event)"
-      />
-      <hr class="divider" />
-      <div class="actions">
-        <a tuiButton appearance="flat" size="s" [routerLink]="['/social/posts', p().idPost]"
-          >{{ p().totalComentarios }} comentarios</a
+      <footer class="post-toolbar">
+        <social-reactions
+          [id]="p().idPost"
+          [value]="reaction()"
+          (changed)="reactionChanged($event)"
+        /><a
+          tuiButton
+          appearance="flat"
+          size="s"
+          [routerLink]="['/social/posts', p().idPost]"
+          [queryParams]="{ comentar: 1 }"
+          aria-label="Comentar"
+          title="Comentar"
+          ><social-icon name="message-circle" /><span>{{ p().totalComentarios }}</span></a
         ><button
           tuiButton
           appearance="flat"
           size="s"
           type="button"
           [disabled]="busy()"
-          (click)="shareOpen.set(!shareOpen()); loadTeam()"
+          (click)="shareOpen.set(true); loadTeam()"
         >
-          Compartir · {{ p().totalShares }}</button
-        ><button
-          tuiButton
-          appearance="flat"
-          size="s"
-          type="button"
-          [disabled]="busy()"
-          [attr.aria-pressed]="p().guardadoPorMi"
-          (click)="save()"
-        >
-          {{ p().guardadoPorMi ? 'Guardado ✓' : 'Guardar' }}</button
-        ><button
-          tuiButton
-          appearance="flat"
-          size="s"
-          type="button"
-          (click)="more.set(!more())"
-          [attr.aria-expanded]="more()"
-        >
-          Opciones
+          <social-icon name="share-2" />Compartir · {{ p().totalShares }}
         </button>
-      </div>
-      @if (more()) {
-        <div class="actions">
-          @if (p().puedoEditar) {
-            <button tuiButton appearance="flat" size="s" type="button" (click)="editing.set(true)">
-              Editar
-            </button>
-          }
-          @if (p().puedoEliminar) {
-            <button
-              tuiButton
-              appearance="flat"
-              size="s"
-              type="button"
-              [disabled]="busy()"
-              (click)="remove()"
-            >
-              Eliminar
-            </button>
-          }
+      </footer>
+      <ng-template #postOptions>
+        <tui-data-list class="post-options option-list" aria-label="Opciones de publicación">
           <button
+            tuiOption
             tuiButton
             appearance="flat"
             size="s"
             type="button"
-            (click)="reportOpen.set(!reportOpen())"
+            [disabled]="busy()"
+            (click)="save(); more.set(false)"
           >
-            Reportar
+            <social-icon [name]="p().guardadoPorMi ? 'bookmark-check' : 'bookmark'" />{{
+              p().guardadoPorMi ? 'Guardado ✓' : 'Guardar'
+            }}
           </button>
-          @if (admin()) {
+          @if (p().puedoEditar) {
             <button
+              tuiOption
               tuiButton
               appearance="flat"
               size="s"
               type="button"
-              (click)="pinOpen.set(!pinOpen())"
+              (click)="more.set(false); editing.set(true)"
             >
-              Fijados</button
-            ><button
+              <social-icon name="pencil" />Editar
+            </button>
+          }
+          @if (p().puedoEliminar) {
+            <button
+              tuiOption
               tuiButton
               appearance="flat"
               size="s"
               type="button"
               [disabled]="busy()"
-              (click)="hide()"
+              (click)="more.set(false); remove()"
             >
-              Ocultar
+              <social-icon name="trash-2" />Eliminar
             </button>
           }
-        </div>
-      }
+          <button
+            tuiOption
+            tuiButton
+            appearance="flat"
+            size="s"
+            type="button"
+            (click)="more.set(false); reportOpen.set(true)"
+          >
+            <social-icon name="flag" />Reportar
+          </button>
+          @if (admin()) {
+            <button
+              tuiOption
+              tuiButton
+              appearance="flat"
+              size="s"
+              type="button"
+              (click)="more.set(false); pinOpen.set(true)"
+            >
+              <social-icon name="pin" />Fijados</button
+            ><button
+              tuiOption
+              tuiButton
+              appearance="flat"
+              size="s"
+              type="button"
+              [disabled]="busy()"
+              (click)="more.set(false); hide()"
+            >
+              <social-icon name="eye-off" />Ocultar
+            </button>
+          }
+        </tui-data-list>
+      </ng-template>
       @if (error()) {
         <p role="alert" class="error">{{ error() }}</p>
       }
@@ -219,104 +281,126 @@ import { SocialPostEditor } from './social-post-editor';
         <p class="notice" role="status">{{ notice() }}</p>
       }
       @if (shareOpen()) {
-        <form class="panel fields" (ngSubmit)="share()">
-          <h3>Compartir publicación</h3>
-          <label
-            >Texto opcional<textarea
-              name="contenido"
-              [(ngModel)]="shareText"
-              maxlength="500"
-              rows="3"
-            ></textarea></label
-          ><label
-            >Compartir como<select name="equipo" [(ngModel)]="shareTeam">
-              <option [ngValue]="null">A título personal</option>
-              @if (team(); as t) {
-                <option [ngValue]="t.id">{{ t.nombre }}</option>
-              }
-            </select></label
-          >
-          <div class="actions">
-            <button tuiButton size="s" type="submit" [disabled]="busy()">Compartir</button
-            ><button
-              tuiButton
-              appearance="flat"
-              size="s"
-              type="button"
-              (click)="shareOpen.set(false)"
+        <social-modal title="Compartir publicación" [busy]="busy()" (closed)="shareOpen.set(false)">
+          <form class="fields" (ngSubmit)="share()">
+            @if (error()) {
+              <p class="error" role="alert">{{ error() }}</p>
+            }
+
+            <label
+              >Texto opcional<textarea
+                name="contenido"
+                [(ngModel)]="shareText"
+                maxlength="500"
+                rows="3"
+              ></textarea></label
+            ><label
+              >Compartir como<select name="equipo" [(ngModel)]="shareTeam">
+                <option [ngValue]="null">A título personal</option>
+                @if (team(); as t) {
+                  <option [ngValue]="t.id">{{ t.nombre }}</option>
+                }
+              </select></label
             >
-              Cancelar
-            </button>
-          </div>
-        </form>
+            <div class="actions">
+              <button tuiButton size="s" type="submit" [disabled]="busy()">Compartir</button
+              ><button
+                tuiButton
+                appearance="flat"
+                size="s"
+                type="button"
+                (click)="shareOpen.set(false)"
+              >
+                Cancelar
+              </button>
+            </div>
+          </form></social-modal
+        >
       }
       @if (pinOpen()) {
-        <form class="panel fields" (ngSubmit)="pin()">
-          <h3>Fijar publicación</h3>
-          <label
-            >Ámbito<select name="scope" [(ngModel)]="pinScope">
-              <option value="GLOBAL">Global</option>
-              <option value="EQUIPO">Equipo</option>
-              <option value="ACTIVIDAD">Actividad</option>
-            </select></label
-          >
-          @if (pinScope !== 'GLOBAL') {
+        <social-modal title="Gestionar fijado" [busy]="busy()" (closed)="pinOpen.set(false)">
+          <form class="fields" (ngSubmit)="pin()">
+            @if (error()) {
+              <p class="error" role="alert">{{ error() }}</p>
+            }
+
             <label
-              >Identificador del ámbito<input
-                name="scopeId"
-                type="number"
-                min="1"
-                required
-                [(ngModel)]="pinId"
+              >Ámbito<select name="scope" [(ngModel)]="pinScope">
+                <option value="GLOBAL">Global</option>
+                <option value="EQUIPO">Equipo</option>
+                <option value="ACTIVIDAD">Actividad</option>
+              </select></label
+            >
+            @if (pinScope !== 'GLOBAL') {
+              <label
+                >Identificador del ámbito<input
+                  name="scopeId"
+                  type="number"
+                  min="1"
+                  required
+                  [(ngModel)]="pinId"
+              /></label>
+            }
+            <label
+              >Expiración opcional<input
+                name="expiracion"
+                type="datetime-local"
+                [(ngModel)]="expiry"
             /></label>
-          }
-          <label
-            >Expiración opcional<input name="expiracion" type="datetime-local" [(ngModel)]="expiry"
-          /></label>
-          <div class="actions">
-            <button tuiButton size="s" type="submit" [disabled]="busy()">Fijar</button
-            ><button
-              tuiButton
-              size="s"
-              type="button"
-              appearance="secondary"
-              [disabled]="busy()"
-              (click)="unpin()"
-            >
-              Quitar de este ámbito</button
-            ><button
-              tuiButton
-              size="s"
-              type="button"
-              appearance="flat"
-              (click)="pinOpen.set(false)"
-            >
-              Cerrar
-            </button>
-          </div>
-        </form>
+            <div class="actions">
+              <button tuiButton size="s" type="submit" [disabled]="busy()">Fijar</button
+              ><button
+                tuiButton
+                size="s"
+                type="button"
+                appearance="secondary"
+                [disabled]="busy()"
+                (click)="unpin()"
+              >
+                Quitar de este ámbito</button
+              ><button
+                tuiButton
+                size="s"
+                type="button"
+                appearance="flat"
+                (click)="pinOpen.set(false)"
+              >
+                Cerrar
+              </button>
+            </div>
+          </form></social-modal
+        >
       }
       @if (reportOpen()) {
-        <social-report
-          [post]="p().idPost"
-          (cancel)="reportOpen.set(false)"
-          (sent)="
-            reportOpen.set(false);
-            notice.set('Reporte enviado. Gracias por ayudarnos a cuidar este espacio.')
-          "
-        />
+        <social-modal
+          title="Reportar publicación"
+          [busy]="childBusy()"
+          (closed)="reportOpen.set(false)"
+        >
+          <social-report
+            (pending)="childBusy.set($event)"
+            [post]="p().idPost"
+            (cancel)="reportOpen.set(false)"
+            (sent)="
+              reportOpen.set(false);
+              notice.set('Reporte enviado. Gracias por ayudarnos a cuidar este espacio.')
+            "
+        /></social-modal>
       }
     </article>
     @if (editing()) {
-      <social-post-editor
-        [postId]="p().idPost"
-        (cancel)="editing.set(false)"
-        (saved)="editing.set(false); changed.emit()"
-      />
+      <social-modal title="Editar publicación" [busy]="childBusy()" (closed)="editing.set(false)">
+        <social-post-editor
+          (pending)="childBusy.set($event)"
+          [postId]="p().idPost"
+          (cancel)="editing.set(false)"
+          (saved)="editing.set(false); changed.emit()"
+      /></social-modal>
     }`,
 })
 export class SocialPostCard {
   readonly post = input.required<PostResumen>();
+  readonly detail = input(false);
   readonly pinned = input(false);
   readonly scope = input<Scope>('GLOBAL');
   readonly scopeId = input<number | null>(null);
@@ -342,12 +426,14 @@ export class SocialPostCard {
   protected readonly pinOpen = signal(false);
   protected readonly reportOpen = signal(false);
   protected readonly editing = signal(false);
+  protected readonly childBusy = signal(false);
   protected readonly team = signal<Team | null>(null);
   protected shareText = '';
   protected shareTeam: number | null = null;
   protected pinScope: Scope = 'GLOBAL';
   protected pinId: number | null = null;
   protected expiry = '';
+  protected readonly gallery = imagenesPublicacion;
   protected readonly avatar = urlAvatarFoto;
   constructor() {
     effect(() => {

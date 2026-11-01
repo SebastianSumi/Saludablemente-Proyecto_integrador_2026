@@ -1,4 +1,5 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { ActividadSubidaDialog } from './actividad-subida-dialog';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -15,8 +16,6 @@ import {
   tuiItemsHandlersProvider,
 } from '@taiga-ui/core';
 import {
-  TuiAvatar,
-  TuiBadge,
   TuiButtonLoading,
   TuiChevron,
   TuiComboBox,
@@ -42,11 +41,10 @@ import { Usuario } from '../../seguridad/models';
 @Component({
   selector: 'app-actividad-detail',
   imports: [
+    ActividadSubidaDialog,
     RouterLink,
     FormsModule,
     ReactiveFormsModule,
-    TuiAvatar,
-    TuiBadge,
     TuiButton,
     TuiButtonLoading,
     TuiChevron,
@@ -66,7 +64,7 @@ import { Usuario } from '../../seguridad/models';
     TuiTextfield,
   ],
   templateUrl: './actividad-detail.html',
-  styleUrl: './actividad-detail.css',
+  styleUrls: ['./actividad-detail.css', './actividad-detail-multimedia.css', './actividad-detail-lightbox.css'],
   providers: [
     tuiItemsHandlersProvider({
       stringify: signal(

@@ -62,5 +62,5 @@ public class ModeracionService {
         c.setActivo(restaurar);c.setOcultoModeracion(!restaurar);
         if(!restaurar && c.getIdComentarioPadre()==null) comentarios.findByIdComentarioPadre(id).stream().filter(h->Boolean.TRUE.equals(h.getActivo())).forEach(h->{h.setActivo(false);h.setOcultoModeracion(true);});
     }
-    private ReporteResponse dto(PostReporte r) {return new ReporteResponse(r.getIdPostReporte(),r.getIdPost(),r.getIdComentario(),consulta.autor(r.getIdUsuarioReporta()),r.getMotivo(),r.getDetalle(),r.getFechaReporte(),r.getEstado(),r.getIdUsuarioRevisor()==null?null:consulta.autor(r.getIdUsuarioRevisor()),r.getFechaRevision(),r.getAccionTomada(),r.getComentarioRevision());}
+    private ReporteResponse dto(PostReporte r) {return new ReporteResponse(r.getIdPostReporte(),r.getIdPost(),r.getIdComentario(),consulta.autor(r.getIdUsuarioReporta()),r.getMotivo(),r.getDetalle(),r.getFechaReporte(),r.getEstado(),r.getIdUsuarioRevisor()==null?null:consulta.autor(r.getIdUsuarioRevisor()),r.getFechaRevision(),r.getAccionTomada(),r.getComentarioRevision(),r.getIdPost()!=null?r.getIdPost():acceso.comentario(r.getIdComentario()).getIdPost());}
 }

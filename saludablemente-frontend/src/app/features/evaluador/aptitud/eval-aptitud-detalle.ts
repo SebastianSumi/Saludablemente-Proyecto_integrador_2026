@@ -28,7 +28,7 @@ import { EvaluacionAptitud } from '../../admin/aptitud/models';
     TuiTextfield,
   ],
   templateUrl: './eval-aptitud-detalle.html',
-  styleUrls: ['../evaluador-comun.css'],
+  styleUrls: ['../evaluador-comun.css', '../evaluador-tablas-detalle.css'],
 })
 export class EvalAptitudDetalle implements OnInit {
   private readonly fb = inject(FormBuilder);

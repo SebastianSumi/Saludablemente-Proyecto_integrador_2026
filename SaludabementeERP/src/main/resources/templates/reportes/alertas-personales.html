@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Alertas personales</title>
+    <style>
+        body { font-family: Arial, sans-serif; font-size: 12px; }
+        h1 { font-size: 16px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+        td, th { border: 1px solid #ccc; padding: 6px; }
+        th { background: #f2f2f2; }
+    </style>
+</head>
+<body>
+    <h1>Alertas clínicas personales</h1>
+    <p>Rango: <span th:text="${desde}">-</span> a <span th:text="${hasta}">-</span></p>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Tipo</th>
+                <th>Severidad</th>
+                <th>Estado</th>
+                <th>Fecha</th>
+                <th>Puntaje</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="a : ${alertas}">
+                <td th:text="${a.idAlerta}">-</td>
+                <td th:text="${a.tipoEvaluacionOrigen}">-</td>
+                <td th:text="${a.nivelSeveridad}">-</td>
+                <td th:text="${a.estado}">-</td>
+                <td th:text="${a.fechaGeneracion}">-</td>
+                <td th:text="${a.puntajeTotal}">-</td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>

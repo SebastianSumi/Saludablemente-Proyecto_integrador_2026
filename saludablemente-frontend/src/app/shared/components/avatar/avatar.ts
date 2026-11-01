@@ -1,4 +1,4 @@
-import { Component, computed, input, signal } from '@angular/core';
+import { Component, computed, effect, input, signal } from '@angular/core';
 
 /**
  * Resuelve la URL visible de un avatar.
@@ -25,14 +25,17 @@ export function urlAvatarFoto(foto?: string | null): string | undefined {
       <img
         [src]="foto()"
         [alt]="iniciales()"
+        [style.border-radius]="shape() === 'square' ? '10px' : '50%'"
         [style.width.px]="px()"
         [style.height.px]="px()"
+        [style.object-fit]="fit()"
         class="avatar-foto"
         (error)="fallo.set(true)"
       />
     } @else {
       <span
         class="avatar-iniciales"
+        [style.border-radius]="shape() === 'square' ? '10px' : '50%'"
         [style.width.px]="px()"
         [style.height.px]="px()"
         [style.font-size.px]="px() * 0.36"
@@ -69,8 +72,16 @@ export function urlAvatarFoto(foto?: string | null): string | undefined {
   ],
 })
 export class Avatar {
+  constructor() {
+    effect(() => {
+      this.foto();
+      this.fallo.set(false);
+    });
+  }
   readonly foto = input<string | null | undefined>(null);
   readonly iniciales = input<string>('?');
+  readonly shape = input<'circle' | 'square'>('circle');
+  readonly fit = input<'cover' | 'contain'>('cover');
   readonly size = input<'s' | 'm' | 'l' | 'xl' | 'xxl'>('m');
 
   protected readonly fallo = signal(false);

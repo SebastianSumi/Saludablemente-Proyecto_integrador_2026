@@ -13,6 +13,7 @@ public record PostResumenResponse(
         Long idEquipoAutor,
         String titulo,
         String resumen,
+        String cuerpo,
         String lugar,
         LocalDate fechaEvento,
         String horaInicio,
@@ -33,5 +34,7 @@ public record PostResumenResponse(
         Long postOriginalId,
         SocialEquipoPerfilDto equipo,
         boolean puedoEditar,
-        boolean puedoEliminar
+        boolean puedoEliminar,
+        PostResumenResponse postOriginal,
+        List<String> imagenes
 ) {}

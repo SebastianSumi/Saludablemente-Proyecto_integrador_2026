@@ -22,7 +22,7 @@ import { calcularPorcentajeMeta } from '../inicio/calcular-meta';
   standalone: true,
   imports: [DatePipe, RouterLink, TuiButton, TuiIcon, Avatar],
   templateUrl: './eval-colaborador-detalle.html',
-  styleUrls: ['../evaluador-comun.css'],
+  styleUrls: ['../evaluador-comun.css', '../evaluador-tablas-detalle.css'],
 })
 export class EvalColaboradorDetalle implements OnInit {
   private readonly route = inject(ActivatedRoute);

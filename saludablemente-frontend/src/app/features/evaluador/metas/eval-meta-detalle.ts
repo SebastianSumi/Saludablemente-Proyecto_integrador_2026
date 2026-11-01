@@ -13,7 +13,7 @@ import { ProgresoMeta } from '../../admin/metas/models';
   standalone: true,
   imports: [RouterLink, TuiButton, TuiIcon, TuiTable],
   templateUrl: './eval-meta-detalle.html',
-  styleUrls: ['../evaluador-comun.css'],
+  styleUrls: ['../evaluador-comun.css', '../evaluador-tablas-detalle.css'],
 })
 export class EvalMetaDetalle implements OnInit {
   private readonly service = inject(MetaService);

@@ -31,9 +31,9 @@ public interface EvaluacionAptitudRepository extends JpaRepository<EvaluacionApt
             SELECT e FROM EvaluacionAptitud e
             WHERE (:idPeriodo IS NULL OR e.idPeriodo = :idPeriodo)
               AND (:estado    IS NULL OR e.estadoEvaluacion = :estado)
-              AND (:area      IS NULL OR LOWER(e.areaTrabajoAlMomento) LIKE LOWER(CONCAT('%', :area, '%')))
-              AND (:texto     IS NULL OR LOWER(e.nombresCompletosAlMomento) LIKE LOWER(CONCAT('%', :texto, '%'))
-                                      OR LOWER(e.documentoIdentidadAlMomento) LIKE LOWER(CONCAT('%', :texto, '%')))
+              AND (CAST(:area AS string) IS NULL OR LOWER(e.areaTrabajoAlMomento) LIKE LOWER(CONCAT('%', CAST(:area AS string), '%')))
+              AND (CAST(:texto AS string) IS NULL OR LOWER(e.nombresCompletosAlMomento) LIKE LOWER(CONCAT('%', CAST(:texto AS string), '%'))
+                                      OR LOWER(e.documentoIdentidadAlMomento) LIKE LOWER(CONCAT('%', CAST(:texto AS string), '%')))
             """)
     Page<EvaluacionAptitud> buscar(
             @Param("idPeriodo") Long idPeriodo,

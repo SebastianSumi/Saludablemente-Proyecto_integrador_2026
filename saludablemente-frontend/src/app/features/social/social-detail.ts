@@ -1,5 +1,9 @@
+import { SocialModal } from './social-modal';
+import { DatePipe } from '@angular/common';
+import { Avatar, urlAvatarFoto } from '../../shared/components/avatar/avatar';
+import { SocialGallery } from './social-gallery';
 import { afterEveryRender, Component, computed, DestroyRef, inject, signal } from '@angular/core';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TuiButton } from '@taiga-ui/core';
 import {
   BehaviorSubject,
@@ -13,7 +17,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SocialService } from './social-service';
 import { Page, Comentario, PostDetalle } from './social.model';
-import { errorSocial, resumenDetalle } from './social.utils';
+import { errorSocial, imagenesPublicacion, resumenDetalle } from './social.utils';
 import { SocialPostCard } from './social-post-card';
 import { SocialComment } from './social-comment';
 import { SocialCommentEditor } from './social-comment-editor';
@@ -22,6 +26,10 @@ import { SocialText } from './social-text';
 @Component({
   selector: 'app-social-detail',
   imports: [
+    Avatar,
+    DatePipe,
+    SocialGallery,
+    SocialModal,
     RouterLink,
     TuiButton,
     SocialPostCard,
@@ -30,7 +38,7 @@ import { SocialText } from './social-text';
     SocialPager,
     SocialText,
   ],
-  styleUrl: './social.css',
+  styleUrls: ['./social.css', './social-detail.css'],
   template: ` <div class="stack">
     <a routerLink="/social">← Volver al muro</a>
     @if (error()) {
@@ -47,18 +55,10 @@ import { SocialText } from './social-text';
       @if (card(); as c) {
         <social-post-card
           [post]="c"
+          [detail]="true"
           (changed)="refresh()"
           (deleted)="post.set(null); error.set('Esta publicación ya no está disponible.')"
         />
-      }
-      @if (p.imagenes.length > 1) {
-        <section class="panel attachments" aria-label="Galería de la publicación">
-          @for (url of p.imagenes; track $index) {
-            <a [href]="url" target="_blank" rel="noopener noreferrer"
-              ><img [src]="url" alt="Imagen de la galería" loading="lazy"
-            /></a>
-          }
-        </section>
       }
       @if (p.menciones.length) {
         <section class="panel">
@@ -72,64 +72,148 @@ import { SocialText } from './social-text';
           visible para el autor y administradores.
         </p>
       }
-      <section class="panel">
-        <h2>Conversemos</h2>
-        <social-comment-editor [post]="p.idPost" (sent)="loadComments(commentPage())" />
-        <hr class="divider" />
-        @if (focused(); as selected) {
-          @if (!inPage(selected.idComentario)) {
-            <section class="notice">
-              <h3>Comentario seleccionado</h3>
-              @if (selected.idComentarioPadre) {
-                <a
-                  [routerLink]="['/social/posts', selected.idPost]"
-                  [fragment]="'comentario-' + selected.idComentarioPadre"
-                  >Ver comentario raíz</a
-                >
+      @if (commentOpen()) {
+        <social-modal
+          title="Comentar"
+          [wide]="true"
+          [busy]="commentBusy() || pendingThreads().size > 0"
+          (closed)="closeComments()"
+        >
+          <div class="discussion-layout">
+          <aside class="discussion-post" aria-label="Publicación que estás comentando">
+            <header class="identity">
+              <app-avatar [foto]="avatar(p.autor.fotoUrl)"
+                [iniciales]="p.autor.nombreCompleto.slice(0, 1)" />
+              <div><a [routerLink]="['/social/usuarios', p.autor.idUsuario]">
+                <strong>{{ p.autor.nombreCompleto }}</strong>
+              </a><small>{{ p.fechaPublicacion | date: 'dd/MM/yyyy · HH:mm' }}</small></div>
+            </header>
+            <h2>{{ p.titulo || 'Publicación' }}</h2>
+            <social-text [text]="p.resumen" [mentions]="p.menciones" />
+            @if (p.cuerpo) {
+              <section class="post-body">
+                <social-text [text]="p.cuerpo" [mentions]="p.menciones" />
+              </section>
+            }
+            @if (discussionImages().length) {
+              <div class="discussion-media">
+                <social-gallery [urls]="discussionImages()" [title]="p.titulo || 'Publicación'" />
+              </div>
+            }
+          </aside>
+          <section class="conversation" aria-label="Comentarios de la publicación">
+            <div class="comments-scroll" tabindex="0" aria-label="Lista de comentarios">
+              @if (focused(); as selected) {
+                @if (!inPage(selected.idComentario)) {
+                  <section class="notice">
+                    <h3>Comentario seleccionado</h3>
+                    @if (selected.idComentarioPadre) {
+                      <a
+                        [routerLink]="['/social/posts', selected.idPost]"
+                        [fragment]="'comentario-' + selected.idComentarioPadre"
+                        >Ver comentario raíz</a
+                      >
+                    }
+                    <social-comment
+                      [comentario]="selected"
+                      [replyInComposer]="true"
+                      (replyRequested)="replyTo($event)"
+                      (pending)="setThreadPending(selected.idComentario, $event)"
+                      (changed)="loadComments(commentPage()); loadFocused()"
+                    />
+                  </section>
+                }
               }
-              <social-comment
-                [comentario]="selected"
-                (changed)="loadComments(commentPage()); loadFocused()"
-              />
-            </section>
-          }
-        }
-        @if (focusError()) {
-          <p class="notice" role="status">{{ focusError() }}</p>
-        }
-        @if (commentError()) {
-          <p class="error" role="alert">
-            {{ commentError() }}
-            <button
-              tuiButton
-              type="button"
-              appearance="flat"
-              size="s"
-              (click)="loadComments(commentPage())"
-            >
-              Reintentar
-            </button>
-          </p>
-        }
-        @if (commentLoading()) {
-          <p role="status">Cargando comentarios…</p>
-        } @else if (comments(); as list) {
-          @for (c of list.content; track c.idComentario) {
-            <social-comment [comentario]="c" (changed)="loadComments(list.number)" />
-          } @empty {
-            <p class="empty">Sé la primera persona en comentar.</p>
-          }
-          <social-pager
-            [page]="list.number"
-            [total]="list.totalPages"
-            (change)="loadComments($event)"
-          />
-        }
-      </section>
+              @if (focusError()) {
+                <p class="notice" role="status">{{ focusError() }}</p>
+              }
+              @if (commentError()) {
+                <p class="error" role="alert">
+                  {{ commentError() }}
+                  <button
+                    tuiButton
+                    type="button"
+                    appearance="flat"
+                    size="s"
+                    (click)="loadComments(commentPage())"
+                  >
+                    Reintentar
+                  </button>
+                </p>
+              }
+              @if (commentLoading()) {
+                <p role="status">Cargando comentarios…</p>
+              } @else if (comments(); as list) {
+                @for (c of list.content; track c.idComentario) {
+                  <social-comment
+                    [comentario]="c"
+                    [replyInComposer]="true"
+                    (replyRequested)="replyTo($event)"
+                    (pending)="setThreadPending(c.idComentario, $event)"
+                    (changed)="loadComments(list.number)"
+                  />
+                } @empty {
+                  <p class="empty">Sé la primera persona en comentar.</p>
+                }
+                <social-pager
+                  [page]="list.number"
+                  [total]="list.totalPages"
+                  (change)="loadComments($event)"
+                />
+              }
+            </div>
+            <footer class="conversation-composer">
+              @if (replyTarget(); as target) {
+                <p class="reply-context">
+                  Respondiendo a <strong>{{ target.autor.nombreCompleto }}</strong>
+                </p>
+              }
+              @for (target of [replyTarget()]; track target?.idComentario ?? 0) {
+                <social-comment-editor
+                  [post]="p.idPost"
+                  [padre]="target?.idComentarioPadre ?? target?.idComentario ?? null"
+                  [initialText]="
+                    target?.idComentarioPadre && target?.autor?.username
+                      ? '@' + target!.autor.username + ' '
+                      : ''
+                  "
+                  (pending)="commentBusy.set($event)"
+                  (cancel)="replyTarget.set(null)"
+                  (sent)="replyTarget.set(null); loadComments(commentPage())"
+                />
+              }
+            </footer>
+          </section>
+          </div>
+        </social-modal>
+      }
     }
   </div>`,
 })
 export class SocialDetail {
+  protected readonly avatar = urlAvatarFoto;
+  protected readonly discussionImages = computed(() =>
+    this.card() ? imagenesPublicacion(this.card()!) : [],
+  );
+  protected readonly replyTarget = signal<Comentario | null>(null);
+  protected replyTo(comment: Comentario) {
+    if (this.commentBusy()) return;
+    this.replyTarget.set(comment);
+    requestAnimationFrame(() =>
+      document.querySelector<HTMLTextAreaElement>('.conversation-composer textarea')?.focus(),
+    );
+  }
+  protected readonly pendingThreads = signal<Set<number>>(new Set());
+  protected setThreadPending(id: number, busy: boolean) {
+    this.pendingThreads.update((ids) => {
+      const next = new Set(ids);
+      busy ? next.add(id) : next.delete(id);
+      return next;
+    });
+  }
+  protected readonly commentOpen = signal(false);
+  protected readonly commentBusy = signal(false);
+  private readonly router = inject(Router);
   private readonly api = inject(SocialService);
   private readonly route = inject(ActivatedRoute);
   private readonly destroy = inject(DestroyRef);
@@ -148,6 +232,11 @@ export class SocialDetail {
   protected readonly commentLoading = signal(false);
   protected readonly commentError = signal('');
   constructor() {
+    this.route.queryParamMap
+      .pipe(debounceTime(0), takeUntilDestroyed(this.destroy))
+      .subscribe((params) => {
+        if (params.get('comentar') === '1') this.commentOpen.set(true);
+      });
     afterEveryRender(() => {
       const fragment = this.route.snapshot.fragment;
       if (!fragment || this.scrolled === fragment) return;
@@ -157,10 +246,13 @@ export class SocialDetail {
         this.scrolled = fragment;
       }
     });
-    this.route.fragment.pipe(takeUntilDestroyed(this.destroy)).subscribe(() => {
-      this.scrolled = '';
-      this.loadFocused();
-    });
+    this.route.fragment
+      .pipe(debounceTime(0), takeUntilDestroyed(this.destroy))
+      .subscribe((fragment) => {
+        if (fragment?.startsWith('comentario-')) this.commentOpen.set(true);
+        this.scrolled = '';
+        this.loadFocused();
+      });
     combineLatest([this.route.paramMap, this.reload])
       .pipe(
         debounceTime(0),
@@ -195,6 +287,18 @@ export class SocialDetail {
         }
         this.loading.set(false);
       });
+  }
+  protected closeComments() {
+    if (this.commentBusy() || this.pendingThreads().size) return;
+    this.replyTarget.set(null);
+    this.commentOpen.set(false);
+    void this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { comentar: null },
+      queryParamsHandling: 'merge',
+      fragment: undefined,
+      replaceUrl: true,
+    });
   }
   protected refresh() {
     this.reload.next(this.reload.value + 1);

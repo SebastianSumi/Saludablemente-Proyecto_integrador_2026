@@ -228,6 +228,10 @@
   </nav>
 } @else if (auth.estaAutenticado() && esAdmin()) {
   <nav class="col-nav" aria-label="Accesos administración">
+    <a tuiButton appearance="flat" size="s" routerLink="/social" class="col-nav-link">
+      <tui-icon icon="@tui.messages-square" />
+      Social
+    </a>
     <a tuiButton appearance="flat" size="s" routerLink="/admin" [fragment]="anclaModulo()" class="col-nav-link">
       <tui-icon icon="@tui.shield" />
       Centro de administración

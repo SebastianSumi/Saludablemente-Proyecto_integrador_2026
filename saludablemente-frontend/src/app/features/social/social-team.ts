@@ -1,9 +1,10 @@
+import { SocialIcon } from './social-icon';
 import { Component, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { EquipoSocial } from './social.model';
 @Component({
   selector: 'social-team',
-  imports: [RouterLink],
+  imports: [SocialIcon, RouterLink],
   styleUrl: './social.css',
   template: ` @if (equipo(); as e) {
     <section class="panel">
@@ -19,7 +20,8 @@ import { EquipoSocial } from './social.model';
         }
         <div>
           <span class="eyebrow">Nuestro equipo</span>
-          <h2>
+          <h2 class="section-heading">
+            <social-icon name="users" />
             <a [routerLink]="['/social/equipos', e.idEquipo]">{{ e.nombre }}</a>
           </h2>
           <p class="muted">{{ e.slogan }}</p>

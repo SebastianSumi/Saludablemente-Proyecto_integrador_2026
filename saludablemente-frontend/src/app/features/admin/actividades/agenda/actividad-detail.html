@@ -665,71 +665,17 @@
 
 <!-- MODAL DE CONFIRMACIÓN PARA SUBIR FOTO A LA GALERÍA -->
 @if (mostrarModalSubida()) {
-  <div class="modal-confirmacion-backdrop" (click)="cancelarSubidaModal()">
-    <div class="modal-confirmacion-card" (click)="$event.stopPropagation()">
-      <div class="modal-confirmacion-head">
-        <div class="modal-head-title">
-          <div class="tile tile-circle tile-soft-primary modal-icono">
-            <tui-icon icon="@tui.cloud-upload" />
-          </div>
-          <div>
-            <h3 class="modal-title">Subir fotografía a la galería</h3>
-            <p class="modal-sub">Confirma los detalles antes de almacenar la imagen</p>
-          </div>
-        </div>
-        <button tuiButton appearance="flat" size="s" type="button" (click)="cancelarSubidaModal()" aria-label="Cerrar">
-          <tui-icon icon="@tui.x" />
-        </button>
-      </div>
-
-      <div class="modal-confirmacion-body">
-        <div class="modal-preview-box">
-          @if (imagenPendientePreview(); as prev) {
-            <img [src]="prev" alt="Vista previa de la foto" class="modal-preview-img" />
-          }
-        </div>
-
-        <div class="modal-archivo-meta">
-          <span class="pill pill-soft-secondary font-mono">
-            {{ imagenPendienteArchivo()?.name }}
-          </span>
-          <span class="pill pill-soft-primary font-mono">
-            {{ formatearTamano(imagenPendienteArchivo()?.size) }}
-          </span>
-        </div>
-
-        <label tuiLabel class="field-desc-modal">
-          <span class="field-label">Descripción o pie de foto (opcional)</span>
-          <tui-textfield>
-            <input
-              tuiInput
-              placeholder="Ej. Taller práctico, participantes, premiación..."
-              [ngModel]="descripcionFoto()"
-              (ngModelChange)="descripcionFoto.set($event)"
-              (keydown.enter)="ejecutarSubidaImagen()"
-            />
-          </tui-textfield>
-        </label>
-
-        @if (errorMultimedia()) {
-          <div class="modal-error-box">
-            <tui-icon icon="@tui.triangle-alert" />
-            <span>{{ errorMultimedia() }}</span>
-          </div>
-        }
-      </div>
-
-      <div class="modal-confirmacion-foot">
-        <button tuiButton appearance="outline" size="m" type="button" (click)="cancelarSubidaModal()" [disabled]="subiendoImagen()">
-          Cancelar
-        </button>
-        <button tuiButton appearance="primary" size="m" type="button" (click)="ejecutarSubidaImagen()" [loading]="subiendoImagen()">
-          <tui-icon icon="@tui.check" />
-          Confirmar y subir
-        </button>
-      </div>
-    </div>
-  </div>
+  <app-actividad-subida-dialog
+    [preview]="imagenPendientePreview()"
+    [fileName]="imagenPendienteArchivo()?.name"
+    [sizeLabel]="formatearTamano(imagenPendienteArchivo()?.size)"
+    [description]="descripcionFoto()"
+    [error]="errorMultimedia()"
+    [loading]="subiendoImagen()"
+    (descriptionChange)="descripcionFoto.set($event)"
+    (cancel)="cancelarSubidaModal()"
+    (confirm)="ejecutarSubidaImagen()"
+  />
 }
 
 <ng-template #usr let-item>{{ item.email }}</ng-template>

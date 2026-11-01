@@ -69,4 +69,10 @@ public class Persona {
 
     @Column(name = "avatar_url", length = 250)
     private String avatarUrl;
+
+    @Column(name = "portada_social_url", length = 500)
+    private String portadaSocialUrl;
+
+    @Column(name = "presentacion_social", length = 300)
+    private String presentacionSocial;
 }

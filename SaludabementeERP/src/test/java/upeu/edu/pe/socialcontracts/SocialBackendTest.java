@@ -128,7 +128,7 @@ class SocialBackendTest {
     SocialUsuarioSnapshotDto autor(Long id) {return new SocialUsuarioSnapshotDto(id,id==101L?"ana.lazaro":"u"+id,"x@example.invalid","Usuario "+id,null,List.of("Colaborador"),"Colaborador",null,true);}
     JsonNode fixture(String id) throws Exception {var root=json.readTree(Files.readString(Path.of("..","docs","social","datos-prueba.json")));for(var e:root.get("ejemplos"))if(id.equals(e.get("id").asText()))return e.get("body");throw new AssertionError(id);}
     <V> V fixture(String id,Class<V> type) throws Exception {return json.treeToValue(fixture(id),type);}
-    Long crearPost() {return postService.crear(new CrearPostRequest("Título","Resumen",null,List.of()),A);}
+    Long crearPost() {return postService.crear(new CrearPostRequest("Título","Resumen",null,null,List.of()),A);}
     Long comentario(Long p) {return comentarios.crear(p,new CrearComentarioRequest("Comentario raíz",null,List.of()),B);}
 
     @Test void j01j02SincronizacionEsIdempotenteYRespetaModeracion() throws Exception {
@@ -146,7 +146,7 @@ class SocialBackendTest {
         assertThrows(org.springframework.security.access.AccessDeniedException.class,()->postService.crear(fixture("J04",CrearPostRequest.class),C));
         Long soloImagen=postService.crear(fixture("J05",CrearPostRequest.class),A);assertNull(posts.findById(soloImagen).orElseThrow().getTitulo());
         postService.editar(p,fixture("J06",EditarPostRequest.class),A);assertEquals("Pausa saludable actualizada",posts.findById(p).orElseThrow().getTitulo());
-        postService.editar(equipo,new EditarPostRequest("Equipo editado","Texto",List.of()),T);
+        postService.editar(equipo,new EditarPostRequest("Equipo editado","Texto",null,List.of()),T);
         assertThrows(org.springframework.security.access.AccessDeniedException.class,()->postService.eliminar(equipo,T));
         assertThrows(BusinessRuleException.class,()->postService.crear(fixture("J07",CrearPostRequest.class),A));postService.eliminar(p,A);assertFalse(posts.findById(p).orElseThrow().getActivo());
         var dto=consulta.detalle(equipo,A);assertEquals("https://example.invalid/equipo.png",dto.equipo().imagenUrl());assertEquals(106L,dto.equipo().lider().idUsuario());
@@ -276,7 +276,7 @@ class SocialBackendTest {
     @Test void losCincoTiposDeAvisoResuelvenPersonaYExcluyenAutor() {
         Long p=crearPost();Long c=comentario(p);comentarios.crear(p,new CrearComentarioRequest("Respuesta",c,List.of()),C);
         comentarios.crear(p,new CrearComentarioRequest("@ana.lazaro mencionada",null,List.of()),B);interacciones.reaccionar(p,TipoReaccion.LOVE,B);
-        postService.crear(new CrearPostRequest("Equipo","Publicación",301L,List.of()),B);
+        postService.crear(new CrearPostRequest("Equipo","Publicación",null,301L,List.of()),B);
         var captor=org.mockito.ArgumentCaptor.forClass(SocialAvisoDto.class);verify(notificaciones,atLeast(5)).enviar(captor.capture());
         var tipos=captor.getAllValues().stream().map(SocialAvisoDto::tipo).collect(java.util.stream.Collectors.toSet());assertEquals(Set.of(TipoAvisoSocial.values()),tipos);
         assertTrue(captor.getAllValues().stream().allMatch(a->a.idPersonaDestinatario()>=1001L));

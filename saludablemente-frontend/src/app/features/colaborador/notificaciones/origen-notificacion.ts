@@ -15,6 +15,7 @@ export interface OrigenVisual {
 }
 
 const ORIGENES: Record<string, OrigenVisual> = {
+  social: { icono: '@tui.messages-square', color: 'primary', etiqueta: 'Social' },
   alertaclinica: { icono: '@tui.bell', color: 'error', etiqueta: 'Alertas clínicas' },
   alertasclinicas: { icono: '@tui.bell', color: 'error', etiqueta: 'Alertas clínicas' },
   alerta: { icono: '@tui.bell', color: 'error', etiqueta: 'Alertas clínicas' },
@@ -67,6 +68,8 @@ export function rutaOrigenNotificacion(
   const ref = n.idOrigenReferencia;
 
   switch (clave) {
+    case 'social':
+      return ref ? `/social/posts/${ref}` : '/social';
     case 'alertaclinica':
     case 'alertasclinicas':
     case 'alerta':

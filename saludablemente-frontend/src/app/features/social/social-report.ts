@@ -1,4 +1,5 @@
-import { Component, DestroyRef, inject, input, output, signal } from '@angular/core';
+import { SocialIcon } from './social-icon';
+import { effect, Component, DestroyRef, inject, input, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TuiButton } from '@taiga-ui/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -8,10 +9,9 @@ import { MotivoReporte } from './social.model';
 import { errorSocial } from './social.utils';
 @Component({
   selector: 'social-report',
-  imports: [FormsModule, TuiButton],
+  imports: [SocialIcon, FormsModule, TuiButton],
   styleUrl: './social.css',
-  template: ` <form class="panel fields" (ngSubmit)="send()">
-    <h3>Reportar contenido</h3>
+  template: ` <form class="fields" (ngSubmit)="send()">
     <label
       >Motivo<select [(ngModel)]="motivo" name="motivo">
         <option value="SPAM">Spam</option>
@@ -42,7 +42,7 @@ import { errorSocial } from './social.utils';
         [disabled]="busy()"
         (click)="cancel.emit()"
       >
-        Cancelar
+        <social-icon name="x" />Cancelar
       </button>
     </div>
   </form>`,
@@ -52,12 +52,14 @@ export class SocialReport {
   readonly comentario = input<number>();
   readonly sent = output<void>();
   readonly cancel = output<void>();
+  readonly pending = output<boolean>();
   private readonly api = inject(SocialService);
   private readonly destroy = inject(DestroyRef);
   protected motivo: MotivoReporte = 'SPAM';
   protected detalle = '';
   protected readonly busy = signal(false);
   protected readonly error = signal('');
+  private readonly pendingEffect = effect(() => this.pending.emit(this.busy()));
   protected send() {
     if (this.busy()) return;
     this.busy.set(true);

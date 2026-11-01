@@ -48,7 +48,7 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
      */
     @Query("""
         SELECT u FROM Usuario u
-        WHERE (:email IS NULL OR LOWER(u.email) LIKE LOWER(CONCAT('%', :email, '%')))
+        WHERE (CAST(:email AS string) IS NULL OR LOWER(u.email) LIKE LOWER(CONCAT('%', CAST(:email AS string), '%')))
           AND (:activo IS NULL OR u.activo = :activo)
           AND (:excluirRoot = false OR NOT EXISTS (
                 SELECT 1 FROM u.roles r WHERE r.nombre = 'ROOT'
@@ -130,11 +130,11 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
     SELECT DISTINCT u FROM Usuario u
     WHERE u.activo = true
       AND (
-        LOWER(u.username) LIKE LOWER(CONCAT('%', :q, '%'))
-        OR LOWER(u.email) LIKE LOWER(CONCAT('%', :q, '%'))
+        LOWER(u.username) LIKE LOWER(CONCAT('%', CAST(:q AS string), '%'))
+        OR LOWER(u.email) LIKE LOWER(CONCAT('%', CAST(:q AS string), '%'))
         OR LOWER(CONCAT(u.nombresSnapshot, ' ', u.apellidoPaternoSnapshot,
                   ' ', COALESCE(u.apellidoMaternoSnapshot, '')))
-             LIKE LOWER(CONCAT('%', :q, '%'))
+             LIKE LOWER(CONCAT('%', CAST(:q AS string), '%'))
       )
     ORDER BY u.apellidoPaternoSnapshot, u.nombresSnapshot
 """)

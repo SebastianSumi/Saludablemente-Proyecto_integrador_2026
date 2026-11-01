@@ -4,5 +4,6 @@ import upeu.edu.pe.Saludabemente.social.post.entity.PostImagen;
 import java.util.*;
 public interface PostImagenRepository extends JpaRepository<PostImagen,Long> {
     List<PostImagen> findByIdPostOrderByOrdenAsc(Long id);
+    List<PostImagen> findByIdPostInOrderByIdPostAscOrdenAsc(Collection<Long> ids);
     void deleteByIdPost(Long id);
 }

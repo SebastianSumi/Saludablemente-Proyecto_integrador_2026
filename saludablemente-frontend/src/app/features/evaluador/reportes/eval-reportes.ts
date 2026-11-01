@@ -17,7 +17,7 @@ interface OpcionPeriodo {
   standalone: true,
   imports: [FormsModule, TuiButton, TuiButtonLoading, TuiIcon, TuiInput, TuiLabel, TuiTextfield],
   templateUrl: './eval-reportes.html',
-  styleUrls: ['../evaluador-comun.css'],
+  styleUrls: ['../evaluador-comun.css', '../evaluador-tablas-detalle.css'],
 })
 export class EvalReportes implements OnInit {
   private readonly evaluacionSrv = inject(EvaluacionService);

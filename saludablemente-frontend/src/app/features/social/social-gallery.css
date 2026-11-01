@@ -1,0 +1,232 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+.photo-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  gap: 3px;
+  aspect-ratio: 4/3;
+  background: var(--sal-hover);
+  overflow: hidden;
+  border-radius: 12px;
+}
+.photo-tile {
+  position: relative;
+  overflow: hidden;
+  border: 0;
+  padding: 0;
+  background: var(--sal-hover);
+  cursor: pointer;
+  min-width: 0;
+  min-height: 0;
+  grid-column: span 3;
+}
+.photo-tile img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: filter 0.2s;
+}
+.photo-tile:hover img {
+  filter: brightness(0.92);
+}
+.photo-tile:focus-visible {
+  outline: 3px solid var(--sal-action);
+  outline-offset: -3px;
+  z-index: 1;
+}
+.photo-grid[data-count='1'] .photo-tile {
+  grid-area: 1/1/3/7;
+}
+.photo-grid[data-count='2'] .photo-tile {
+  grid-row: span 2;
+}
+.photo-grid[data-count='2'][data-orientation='landscape'] .photo-tile {
+  grid-column: span 6;
+  grid-row: span 1;
+}
+.photo-grid[data-count='3'] .photo-tile:first-child {
+  grid-column: span 6;
+}
+.photo-grid[data-count='3'][data-orientation='portrait'] .photo-tile:first-child {
+  grid-column: span 3;
+  grid-row: span 2;
+}
+.photo-grid[data-count='5'] .photo-tile:nth-child(n + 3) {
+  grid-column: span 2;
+}
+.photo-grid[data-count='4'][data-orientation='portrait'] {
+  grid-template-rows: repeat(3, minmax(0, 1fr));
+}
+.photo-grid[data-count='4'][data-orientation='portrait'] .photo-tile:first-child {
+  grid-row: span 3;
+}
+.photo-grid[data-count='5'][data-orientation='portrait'] {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.photo-grid[data-count='5'][data-orientation='portrait'] .photo-tile {
+  grid-column: span 1;
+}
+.photo-grid[data-count='5'][data-orientation='portrait'] .photo-tile:first-child {
+  grid-column: span 2;
+  grid-row: span 2;
+}
+.photo-extra {
+  position: absolute;
+  inset: 0;
+  background: #0009;
+  color: white;
+  display: grid;
+  place-content: center;
+  font-size: clamp(24px, 5vw, 48px);
+  font-weight: 700;
+}
+.photo-failed {
+  height: 100%;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  color: var(--sal-ink-soft);
+  font-size: 12px;
+  padding: 8px;
+  box-sizing: border-box;
+}
+.photo-viewer {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  gap: 12px;
+  color: var(--sal-ink);
+}
+.viewer-tools {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+  flex: none;
+  font-size: 13px;
+}
+.zoom-tools {
+  display: flex;
+  gap: 2px;
+  align-items: center;
+}
+.zoom-tools [tuiButton] {
+  min-width: 36px;
+  min-height: 36px;
+  padding: 0 8px;
+}
+.viewer-stage {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  border-radius: 12px;
+  background: #121722;
+}
+.image-canvas {
+  position: absolute;
+  inset: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+.image-canvas img {
+  display: block;
+  max-width: none;
+  max-height: none;
+  object-fit: contain;
+}
+.image-canvas .photo-failed {
+  color: #e1e7ef;
+}
+.viewer-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 1px solid #ffffff55;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #111827bb;
+  color: white;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+.viewer-arrow:focus-visible,
+.photo-thumbs button:focus-visible {
+  outline: 3px solid var(--sal-action);
+  outline-offset: 2px;
+}
+.previous {
+  left: 12px;
+}
+.next {
+  right: 12px;
+}
+.photo-thumbs {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  flex: none;
+  padding: 4px;
+  scrollbar-width: thin;
+}
+.photo-thumbs button {
+  position: relative;
+  width: 64px;
+  height: 52px;
+  flex: none;
+  border: 2px solid transparent;
+  padding: 0;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  background: var(--sal-hover);
+}
+.photo-thumbs button.active {
+  border-color: var(--sal-action);
+}
+.photo-thumbs img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.photo-thumbs span {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  padding: 0 4px;
+  color: white;
+  background: #0009;
+  font-size: 10px;
+}
+@media (max-width: 600px) {
+  .viewer-tools {
+    font-size: 12px;
+  }
+  .zoom-tools [tuiButton] {
+    padding: 0 5px;
+    min-width: 32px;
+  }
+  .photo-thumbs button {
+    width: 52px;
+    height: 44px;
+  }
+  .viewer-arrow {
+    width: 36px;
+    height: 36px;
+  }
+  .previous {
+    left: 8px;
+  }
+  .next {
+    right: 8px;
+  }
+}

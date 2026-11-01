@@ -12,6 +12,12 @@ import java.util.Optional;
  */
 public interface SocialUsuarioApi {
 
+    SocialPerfilVisualDto obtenerPerfilVisual(Long idUsuario);
+
+    SocialPerfilVisualDto actualizarMiPresentacion(String presentacion);
+
+    SocialPerfilVisualDto subirMiFoto(org.springframework.web.multipart.MultipartFile archivo, boolean portada);
+
     /**
      * Resuelve la identidad del usuario autenticado en el request actual.
      *
@@ -19,6 +25,12 @@ public interface SocialUsuarioApi {
      *         si no hay JWT válido o el email no corresponde a un usuario activo
      */
     SocialUsuarioActualDto obtenerUsuarioActual();
+
+    /**
+     * Resuelve el idPersona asociado al usuario interno.
+     * Uso para modulos que requieren datos personales del colaborador.
+     */
+    Long obtenerIdPersona(Long idUsuario);
 
     /**
      * Snapshot completo de un usuario por su ID interno.

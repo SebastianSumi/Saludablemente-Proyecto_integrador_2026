@@ -9,6 +9,9 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import upeu.edu.pe.Saludabemente.exception.ResourceNotFoundException;
+import upeu.edu.pe.Saludabemente.personal.api.PersonalPerfilVisualApi;
+import upeu.edu.pe.Saludabemente.personal.api.PersonalPerfilVisualDTO;
+import upeu.edu.pe.Saludabemente.seguridad.api.social.SocialPerfilVisualDto;
 import upeu.edu.pe.Saludabemente.seguridad.api.social.SocialUsuarioActualDto;
 import upeu.edu.pe.Saludabemente.seguridad.api.social.SocialUsuarioApi;
 import upeu.edu.pe.Saludabemente.seguridad.api.social.SocialUsuarioBusquedaDto;
@@ -19,28 +22,71 @@ import upeu.edu.pe.Saludabemente.seguridad.usuario.entity.Usuario;
 import upeu.edu.pe.Saludabemente.seguridad.usuario.repository.UsuarioRepository;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
- * Implementación del contrato de Seguridad hacia Social.
+ * Implementacion del contrato de Seguridad hacia Social.
  *
  * <p>Vive en {@code api/impl/} para que Modulith distinga claramente el
- * contrato público de la lógica interna de cada subdominio.</p>
+ * contrato publico de la logica interna de cada subdominio.</p>
  */
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class SocialUsuarioApiImpl implements SocialUsuarioApi {
 
-    /** Jerarquía de roles, del mayor al menor. */
+    /** Jerarquia de roles, del mayor al menor. */
     private static final List<String> JERARQUIA_ROLES = List.of(
             "Administrador", "Coordinador", "Evaluador", "Colaborador"
     );
 
     private static final int LIMITE_MAX_BUSQUEDA = 20;
 
+    private static final int LIMITE_BATCH_IDS = 100;
+
     private final UsuarioRepository usuarioRepository;
+    private final PersonalPerfilVisualApi personalApi;
+
+    @Override
+    @Transactional(readOnly = true)
+    public SocialPerfilVisualDto obtenerPerfilVisual(Long idUsuario) {
+        return visual(personalApi.obtenerPerfilVisual(personaDeUsuario(idUsuario)));
+    }
+
+    @Override
+    @Transactional
+    public SocialPerfilVisualDto actualizarMiPresentacion(String presentacion) {
+        Long persona = personaDeUsuario(obtenerUsuarioActual().idUsuario());
+        return visual(personalApi.actualizarPresentacionSocial(persona, presentacion));
+    }
+
+    @Override
+    @Transactional
+    public SocialPerfilVisualDto subirMiFoto(org.springframework.web.multipart.MultipartFile archivo, boolean portada) {
+        Long persona = personaDeUsuario(obtenerUsuarioActual().idUsuario());
+        return visual(personalApi.subirFotoPerfilSocial(persona, archivo, portada));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Long obtenerIdPersona(Long idUsuario) {
+        return personaDeUsuario(idUsuario);
+    }
+
+    private Long personaDeUsuario(Long idUsuario) {
+        return usuarioRepository.findById(idUsuario)
+                .filter(u -> Boolean.TRUE.equals(u.getActivo()) && u.getIdPersonaSnapshot() != null)
+                .map(Usuario::getIdPersonaSnapshot)
+                .orElseThrow(() -> new ResourceNotFoundException("Perfil no disponible"));
+    }
+
+    private SocialPerfilVisualDto visual(PersonalPerfilVisualDTO v) {
+        return new SocialPerfilVisualDto(v.fotoUrl(), v.portadaUrl(), v.presentacion());
+    }
 
     // -------------------------------------------------------------------
     // obtenerUsuarioActual
@@ -65,7 +111,7 @@ public class SocialUsuarioApiImpl implements SocialUsuarioApi {
 
         if (!Boolean.TRUE.equals(usuario.getActivo())) {
             throw new UsuarioSocialInactivoException(
-                    "La cuenta del usuario está inactiva");
+                    "La cuenta del usuario esta inactiva");
         }
 
         List<String> roles = usuario.getRoles().stream()
@@ -95,10 +141,10 @@ public class SocialUsuarioApiImpl implements SocialUsuarioApi {
 
         if (!Boolean.TRUE.equals(usuario.getActivo())) {
             throw new UsuarioSocialInactivoException(
-                    "El usuario con id " + idUsuario + " está inactivo");
+                    "El usuario con id " + idUsuario + " esta inactivo");
         }
 
-        return toSnapshot(usuario);
+        return toSnapshot(usuario, fotos(List.of(usuario)));
     }
 
     // -------------------------------------------------------------------
@@ -113,7 +159,7 @@ public class SocialUsuarioApiImpl implements SocialUsuarioApi {
         }
         return usuarioRepository.findByUsername(username.trim().toLowerCase())
                 .filter(u -> Boolean.TRUE.equals(u.getActivo()))
-                .map(this::toSnapshot);
+                .map(u -> toSnapshot(u, fotos(List.of(u))));
     }
 
     // -------------------------------------------------------------------
@@ -130,14 +176,11 @@ public class SocialUsuarioApiImpl implements SocialUsuarioApi {
         int cap = Math.min(Math.max(limite, 1), LIMITE_MAX_BUSQUEDA);
         String q = query.trim();
 
-        return usuarioRepository.buscarParaMenciones(q, PageRequest.of(0, cap))
-                .stream()
-                .map(u -> new SocialUsuarioBusquedaDto(
-                        u.getId(),
-                        u.getUsername(),
-                        armarNombreCompleto(u),
-                        null  // fotoUrl: null hasta que exista el flujo de subida
-                ))
+        List<Usuario> encontrados = usuarioRepository.buscarParaMenciones(q, PageRequest.of(0, cap));
+        Map<Long, String> fotos = fotos(encontrados);
+        return encontrados.stream()
+                .map(u -> new SocialUsuarioBusquedaDto(u.getId(), u.getUsername(),
+                        armarNombreCompleto(u), fotos.get(u.getIdPersonaSnapshot())))
                 .toList();
     }
 
@@ -158,7 +201,7 @@ public class SocialUsuarioApiImpl implements SocialUsuarioApi {
     // Helpers privados
     // -------------------------------------------------------------------
 
-    private SocialUsuarioSnapshotDto toSnapshot(Usuario usuario) {
+    private SocialUsuarioSnapshotDto toSnapshot(Usuario usuario, Map<Long, String> fotos) {
         List<String> roles = usuario.getRoles().stream()
                 .map(Rol::getNombre)
                 .sorted()
@@ -174,7 +217,7 @@ public class SocialUsuarioApiImpl implements SocialUsuarioApi {
                 usuario.getUsername(),
                 usuario.getEmail(),
                 armarNombreCompleto(usuario),
-                null,  // fotoUrl: null hasta que exista el flujo de subida
+                fotos.get(usuario.getIdPersonaSnapshot()),
                 roles,
                 rolPrincipal,
                 usuario.getEquipoSnapshot(),
@@ -194,8 +237,6 @@ public class SocialUsuarioApiImpl implements SocialUsuarioApi {
         return sb.toString();
     }
 
-    private static final int LIMITE_BATCH_IDS = 100;
-
     @Override
     @Transactional(readOnly = true)
     public List<SocialUsuarioSnapshotDto> obtenerPorIds(Collection<Long> ids) {
@@ -208,9 +249,22 @@ public class SocialUsuarioApiImpl implements SocialUsuarioApi {
                 ? ids.stream().limit(LIMITE_BATCH_IDS).toList()
                 : ids;
 
-        return usuarioRepository.findActivosByIdIn(idsAcotados)
-                .stream()
-                .map(this::toSnapshot)
-                .toList();
+        List<Usuario> encontrados = usuarioRepository.findActivosByIdIn(idsAcotados);
+        Map<Long, String> fotos = fotos(encontrados);
+        return encontrados.stream().map(u -> toSnapshot(u, fotos)).toList();
+    }
+
+    private Map<Long, String> fotos(Collection<Usuario> usuarios) {
+        List<Long> ids = usuarios.stream().map(Usuario::getIdPersonaSnapshot)
+                .filter(Objects::nonNull).distinct().toList();
+        Map<Long, String> resultado = new HashMap<>();
+        for (int i = 0; i < ids.size(); i += LIMITE_BATCH_IDS) {
+            for (var foto : personalApi.obtenerAvatares(ids.subList(i, Math.min(i + LIMITE_BATCH_IDS, ids.size())))) {
+                if (foto.avatarUrl() != null && !foto.avatarUrl().isBlank()) {
+                    resultado.put(foto.idPersona(), foto.avatarUrl());
+                }
+            }
+        }
+        return resultado;
     }
 }

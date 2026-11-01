@@ -1,5 +1,10 @@
+import { SocialIcon } from './social-icon';
+import { SocialModal } from './social-modal';
 import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { AsyncPipe } from '@angular/common';
+import { Avatar, urlAvatarFoto } from '../../shared/components/avatar/avatar';
+import { SocialCurrentAuthor } from './social-current-author';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TuiButton } from '@taiga-ui/core';
 import {
@@ -24,6 +29,10 @@ import { SocialTeam } from './social-team';
 @Component({
   selector: 'app-social-feed',
   imports: [
+    AsyncPipe,
+    Avatar,
+    SocialIcon,
+    SocialModal,
     FormsModule,
     RouterLink,
     TuiButton,
@@ -32,26 +41,40 @@ import { SocialTeam } from './social-team';
     SocialPager,
     SocialTeam,
   ],
-  styleUrl: './social.css',
+  styleUrls: ['./social.css', './social-feed.css'],
   template: ` <div class="columns">
     <div class="stack">
       @if (team(); as t) {
         <social-team [equipo]="t" />
       }
-      <div class="actions">
+      <div class="feed-heading">
         <h2>{{ heading() }}</h2>
-        <button tuiButton size="s" type="button" (click)="composer.set(!composer())">
-          {{ composer() ? 'Cerrar editor' : 'Nueva publicación' }}
-        </button>
         @if (scope() !== 'GLOBAL' || tag()) {
           <a routerLink="/social">Volver al muro global</a>
         }
       </div>
-      @if (composer()) {
-        <social-post-editor
-          (cancel)="composer.set(false)"
-          (saved)="composer.set(false); refresh()"
+      <section class="panel feed-composer" aria-label="Crear una publicación">
+        @let author = currentAuthor.autor$ | async;
+        <app-avatar
+          [foto]="avatar(author?.fotoUrl)"
+          [iniciales]="author?.nombreCompleto?.slice(0, 1) || '?'"
         />
+        <button class="composer-prompt" type="button" (click)="composer.set(true)">
+          <span>¿Qué quieres compartir con tu comunidad?</span>
+          <span class="composer-label"><social-icon name="square-pen" />Nueva publicación</span>
+        </button>
+      </section>
+      @if (composer()) {
+        <social-modal
+          title="Nueva publicación"
+          [busy]="composerBusy()"
+          (closed)="composer.set(false)"
+        >
+          <social-post-editor
+            (pending)="composerBusy.set($event)"
+            (cancel)="composer.set(false)"
+            (saved)="composer.set(false); refresh()"
+        /></social-modal>
       }
       @if (scope() === 'GLOBAL' && !tag()) {
         <nav class="tabs" aria-label="Filtrar publicaciones">
@@ -115,7 +138,7 @@ import { SocialTeam } from './social-team';
     </div>
     <aside class="stack sidebar">
       <section class="panel fields">
-        <h3>Explora la comunidad</h3>
+        <h3 class="section-heading"><social-icon name="compass" />Explora la comunidad</h3>
         <label
           >Encontrar<select
             [ngModel]="exploreType"
@@ -138,7 +161,7 @@ import { SocialTeam } from './social-team';
         }
       </section>
       <section class="panel">
-        <h3>Conversaciones de la semana</h3>
+        <h3 class="section-heading"><social-icon name="hash" />Conversaciones de la semana</h3>
         @if (trendError()) {
           <p role="alert">No se pudieron cargar las tendencias.</p>
           <button tuiButton type="button" size="s" appearance="flat" (click)="loadTrends()">
@@ -156,7 +179,9 @@ import { SocialTeam } from './social-team';
         }
       </section>
       <section class="notice">
-        <strong>Un espacio de bienestar</strong>
+        <strong class="section-heading"
+          ><social-icon name="shield-check" />Un espacio de bienestar</strong
+        >
         <p>
           Comparte con respeto. Usa las menciones para invitar a conversar y los reportes para
           cuidar nuestra comunidad.
@@ -166,6 +191,8 @@ import { SocialTeam } from './social-team';
   </div>`,
 })
 export class SocialFeed {
+  protected readonly currentAuthor = inject(SocialCurrentAuthor);
+  protected readonly avatar = urlAvatarFoto;
   private readonly api = inject(SocialService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
@@ -182,6 +209,7 @@ export class SocialFeed {
   protected readonly tab = signal('PARA_TI');
   protected readonly heading = signal('El muro de nuestra comunidad');
   protected readonly composer = signal(false);
+  protected readonly composerBusy = signal(false);
   protected readonly trends = signal<Tendencia[]>([]);
   protected readonly trendError = signal(false);
   protected readonly suggestions = signal<Sugerencia[]>([]);

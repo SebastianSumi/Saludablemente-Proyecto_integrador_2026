@@ -30,7 +30,7 @@ public class SocialActividadApiImpl implements SocialActividadApi {
         if (query == null || query.isBlank()) return List.of();
         return actividades.buscarParaSocial(query.trim(), PageRequest.of(0, Math.clamp(limite, 1, 20)))
                 .stream().map(a -> new ActividadBusquedaDto(a.getIdActividad(), a.getNombre(),
-                        a.getEstado(), a.getFechaActividad())).toList();
+                        a.getEstado(), a.getFechaActividad(), a.getLogoUrl())).toList();
     }
 
     @Override

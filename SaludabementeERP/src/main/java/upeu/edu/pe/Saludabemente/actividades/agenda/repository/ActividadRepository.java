@@ -13,7 +13,7 @@ public interface ActividadRepository extends JpaRepository<Actividad, Long> {
 
     List<Actividad> findByIdEquipoActividadOrderByFechaActividadDescIdActividadDesc(Long idEquipo);
 
-    @Query("SELECT a FROM Actividad a WHERE LOWER(a.nombre) LIKE LOWER(CONCAT('%', :q, '%')) ORDER BY a.fechaActividad DESC, a.idActividad DESC")
+    @Query("SELECT a FROM Actividad a WHERE LOWER(a.nombre) LIKE LOWER(CONCAT('%', CAST(:q AS string), '%')) ORDER BY a.fechaActividad DESC, a.idActividad DESC")
     List<Actividad> buscarParaSocial(@Param("q") String query, org.springframework.data.domain.Pageable pageable);
 
     /**

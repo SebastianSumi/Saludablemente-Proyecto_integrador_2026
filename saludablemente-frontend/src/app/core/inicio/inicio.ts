@@ -47,7 +47,7 @@ interface Acceso {
     ScrollLinkedDirective,
   ],
   selector: 'app-inicio',
-  styleUrl: './inicio.css',
+  styleUrls: ['./inicio.css', './inicio-comunidad.css'],
   templateUrl: './inicio.html',
 })
 export class Inicio implements OnInit {

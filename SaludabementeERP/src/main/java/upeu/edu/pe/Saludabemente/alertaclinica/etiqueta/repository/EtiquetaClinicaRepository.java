@@ -21,8 +21,8 @@ public interface EtiquetaClinicaRepository extends JpaRepository<EtiquetaClinica
         left join e.parametros ep
         left join AlertaEtiqueta ae on ae.idEtiqueta = e.id
         where (:estado is null or e.estado = :estado)
-          and (:texto is null or lower(e.nombre) like lower(concat('%', :texto, '%'))
-               or lower(e.codigo) like lower(concat('%', :texto, '%')))
+          and (cast(:texto as string) is null or lower(e.nombre) like lower(concat('%', cast(:texto as string), '%'))
+               or lower(e.codigo) like lower(concat('%', cast(:texto as string), '%')))
           and (:idParametro is null or exists (
               select p.id from EtiquetaParametro p where p.etiqueta = e and p.idParametro = :idParametro))
         group by e.id, e.codigo, e.nombre, e.colorHex, e.estado
@@ -39,8 +39,8 @@ public interface EtiquetaClinicaRepository extends JpaRepository<EtiquetaClinica
         left join e.parametros ep
         left join AlertaEtiqueta ae on ae.idEtiqueta = e.id
         where (:estado is null or e.estado = :estado)
-          and (:texto is null or lower(e.nombre) like lower(concat('%', :texto, '%'))
-               or lower(e.codigo) like lower(concat('%', :texto, '%')))
+          and (cast(:texto as string) is null or lower(e.nombre) like lower(concat('%', cast(:texto as string), '%'))
+               or lower(e.codigo) like lower(concat('%', cast(:texto as string), '%')))
           and (:idParametro is null or exists (
               select p.id from EtiquetaParametro p where p.etiqueta = e and p.idParametro = :idParametro))
         group by e.id, e.codigo, e.nombre, e.colorHex, e.estado
@@ -48,8 +48,8 @@ public interface EtiquetaClinicaRepository extends JpaRepository<EtiquetaClinica
                 """, countQuery = """
         select count(e) from EtiquetaClinica e
         where (:estado is null or e.estado = :estado)
-          and (:texto is null or lower(e.nombre) like lower(concat('%', :texto, '%'))
-               or lower(e.codigo) like lower(concat('%', :texto, '%')))
+          and (cast(:texto as string) is null or lower(e.nombre) like lower(concat('%', cast(:texto as string), '%'))
+               or lower(e.codigo) like lower(concat('%', cast(:texto as string), '%')))
           and (:idParametro is null or exists (
               select p.id from EtiquetaParametro p where p.etiqueta = e and p.idParametro = :idParametro))
         """)

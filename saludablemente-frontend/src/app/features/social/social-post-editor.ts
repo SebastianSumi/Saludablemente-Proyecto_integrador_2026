@@ -1,9 +1,20 @@
-import { Component, DestroyRef, inject, input, OnInit, output, signal } from '@angular/core';
+import { SocialIcon } from './social-icon';
+import {
+  effect,
+  Component,
+  DestroyRef,
+  inject,
+  input,
+  OnInit,
+  output,
+  signal,
+} from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TuiButton } from '@taiga-ui/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
 import { TeamService } from '../admin/teams/team-service';
+import { AuthService } from '../../core/auth/auth-service';
 import { Team } from '../admin/teams/team.model';
 import { SocialService } from './social-service';
 import { SocialTextEditor } from './social-text-editor';
@@ -11,10 +22,9 @@ import { PostDetalle } from './social.model';
 import { errorSocial, imagenesValidas, urlsImagenes } from './social.utils';
 @Component({
   selector: 'social-post-editor',
-  imports: [ReactiveFormsModule, TuiButton, SocialTextEditor],
+  imports: [SocialIcon, ReactiveFormsModule, TuiButton, SocialTextEditor],
   styleUrl: './social.css',
-  template: ` <section class="panel">
-    <h2>{{ postId() ? 'Editar publicación' : 'Comparte con la comunidad' }}</h2>
+  template: ` <section class="fields">
     @if (loading()) {
       <p role="status">Cargando publicación…</p>
     }
@@ -31,19 +41,32 @@ import { errorSocial, imagenesValidas, urlsImagenes } from './social.utils';
               placeholder="¿Qué te gustaría compartir?"
           /></label>
         }
-        <label
-          >{{ share() ? 'Texto del share' : 'Resumen'
-          }}<social-text-editor
+        <div class="field">
+          <span>{{ share() ? 'Texto del share' : 'Resumen' }}</span
+          ><social-text-editor
+            [mentions]="mentions()"
             [value]="form.controls.resumen.value"
             (valueChange)="form.controls.resumen.setValue($event)"
             [max]="500"
             label="Resumen de la publicación"
             [disabled]="busy()"
-        /></label>
+          />
+        </div>
+        @if (!share() && admin()) {
+          <div class="field">
+            <span>Contenido de la publicación</span>
+            <textarea
+              formControlName="cuerpo"
+              rows="8"
+              maxlength="10000"
+              placeholder="Texto amplio de la publicación (solo administradores)"
+            ></textarea>
+            <small>Puedes usar #hashtags y @menciones. Máximo 10 000 caracteres.</small>
+          </div>
+        }
         @if (!share()) {
           <label
-            >Imágenes · una URL por línea<textarea
-              formControlName="imagenes"
+            >Imágenes · una URL por línea<textarea              formControlName="imagenes"
               rows="2"
               placeholder="https://…"
             ></textarea></label
@@ -71,7 +94,9 @@ import { errorSocial, imagenesValidas, urlsImagenes } from './social.utils';
         }
         <div class="actions">
           <button tuiButton type="submit" size="s" [disabled]="busy() || form.invalid">
-            {{ busy() ? 'Guardando…' : postId() ? 'Guardar cambios' : 'Publicar' }}</button
+            <social-icon name="send" />{{
+              busy() ? 'Guardando…' : postId() ? 'Guardar cambios' : 'Publicar'
+            }}</button
           ><button
             tuiButton
             type="button"
@@ -80,7 +105,7 @@ import { errorSocial, imagenesValidas, urlsImagenes } from './social.utils';
             [disabled]="busy()"
             (click)="cancel.emit()"
           >
-            Cancelar
+            <social-icon name="x" />Cancelar
           </button>
         </div>
       </form>
@@ -91,8 +116,10 @@ export class SocialPostEditor implements OnInit {
   readonly postId = input<number | null>(null);
   readonly saved = output<PostDetalle>();
   readonly cancel = output<void>();
+  readonly pending = output<boolean>();
   private readonly api = inject(SocialService);
   private readonly teams = inject(TeamService);
+  private readonly auth = inject(AuthService);
   private readonly destroy = inject(DestroyRef);
   protected readonly team = signal<Team | null>(null);
   protected readonly teamError = signal(false);
@@ -100,10 +127,16 @@ export class SocialPostEditor implements OnInit {
   protected readonly ready = signal(true);
   protected readonly busy = signal(false);
   protected readonly error = signal('');
+  private readonly pendingEffect = effect(() => this.pending.emit(this.busy()));
   protected readonly share = signal(false);
+  protected admin() {
+    return this.auth.tieneRol('Administrador');
+  }
+  protected readonly mentions = signal<import('./social.model').Mencion[]>([]);
   protected readonly form = new FormGroup({
     titulo: new FormControl('', { nonNullable: true, validators: [Validators.maxLength(150)] }),
     resumen: new FormControl('', { nonNullable: true, validators: [Validators.maxLength(500)] }),
+    cuerpo: new FormControl('', { nonNullable: true, validators: [Validators.maxLength(10000)] }),
     imagenes: new FormControl('', { nonNullable: true }),
     equipo: new FormControl<number | null>(null),
   });
@@ -128,9 +161,11 @@ export class SocialPostEditor implements OnInit {
             return;
           }
           this.share.set(p.tipoContenido === 'SHARE');
+          this.mentions.set(p.menciones);
           this.form.patchValue({
             titulo: p.titulo ?? '',
             resumen: p.resumen ?? '',
+            cuerpo: p.cuerpo ?? '',
             imagenes: p.imagenes.join('\n'),
           });
           this.ready.set(true);
@@ -165,6 +200,7 @@ export class SocialPostEditor implements OnInit {
     const body = {
       titulo: v.titulo.trim() || null,
       resumen: v.resumen.trim() || null,
+      cuerpo: this.admin() ? (v.cuerpo.trim() || null) : null,
       imagenesUrls: urls,
     };
     const id = this.postId();

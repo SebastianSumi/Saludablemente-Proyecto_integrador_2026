@@ -58,3 +58,15 @@ export function adjuntoValido(file: File): boolean {
     /\.(jpe?g|png|webp)$/i.test(file.name)
   );
 }
+
+/** En actividades imagenUrl es el logo: nunca se utiliza como foto de galería. */
+export function imagenesPublicacion(post: PostResumen): string[] {
+  const urls = post.imagenes?.length
+    ? post.imagenes
+    : post.tipoContenido === 'ACTIVIDAD'
+      ? []
+      : post.imagenUrl
+        ? [post.imagenUrl]
+        : [];
+  return [...new Set(urls.map((url) => url.trim()).filter(Boolean))];
+}

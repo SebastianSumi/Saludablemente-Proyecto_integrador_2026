@@ -21,7 +21,7 @@ type Orden = 'fecha' | 'puntaje' | 'severidad';
   standalone: true,
   imports: [EtiquetasClinicas,DatePipe, RouterLink, ReactiveFormsModule, TuiButton, TuiIcon, TuiInput, TuiTextfield, TuiTable],
   templateUrl: './alerta-list.html',
-  styleUrls: ['./alerta-list.css'],
+  styleUrls: ['./alerta-list.css', './alerta-list-resultados.css'],
 })
 export class ColAlertaList implements OnInit {
   private static readonly RANGO_SEV: Record<SeveridadAlerta, number> = {

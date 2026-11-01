@@ -1,0 +1,53 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+.composer {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 32px;
+  gap: 12px;
+  align-items: start;
+}
+.composer-main {
+  min-width: 0;
+}
+.composer-avatar {
+  margin-top: 8px;
+}
+.composer-send {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+  padding-top: 8px;
+}
+.composer-send button {
+  gap: 6px;
+}
+.attachment-hint {
+  display: block;
+  font-size: 11px;
+  margin-top: 2px;
+}
+.composer-attachments {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+.composer-attachments > div {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.composer-attachments img {
+  width: 48px;
+  height: 48px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+@media (max-width: 600px) {
+  .composer {
+    gap: 8px;
+  }
+}

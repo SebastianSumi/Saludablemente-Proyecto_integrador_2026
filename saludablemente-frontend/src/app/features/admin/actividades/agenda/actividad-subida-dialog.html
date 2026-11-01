@@ -1,0 +1,86 @@
+<div class="modal-confirmacion-backdrop" (click)="cancel.emit()">
+  <div class="modal-confirmacion-card" (click)="$event.stopPropagation()">
+    <div class="modal-confirmacion-head">
+      <div class="modal-head-title">
+        <div class="tile tile-circle tile-soft-primary modal-icono">
+          <tui-icon icon="@tui.cloud-upload" />
+        </div>
+        <div>
+          <h3 class="modal-title">Subir fotografía a la galería</h3>
+          <p class="modal-sub">Confirma los detalles antes de almacenar la imagen</p>
+        </div>
+      </div>
+      <button
+        tuiButton
+        appearance="flat"
+        size="s"
+        type="button"
+        (click)="cancel.emit()"
+        aria-label="Cerrar"
+      >
+        <tui-icon icon="@tui.x" />
+      </button>
+    </div>
+
+    <div class="modal-confirmacion-body">
+      <div class="modal-preview-box">
+        @if (preview(); as prev) {
+          <img [src]="prev" alt="Vista previa de la foto" class="modal-preview-img" />
+        }
+      </div>
+
+      <div class="modal-archivo-meta">
+        <span class="pill pill-soft-secondary font-mono">
+          {{ fileName() }}
+        </span>
+        <span class="pill pill-soft-primary font-mono">
+          {{ sizeLabel() }}
+        </span>
+      </div>
+
+      <label tuiLabel class="field-desc-modal">
+        <span class="field-label">Descripción o pie de foto (opcional)</span>
+        <tui-textfield>
+          <input
+            tuiInput
+            placeholder="Ej. Taller práctico, participantes, premiación..."
+            [ngModel]="description()"
+            (ngModelChange)="descriptionChange.emit($event)"
+            (keydown.enter)="confirm.emit()"
+          />
+        </tui-textfield>
+      </label>
+
+      @if (error()) {
+        <div class="modal-error-box">
+          <tui-icon icon="@tui.triangle-alert" />
+          <span>{{ error() }}</span>
+        </div>
+      }
+    </div>
+
+    <div class="modal-confirmacion-foot">
+      <button
+        tuiButton
+        appearance="outline"
+        size="m"
+        type="button"
+        (click)="cancel.emit()"
+        [disabled]="loading()"
+      >
+        Cancelar
+      </button>
+      <button
+        tuiButton
+        appearance="primary"
+        size="m"
+        type="button"
+        (click)="confirm.emit()"
+        [loading]="loading()"
+      >
+        <tui-icon icon="@tui.check" />
+        Confirmar y subir
+      </button>
+    </div>
+  </div>
+</div>

@@ -25,6 +25,7 @@ public class Post {
 @Column(name="ID_EQUIPO_AUTOR") private Long idEquipoAutor;
 @Column(name="TITULO",length=150) private String titulo;
 @Column(name="RESUMEN",length=500) private String resumen;
+@Column(name="CUERPO",columnDefinition="text") private String cuerpo;
 @Column(name="LUGAR",length=150) private String lugar;
 @Column(name="FECHA_EVENTO") private LocalDate fechaEvento;
 @Column(name="HORA_INICIO",length=8) private String horaInicio;

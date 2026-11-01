@@ -14,6 +14,8 @@ public interface ActividadInscritoRepository
 
     List<ActividadInscrito> findByIdActividad(Long idActividad);
 
+    List<ActividadInscrito> findByIdPersona(Long idPersona);
+
     long countByIdActividad(Long idActividad);
 
     @Modifying

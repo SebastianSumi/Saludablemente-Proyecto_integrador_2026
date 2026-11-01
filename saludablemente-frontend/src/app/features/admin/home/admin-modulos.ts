@@ -32,6 +32,15 @@ export interface AdminModuloDef {
 
 export const ADMIN_MODULOS: readonly AdminModuloDef[] = [
   {
+    id: 'social', titulo: 'Social', descripcion: 'Comunidad, publicaciones y conversaciones.',
+    icono: '@tui.messages-square', color: 'primary',
+    hijos: [
+      { titulo: 'Muro social', descripcion: 'Actividades, noticias oficiales y publicaciones.', icono: '@tui.messages-square', ruta: '/social' },
+      { titulo: 'Moderación', descripcion: 'Revisar reportes y cuidar la comunidad.', icono: '@tui.shield', ruta: '/social/admin/reportes' },
+      { titulo: 'Métricas', descripcion: 'Participación e interacciones por periodo.', icono: '@tui.chart-column', ruta: '/social/admin/metricas' },
+    ],
+  },
+  {
     id: 'personal',
     titulo: 'Personal',
     descripcion: 'Personas, equipos y reportes del talento.',

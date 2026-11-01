@@ -30,6 +30,12 @@ public interface ActividadApiService {
     List<ActividadSnapshotDto> listarPorRango(LocalDate desde, LocalDate hasta);
 
     /**
+     * Actividades en las que la persona esta inscrita, con fecha_actividad
+     * dentro de [desde, hasta]. Nunca devuelve null.
+     */
+    List<ActividadSnapshotDto> listarPorPersona(Long idPersona, LocalDate desde, LocalDate hasta);
+
+    /**
      * Snapshots en batch. Solo devuelve los IDs que existen.
      * Si ids es null o vacio, devuelve lista vacia.
      */

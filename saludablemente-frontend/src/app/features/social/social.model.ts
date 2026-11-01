@@ -56,12 +56,14 @@ export interface ReaccionDetalle {
   fechaReaccion: string;
 }
 export interface PostResumen {
+  imagenes?: string[];
   idPost: number;
   tipoContenido: TipoPost;
   refId: number | null;
   idEquipoAutor: number | null;
   titulo: string | null;
   resumen: string | null;
+  cuerpo: string | null;
   lugar: string | null;
   fechaEvento: string | null;
   horaInicio: string | null;
@@ -124,6 +126,7 @@ export interface Comentario {
 export interface CrearPost {
   titulo: string | null;
   resumen: string | null;
+  cuerpo: string | null;
   idEquipoAutor: number | null;
   imagenesUrls: string[];
 }
@@ -220,14 +223,32 @@ export interface EquipoSugerido {
   logoUrl: string | null;
 }
 export interface ActividadSugerida {
+  logoUrl?: string | null;
   idActividad: number;
   nombre: string;
   estado: string;
   fechaActividad: string;
 }
 export interface Sugerencia {
+  imagenUrl?: string | null;
+  detalle?: string | null;
   id: number;
   nombre: string;
   token: string;
   tipo: TipoMencion;
+}
+
+export interface PerfilCabecera {
+  autor: Autor;
+  portadaUrl: string | null;
+  presentacion: string | null;
+  propietario: boolean;
+  equipos: {
+    idUsuario: number;
+    idEquipo: number;
+    nombreEquipo: string;
+    logoEquipoUrl: string | null;
+    rolEnEquipo: string;
+    activo: boolean;
+  }[];
 }

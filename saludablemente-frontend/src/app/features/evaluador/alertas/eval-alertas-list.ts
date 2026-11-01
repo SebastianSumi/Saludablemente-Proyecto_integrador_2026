@@ -43,7 +43,7 @@ interface FiltroOpcion {
     TuiTextfield,
   ],
   templateUrl: './eval-alertas-list.html',
-  styleUrls: ['../evaluador-comun.css'],
+  styleUrls: ['../evaluador-comun.css', '../evaluador-tablas-detalle.css'],
   providers: [
     tuiItemsHandlersProvider({
       stringify: signal(

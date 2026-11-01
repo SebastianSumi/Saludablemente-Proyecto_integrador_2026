@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Datos personales</title>
+    <style>
+        body { font-family: Arial, sans-serif; font-size: 12px; }
+        h1 { font-size: 16px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+        td, th { border: 1px solid #ccc; padding: 6px; }
+        th { background: #f2f2f2; width: 30%; }
+    </style>
+</head>
+<body>
+    <h1>Datos personales</h1>
+    <table>
+        <tr><th>Nombre</th><td th:text="${persona.nombreCompleto}">-</td></tr>
+        <tr><th>Área</th><td th:text="${persona.areaTrabajo}">-</td></tr>
+        <tr><th>Equipo</th><td th:text="${persona.nombreTeam}">-</td></tr>
+        <tr><th>Email</th><td th:text="${persona.email}">-</td></tr>
+        <tr><th>Celular</th><td th:text="${persona.celular}">-</td></tr>
+        <tr><th>Sexo</th><td th:text="${persona.sexo}">-</td></tr>
+        <tr><th>Fecha nacimiento</th><td th:text="${persona.fechaNacimiento}">-</td></tr>
+    </table>
+</body>
+</html>

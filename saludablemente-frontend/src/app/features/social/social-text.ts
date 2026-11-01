@@ -1,7 +1,8 @@
-import { Component, computed, input } from '@angular/core';
+import { Component, computed, input, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Mencion } from './social.model';
 import { rutaMencion } from './social.utils';
+import { mentionDraft } from './social-mention-draft';
 @Component({
   selector: 'social-text',
   imports: [RouterLink],
@@ -11,6 +12,21 @@ import { rutaMencion } from './social.utils';
         white-space: pre-wrap;
         overflow-wrap: anywhere;
         line-height: 1.7;
+      }
+      .collapsed {
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+      .read-more {
+        border: 0;
+        background: none;
+        padding: 4px 0;
+        font: inherit;
+        font-weight: 600;
+        color: var(--sal-action);
+        cursor: pointer;
       }
       .tags {
         display: flex;
@@ -30,7 +46,7 @@ import { rutaMencion } from './social.utils';
       }
     `,
   ],
-  template: ` <div class="text">
+  template: ` <div class="text" [class.collapsed]="truncate() && !expanded() && isLong()">
       @for (part of parts(); track $index) {
         @if (part.tag) {
           <a [routerLink]="['/social/hashtags', part.tag]">{{ part.text }}</a>
@@ -39,6 +55,11 @@ import { rutaMencion } from './social.utils';
         }
       }
     </div>
+    @if (truncate() && !expanded() && isLong()) {
+      <button class="read-more" type="button" (click)="expanded.set(true)" aria-expanded="false">
+        Ver más
+      </button>
+    }
     @if (mentions().length) {
       <div class="tags" aria-label="Menciones">
         @for (m of mentions(); track $index) {
@@ -50,11 +71,17 @@ import { rutaMencion } from './social.utils';
     }`,
 })
 export class SocialText {
+  protected readonly isLong = computed(() => {
+    const value = mentionDraft(this.text() ?? '', this.mentions()).text;
+    return value.length > 220 || value.split('\n').length > 3;
+  });
+  readonly truncate = input(false);
+  protected readonly expanded = signal(false);
   readonly text = input<string | null>('');
   readonly mentions = input<Mencion[]>([]);
   protected readonly ruta = rutaMencion;
   protected readonly parts = computed(() => {
-    const value = this.text() ?? '';
+    const value = mentionDraft(this.text() ?? '', this.mentions()).text;
     const regex = /(?<![\p{L}\p{N}_])#([a-z0-9_áéíóúñ]{2,50})(?![\p{L}\p{N}_])/giu;
     const parts: { text: string; tag: string | null }[] = [];
     let last = 0;

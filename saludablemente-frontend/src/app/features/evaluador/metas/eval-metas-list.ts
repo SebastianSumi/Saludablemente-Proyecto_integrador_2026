@@ -40,7 +40,7 @@ interface Opcion {
     TuiTextfield,
   ],
   templateUrl: './eval-metas-list.html',
-  styleUrls: ['../evaluador-comun.css'],
+  styleUrls: ['../evaluador-comun.css', '../evaluador-tablas-detalle.css'],
   providers: [
     tuiItemsHandlersProvider({
       stringify: signal(
