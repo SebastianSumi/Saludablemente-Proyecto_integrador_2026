@@ -1,0 +1,113 @@
+<div class="visor" tabindex="0">
+  <div class="visor-top">
+    <div class="visor-titulo">
+      <strong>{{ actual()?.titulo ?? 'Imagen' }}</strong>
+      @if (total() > 1) {
+        <span tuiBadge appearance="neutral" size="s">{{ indice() + 1 }} / {{ total() }}</span>
+      }
+      <span tuiBadge appearance="primary" size="s">{{ zoomPct() }}</span>
+      @if (reproduciendo()) {
+        <span tuiBadge appearance="positive" size="s">Auto</span>
+      }
+    </div>
+    <button tuiIconButton appearance="flat" size="s" type="button" icon="@tui.x" (click)="cerrar()" aria-label="Cerrar">
+      Cerrar
+    </button>
+  </div>
+
+  <div
+    #lienzo
+    class="visor-lienzo"
+    (wheel)="rueda($event)"
+    (pointerdown)="inicioPan($event)"
+    (pointermove)="moverPan($event)"
+    (pointerup)="finPan($event)"
+    (pointercancel)="finPan($event)"
+    (pointerleave)="finPan()"
+    [class.arrastrando]="zoom() > 1"
+  >
+    @if (total() > 1) {
+      <button tuiIconButton appearance="flat" size="m" type="button" icon="@tui.chevron-left" class="nav izq" (click)="$event.stopPropagation(); anterior()" (pointerdown)="$event.stopPropagation()" aria-label="Anterior">
+        Anterior
+      </button>
+      <button tuiIconButton appearance="flat" size="m" type="button" icon="@tui.chevron-right" class="nav der" (click)="$event.stopPropagation(); siguiente()" (pointerdown)="$event.stopPropagation()" aria-label="Siguiente">
+        Siguiente
+      </button>
+    }
+
+    @if (conError()) {
+      <div class="visor-error">
+        <tui-icon icon="@tui.image-off" />
+        <p>No se pudo cargar la imagen.</p>
+        <button tuiButton appearance="primary" size="s" type="button" (click)="abrirOriginal()">
+          Abrir URL directa
+        </button>
+      </div>
+    } @else if (actual(); as img) {
+      <div class="visor-marco" [style.transform]="marcoTransform()">
+        <img
+          [src]="img.src"
+          [alt]="img.titulo ?? 'Imagen'"
+          class="visor-foto"
+          [style.transform]="fotoTransform()"
+          (load)="alCargar()"
+          (error)="alError()"
+          (dblclick)="dobleClick()"
+          draggable="false"
+        />
+      </div>
+      @if (cargando()) {
+        <span class="visor-carga">Cargando alta resolución…</span>
+      }
+    }
+  </div>
+
+  @if (actual()?.subtitulo) {
+    <p class="hint visor-sub">{{ actual()?.subtitulo }}</p>
+  }
+
+  <div class="visor-barra">
+    <button tuiIconButton appearance="outline" size="s" type="button" icon="@tui.minus" (click)="zoomOut()" [disabled]="zoom() <= 1" aria-label="Reducir">
+      Reducir
+    </button>
+    <input
+      type="range" class="zoom-slider" min="1" max="4" step="0.1"
+      [ngModel]="zoom()" (ngModelChange)="fijarZoom($event)" aria-label="Nivel de zoom"
+    />
+    <button tuiIconButton appearance="outline" size="s" type="button" icon="@tui.plus" (click)="zoomIn()" [disabled]="zoom() >= 4" aria-label="Ampliar">
+      Ampliar
+    </button>
+    <span class="hint zoom-pct">{{ zoomPct() }}</span>
+    <button tuiButton appearance="flat" size="s" type="button" (click)="restablecer()" [disabled]="zoom() <= 1">Encajar</button>
+    <button tuiIconButton appearance="outline" size="s" type="button" icon="@tui.rotate-cw" (click)="rotar()" aria-label="Rotar (R)">
+      Rotar
+    </button>
+    @if (total() > 1) {
+      <button tuiIconButton appearance="outline" size="s" type="button" [iconStart]="reproduciendo() ? '@tui.pause' : '@tui.play'" (click)="alternarSlide()" aria-label="Presentación automática">
+        Auto
+      </button>
+    }
+    <button tuiIconButton appearance="outline" size="s" type="button" [iconStart]="pantallaCompleta() ? '@tui.minimize' : '@tui.maximize'" (click)="alternarPantalla()" aria-label="Pantalla completa (F)">
+      Pantalla
+    </button>
+    <span class="visor-sep"></span>
+    <button tuiButton appearance="flat" size="s" type="button" (click)="descargar()" [disabled]="descargando()">
+      <tui-icon icon="@tui.download" /> {{ descargando() ? 'Descargando…' : 'Descargar' }}
+    </button>
+    <button tuiButton appearance="flat" size="s" type="button" (click)="abrirOriginal()">
+      <tui-icon icon="@tui.external-link" /> Original
+    </button>
+  </div>
+
+  @if (total() > 1) {
+    <div class="visor-minis">
+      @for (it of imagenes(); track it.src; let i = $index) {
+        <button type="button" class="mini" [class.activo]="i === indice()" (click)="elegir(i)" [attr.aria-label]="'Ver ' + (it.titulo ?? i)">
+          <img [src]="it.src" [alt]="it.titulo ?? 'Miniatura'" loading="lazy" />
+        </button>
+      }
+    </div>
+  }
+
+  <p class="hint visor-ayuda">Arrastra o swipe para navegar · rueda/slider zoom · doble clic 200% · ← → · R rota · F pantalla · Espacio auto · 0 encajar</p>
+</div>

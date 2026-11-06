@@ -1,0 +1,160 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  width: 100%;
+}
+
+.page-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+  padding: 1.25rem 1.75rem;
+  max-width: none !important;
+  width: 100%;
+}
+
+.page-banner-body {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  flex: 1 1 auto;
+}
+
+.page-banner-icon {
+  width: 52px;
+  height: 52px;
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.formulario-aptitud {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+}
+
+.form-card {
+  padding: 1.75rem;
+  border-radius: 20px;
+  border: 1px solid var(--sal-line, #e2e8f0);
+  background: var(--sal-card, #ffffff);
+  box-shadow: 0 4px 24px rgba(17, 28, 45, 0.04);
+  max-width: none !important;
+  width: 100%;
+}
+
+.section-header {
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--sal-line, #e2e8f0);
+}
+
+.section-title {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--sal-ink, #111c2d);
+}
+
+.section-subtitle {
+  margin: 0.25rem 0 0;
+  font-size: 0.875rem;
+  color: var(--sal-ink-soft, #5a6b7c);
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.25rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--sal-ink, #111c2d);
+  max-width: none !important;
+  width: 100%;
+}
+
+.span-2 {
+  grid-column: span 2;
+}
+
+.form-acciones {
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  padding: 1rem 1.5rem;
+  background: color-mix(in srgb, var(--sal-card, #ffffff) 85%, transparent);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--sal-line, #e2e8f0);
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(17, 28, 45, 0.08);
+}
+
+.cargando-caja {
+  padding: 1rem 1.5rem;
+  border-radius: 16px;
+  background: var(--sal-card, #ffffff);
+  border: 1px solid var(--sal-line, #e2e8f0);
+}
+
+.error-caja {
+  border-left: 4px solid var(--sal-danger, #ef4444);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  max-width: none !important;
+  width: 100%;
+}
+
+.icono-alerta {
+  color: var(--sal-danger, #ef4444);
+  font-size: 1.25rem;
+}
+
+.error-msg {
+  color: var(--sal-danger, #ef4444);
+  font-weight: 600;
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .page-banner {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 1.25rem;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .span-2 {
+    grid-column: span 1;
+  }
+
+  .form-acciones {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .form-acciones button {
+    width: 100%;
+    justify-content: center;
+  }
+}

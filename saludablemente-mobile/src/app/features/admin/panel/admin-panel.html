@@ -1,0 +1,43 @@
+<!-- ══════════════════════════════════════
+     CABECERA DE PÁGINA
+     ══════════════════════════════════════ -->
+<div class="page-banner card">
+  <div class="page-banner-body">
+    <div class="page-banner-icon tile tile-rounded tile-soft-primary">
+      <tui-icon icon="@tui.layout-grid" />
+    </div>
+    <div>
+      <h2 class="card-title">Panel de Administración</h2>
+      <p class="card-subtitle">Acceso directo a todos los módulos y funciones del sistema Saludablemente.</p>
+    </div>
+  </div>
+</div>
+
+<div class="panel-contenedor">
+  @for (s of secciones; track s.titulo) {
+    <div class="seccion-bloque">
+      <div class="seccion-header">
+        <h3 class="seccion-titulo">{{ s.titulo }}</h3>
+      </div>
+      <div class="modulos-grid">
+        @for (m of s.modulos; track m.ruta) {
+          <section class="card modulo-card">
+            <div class="modulo-header">
+              <div class="modulo-icono">
+                <tui-icon [icon]="m.icono" />
+              </div>
+              <h4 class="modulo-titulo">{{ m.titulo }}</h4>
+            </div>
+            <p class="modulo-desc">{{ m.descripcion }}</p>
+            <div class="modulo-footer">
+              <a tuiButton appearance="outline" size="s" [routerLink]="m.ruta" class="btn-abrir">
+                Abrir módulo
+                <tui-icon icon="@tui.arrow-right" />
+              </a>
+            </div>
+          </section>
+        }
+      </div>
+    </div>
+  }
+</div>

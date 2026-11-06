@@ -1,0 +1,270 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  width: 100%;
+}
+
+.page-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+  padding: 1.25rem 1.75rem;
+  max-width: none !important;
+  width: 100%;
+}
+
+.page-banner-body {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  flex: 1 1 auto;
+}
+
+.page-banner-icon {
+  width: 52px;
+  height: 52px;
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.page-banner-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.filtros-card {
+  padding: 1.25rem 1.75rem;
+  background: var(--sal-card);
+  border: 1px solid var(--sal-line);
+  border-radius: 20px;
+  box-shadow: 0 2px 8px rgba(17, 28, 45, 0.04);
+  max-width: none !important;
+  width: 100%;
+}
+
+.filtros-linea {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  gap: 1.5rem;
+  width: 100%;
+}
+
+.filtro-item {
+  flex: 1 1 0;
+  min-width: 200px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.filtro-etiqueta {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--sal-ink);
+}
+
+.btn-limpiar {
+  height: var(--tui-height-m, 2.75rem);
+  white-space: nowrap;
+  flex-shrink: 0;
+  padding: 0 1.25rem;
+}
+
+.tabla-card {
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(17, 28, 45, 0.06);
+  max-width: none !important;
+  width: 100%;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+  width: 100%;
+}
+
+table[tuiTable] {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+table[tuiTable] th {
+  padding: 1rem 1.25rem;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--sal-ink-soft);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  border-bottom: 1px solid var(--sal-line);
+}
+
+table[tuiTable] td {
+  padding: 0.875rem 1.25rem;
+  vertical-align: middle;
+  border-bottom: 1px solid var(--sal-line);
+}
+
+table[tuiTable] tbody tr:hover {
+  background-color: var(--sal-hover);
+}
+
+.fw-bold {
+  display: block;
+  font-weight: 700;
+  color: var(--sal-ink);
+}
+
+.desc-corta {
+  display: block;
+  margin-top: 0.125rem;
+  max-width: 280px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.text-soft {
+  color: var(--sal-ink-soft);
+  font-size: 0.875rem;
+}
+
+.font-mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.8rem;
+  border-radius: 9999px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.pill-success {
+  color: var(--sal-success-ink, #0f766e);
+  background-color: rgba(0, 206, 182, 0.16);
+}
+
+.pill-warning {
+  color: var(--sal-warning-ink, #b45309);
+  background-color: rgba(255, 174, 31, 0.18);
+}
+
+.pill-error {
+  color: var(--sal-danger-ink, #b91c1c);
+  background-color: rgba(229, 115, 115, 0.18);
+}
+
+.pill-neutral {
+  color: var(--sal-ink-soft);
+  background-color: var(--sal-alt);
+}
+
+.th-acciones,
+.td-acciones {
+  text-align: right;
+  padding-right: 1.5rem !important;
+  width: 1%;
+  white-space: nowrap;
+}
+
+.row-actions {
+  display: inline-flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.375rem;
+  white-space: nowrap;
+}
+
+.paginacion-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  border-top: 1px solid var(--sal-line);
+}
+
+.paginacion-info {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--sal-ink-soft);
+}
+
+.error-caja {
+  border-left: 4px solid var(--sal-danger);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  max-width: none !important;
+  width: 100%;
+}
+
+.icono-alerta {
+  color: var(--sal-danger);
+  font-size: 1.25rem;
+}
+
+.error-msg {
+  color: var(--sal-danger);
+  font-weight: 600;
+  margin: 0;
+}
+
+.empty {
+  text-align: center;
+  color: var(--sal-ink-soft);
+  padding: 3rem 1rem;
+  font-style: italic;
+}
+
+@media (max-width: 992px) {
+  .filtros-linea {
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .page-banner {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 1.25rem;
+  }
+
+  .page-banner-actions {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .page-banner-actions a {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .filtros-linea {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filtro-item {
+    min-width: 100%;
+  }
+
+  .btn-limpiar {
+    width: 100%;
+    justify-content: center;
+  }
+}

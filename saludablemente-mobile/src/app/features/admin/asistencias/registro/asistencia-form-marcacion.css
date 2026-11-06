@@ -1,0 +1,62 @@
+.stepper { display: flex; align-items: center; gap: 0.5rem; list-style: none; margin: 0 0 1.25rem 0; padding: 0; }
+.stepper-paso { display: flex; align-items: center; gap: 0.5rem; font-size: 0.8125rem; font-weight: 600; color: var(--sal-ink-soft, #5a6b7c); }
+.stepper-num { display: flex; align-items: center; justify-content: center; width: 1.75rem; height: 1.75rem; border-radius: 50%; font-size: 0.8125rem; font-weight: 800; background: var(--sal-line, #e4ebf0); color: var(--sal-ink-soft, #5a6b7c); }
+.stepper-paso--ok .stepper-num { background: var(--sal-success, #00ceb6); color: #fff; }
+.stepper-paso--ok { color: var(--sal-ink, #111c2d); }
+.stepper-paso--actual .stepper-num { background: var(--sal-action, #1d4ed8); color: #fff; }
+.stepper-paso--actual { color: var(--sal-ink, #111c2d); }
+.stepper-linea { flex: 1 1 auto; height: 2px; border-radius: 2px; background: var(--sal-line, #e4ebf0); min-width: 1rem; }
+
+/* Pie sticky Guardar */
+.wizard-footer { position: sticky; bottom: 0; z-index: 20; display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-top: 1.25rem; padding: 0.875rem 1.25rem; border-radius: 1rem; border: 1px solid var(--sal-line, #e2e8f0); background: rgb(255 255 255 / 0.92); backdrop-filter: blur(10px); box-shadow: 0 -2px 16px rgba(17, 28, 45, 0.08); }
+.wizard-footer-info { font-size: 0.875rem; }
+.wizard-footer-acciones { display: flex; gap: 0.75rem; }
+
+/* Fila modificada + dot */
+.fila-modificada { background: rgb(29 78 216 / 0.04); }
+.dot-sin-guardar { display: inline-block; width: 0.5rem; height: 0.5rem; margin-left: 0.375rem; border-radius: 50%; background: var(--sal-warning, #ffae1f); vertical-align: middle; }
+
+/* Botón de ciclo táctil */
+.btn-ciclo { min-height: 44px; min-width: 6.5rem; }
+
+/* Skeleton */
+.skeleton-lista { display: flex; flex-direction: column; gap: 0.75rem; padding: 0.5rem 0; }
+.skeleton-fila { height: 3.25rem; border-radius: 0.75rem; background: linear-gradient(90deg, var(--sal-alt, #f4f6fb) 25%, var(--sal-line, #e4ebf0) 50%, var(--sal-alt, #f4f6fb) 75%); background-size: 200% 100%; animation: skeleton-bar 1.2s ease-in-out infinite; }
+@keyframes skeleton-bar { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+@media (max-width: 768px) {
+  .wizard-footer { flex-direction: column; align-items: stretch; }
+  .wizard-footer-acciones { flex-direction: column; }
+  .wizard-footer-acciones button, .wizard-footer-acciones a { width: 100%; justify-content: center; }
+  .tabla-marcas thead { display: none; }
+  .tabla-marcas, .tabla-marcas tbody, .tabla-marcas tr, .tabla-marcas td { display: block; width: 100%; }
+  .tabla-marcas tr { border: 1px solid var(--sal-line, #e2e8f0); border-radius: 0.875rem; margin-bottom: 0.75rem; padding: 0.25rem 0; }
+  .tabla-marcas td { border-bottom: none; padding: 0.5rem 1rem; }
+  .tabla-marcas td::before { content: attr(data-label); display: block; font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; color: var(--sal-ink-soft, #5a6b7c); margin-bottom: 0.25rem; }
+  .tabla-marcas td.td-acciones .btn-ciclo { width: 100%; }
+  .stepper-txt { display: none; }
+  .stepper { justify-content: center; }
+}
+
+/* Encabezados con icono */
+.th-icono { display: inline-flex; align-items: center; gap: 0.375rem; }
+.icono-inline { font-size: 0.9em; vertical-align: -0.1em; }
+
+/* Celda de marca con icono de estado */
+.marca-celda { display: flex; align-items: center; gap: 0.625rem; }
+.marca-icono { display: flex; align-items: center; justify-content: center; width: 2.25rem; height: 2.25rem; flex-shrink: 0; border-radius: 50%; font-size: 1.1rem; color: #fff; }
+.marca-icono--presente { background: linear-gradient(135deg, #34d399, #16a34a); box-shadow: 0 2px 8px rgb(22 163 74 / 0.35); }
+.marca-icono--tarde { background: linear-gradient(135deg, #fbbf24, #d97706); box-shadow: 0 2px 8px rgb(217 119 6 / 0.35); }
+.marca-icono--falta { background: linear-gradient(135deg, #f87171, #dc2626); box-shadow: 0 2px 8px rgb(220 38 38 / 0.35); }
+.marca-icono--pendiente { background: var(--sal-line, #e4ebf0); color: var(--sal-ink-soft, #5a6b7c); box-shadow: none; }
+.marca-icono:not(.marca-icono--presente):not(.marca-icono--tarde):not(.marca-icono--falta):not(.marca-icono--pendiente) { background: linear-gradient(135deg, #38bdf8, #0284c7); }
+
+/* Fila modificada con acento lateral */
+.fila-modificada { background: rgb(29 78 216 / 0.04); box-shadow: inset 4px 0 0 var(--sal-warning, #ffae1f); }
+
+/* Empty state ilustrado */
+.empty { display: flex; flex-direction: column; align-items: center; gap: 0.375rem; }
+.empty-icono { font-size: 2rem; color: var(--sal-line, #e4ebf0); }
+
+/* Selector de vista */
+.vista-selector { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem; }

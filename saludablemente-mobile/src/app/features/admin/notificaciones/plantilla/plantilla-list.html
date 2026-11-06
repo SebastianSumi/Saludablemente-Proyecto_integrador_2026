@@ -1,0 +1,118 @@
+<div class="page-banner card">
+  <div class="page-banner-body">
+    <div class="page-banner-icon tile tile-rounded tile-soft-primary">
+      <tui-icon icon="@tui.mail" />
+    </div>
+    <div>
+      <h2 class="card-title">Plantillas de notificación</h2>
+      <p class="card-subtitle">
+        @if (loading()) {
+          Cargando plantillas...
+        } @else {
+          {{ items().length }} plantilla(s) configurada(s)
+        }
+      </p>
+    </div>
+  </div>
+  <button tuiButton appearance="primary" size="m" type="button" (click)="abrirModal()">
+    <tui-icon icon="@tui.plus" />
+    Nueva plantilla
+  </button>
+</div>
+
+@if (error()) {
+  <div class="card error-caja">
+    <tui-icon icon="@tui.triangle-alert" class="icono-alerta" />
+    <p class="error-msg">{{ error() }}</p>
+  </div>
+}
+
+<div class="card filtros-card">
+  <div class="filtros-linea">
+    <label class="filtro-item">
+      <span class="filtro-etiqueta">Buscar por código</span>
+      <input
+        type="search"
+        placeholder="Ej. ALERTA_CRITICA"
+        [ngModel]="filtroTexto()"
+        (ngModelChange)="filtroTexto.set($event)"
+      />
+    </label>
+    <label class="filtro-item">
+      <span class="filtro-etiqueta">Canal</span>
+      <select [ngModel]="filtroCanal()" (ngModelChange)="filtroCanal.set($event)">
+        <option value="">Todos</option>
+        @for (c of canales; track c) {
+          <option [value]="c">{{ c }}</option>
+        }
+      </select>
+    </label>
+    <label class="filtro-item">
+      <span class="filtro-etiqueta">Estado</span>
+      <select [ngModel]="filtroActivo()" (ngModelChange)="filtroActivo.set($event)">
+        <option value="">Todas</option>
+        <option value="activas">Activas</option>
+        <option value="inactivas">Inactivas</option>
+      </select>
+    </label>
+    <button tuiButton appearance="outline" size="m" type="button" (click)="limpiarFiltros()">
+      Limpiar
+    </button>
+  </div>
+</div>
+
+<div class="card tabla-card flush">
+  <div class="table-wrapper flush">
+    <table tuiTable>
+      <thead>
+        <tr>
+          <th tuiTh>Código de evento</th>
+          <th tuiTh>Canal de envío</th>
+          <th tuiTh>Asunto / Mensaje</th>
+          <th tuiTh>Estado</th>
+          <th tuiTh class="th-acciones"><span class="sr-only">Acciones</span></th>
+        </tr>
+      </thead>
+      <tbody tuiTbody>
+        @for (p of filtradas(); track p.idPlantilla) {
+          <tr>
+            <td tuiTd><span class="fila-nombre font-mono">{{ p.codigoEvento }}</span></td>
+            <td tuiTd>
+              <span class="pill pill-soft-primary">{{ p.canal ?? '—' }}</span>
+            </td>
+            <td tuiTd class="text-soft">{{ p.asunto || '—' }}</td>
+            <td tuiTd>
+              @if (p.activo) {
+                <span class="pill pill-soft-success">Activa</span>
+              } @else {
+                <span class="pill pill-soft-neutral">Inactiva</span>
+              }
+            </td>
+            <td tuiTd class="td-acciones">
+              <div class="row-actions">
+                <button tuiButton appearance="flat" size="s" type="button" (click)="abrirModal(p)" title="Editar plantilla">
+                  <tui-icon icon="@tui.pencil" />
+                  Editar
+                </button>
+                <button tuiButton appearance="flat" size="s" type="button" (click)="cambiarEstado(p)" [title]="p.activo ? 'Desactivar plantilla' : 'Activar plantilla'">
+                  <tui-icon [icon]="p.activo ? '@tui.pause' : '@tui.play'" />
+                  {{ p.activo ? 'Desactivar' : 'Activar' }}
+                </button>
+                <button tuiButton appearance="outline" size="s" type="button" (click)="eliminar(p)" title="Eliminar plantilla">
+                  <tui-icon icon="@tui.trash" />
+                  Eliminar
+                </button>
+              </div>
+            </td>
+          </tr>
+        } @empty {
+          @if (!loading() && !error()) {
+            <tr>
+              <td tuiTd colspan="5" class="empty">No hay plantillas de notificación registradas.</td>
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

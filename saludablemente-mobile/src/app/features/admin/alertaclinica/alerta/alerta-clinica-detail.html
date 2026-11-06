@@ -1,0 +1,246 @@
+<div class="detail-shell">
+  <app-clinica-nav />
+  <div class="detail-nav">
+    <a tuiButton appearance="flat" size="s" routerLink="/alertaclinica/alertas">
+      <tui-icon icon="@tui.arrow-left" />
+      Volver a la lista
+    </a>
+  </div>
+
+  @if (loading()) {
+    <div class="card estado-caja">
+      <p class="sal-subtitulo">Cargando datos de la alerta clínica...</p>
+    </div>
+  }
+  @if (error()) {
+    <div class="card error-caja">
+      <tui-icon icon="@tui.triangle-alert" class="icono-alerta" />
+      <p class="error-msg">{{ error() }}</p>
+    </div>
+  }
+
+  @if (alerta(); as a) {
+    <!-- Tarjeta Principal de la Alerta -->
+    <section class="card alerta-hero card-alerta">
+      <img [src]="portada" alt="Alerta clínica" loading="lazy" />
+      <div class="alerta-hero-head">
+        <div class="alerta-hero-info">
+          <span class="tile tile-circle tile-soft-error hero-icono">
+            <tui-icon icon="@tui.bell" />
+          </span>
+          <div>
+            <h2 class="card-title">Alerta Clínica #{{ a.idAlerta }}</h2>
+            <p class="card-subtitle">Generada el {{ a.fechaGeneracion | date:'dd/MM/yyyy HH:mm' }}</p>
+          </div>
+        </div>
+        <div class="badges-row">
+          @if (a.nivelSeveridad === 'CRITICA') {
+            <span class="pill pill-soft-error">
+              <tui-icon icon="@tui.triangle-alert" class="pill-icono" />
+              Crítica
+            </span>
+          } @else if (a.nivelSeveridad === 'MODERADA') {
+            <span class="pill pill-soft-warning">
+              <tui-icon icon="@tui.info" class="pill-icono" />
+              Moderada
+            </span>
+          } @else {
+            <span class="pill pill-soft-success">
+              <tui-icon icon="@tui.check" class="pill-icono" />
+              Leve
+            </span>
+          }
+
+          @if (a.estado === 'PENDIENTE') {
+            <span class="pill pill-soft-warning">Pendiente</span>
+          } @else if (a.estado === 'ATENDIDA') {
+            <span class="pill pill-soft-success">Atendida</span>
+          } @else {
+            <span class="pill pill-soft-neutral">Anulada</span>
+          }
+        </div>
+      </div>
+
+      <div class="detail-metrics-grid">
+        <div class="metric-card">
+          <span class="metric-label">Persona evaluada</span>
+          <div class="metric-body">
+            <span class="tile tile-rounded tile-soft-primary metric-ico"><tui-icon icon="@tui.user" /></span>
+            <strong class="metric-value">{{ nombrePersona(a.personaId) }}</strong>
+          </div>
+        </div>
+
+        <div class="metric-card">
+          <span class="metric-label">Origen de la evaluación</span>
+          <div class="metric-body">
+            <span class="tile tile-rounded tile-soft-secondary metric-ico"><tui-icon icon="@tui.activity" /></span>
+            <strong class="metric-value">{{ a.tipoEvaluacionOrigen === 'NUTRICIONAL' ? 'Nutricional' : 'Aptitud Física' }}</strong>
+          </div>
+        </div>
+
+        <div class="metric-card">
+          <span class="metric-label">ID Evaluación</span>
+          <div class="metric-body">
+            <span class="tile tile-rounded tile-soft-primary metric-ico"><tui-icon icon="@tui.clipboard" /></span>
+            <strong class="metric-value font-mono">#{{ a.evaluacionOrigenId }}</strong>
+          </div>
+        </div>
+
+        <div class="metric-card metric-puntaje">
+          <span class="metric-label">Puntaje de riesgo</span>
+          <div class="metric-body">
+            <span class="tile tile-rounded tile-soft-error metric-ico"><tui-icon icon="@tui.flame" /></span>
+            <strong class="metric-value puntaje-val">{{ a.puntajeTotal }} <span class="pts-unit">pts</span></strong>
+          </div>
+        </div>
+      </div>
+
+      @if (a.mensajeResumen) {
+        <div class="alerta-resumen-box">
+          <tui-icon icon="@tui.info" class="resumen-box-icon" />
+          <p class="resumen-box-text">{{ a.mensajeResumen }}</p>
+        </div>
+      }
+    </section>
+
+    <app-asociaciones-card tipo="alerta-etiquetas" [entidadId]="a.idAlerta" [bloqueado]="operacionEnCurso()" (guardado)="actualizarEtiquetas()" />
+
+    <!-- Indicadores Afectados -->
+    <section class="card">
+      <div class="card-section-head">
+        <span class="tile tile-rounded tile-soft-warning seccion-ico"><tui-icon icon="@tui.activity" /></span>
+        <div>
+          <h3 class="seccion-titulo">Indicadores afectados</h3>
+          <p class="seccion-desc">{{ a.detalles.length }} indicador(es) clínico(s) fuera del rango normal</p>
+        </div>
+      </div>
+
+      <div class="detalles-list">
+        @for (d of a.detalles; track d.idDetalle) {
+          <article class="detalle-card">
+            <div class="detalle-header">
+              <div class="detalle-nombre">
+                <span class="tile tile-circle tile-soft-error detalle-ico"><tui-icon icon="@tui.triangle-alert" /></span>
+                <strong>{{ d.tipoIndicador }}</strong>
+              </div>
+              <div class="detalle-chips">
+                <span class="pill pill-soft-neutral">{{ d.clasificacion }}</span>
+                <span class="pill pill-soft-error">+{{ d.puntosRiesgo }} pts</span>
+              </div>
+            </div>
+            <div class="detalle-body">
+              <div class="detalle-valores">
+                <span class="valor-medido">
+                  Valor medido: <strong>{{ d.valorMedido }}</strong>
+                </span>
+                @if (d.valorMin !== null && d.valorMax !== null) {
+                  <span class="rango-normal font-mono">(Rango normal: {{ d.valorMin }} - {{ d.valorMax }})</span>
+                }
+              </div>
+              <p class="detalle-mensaje">{{ d.mensaje }}</p>
+            </div>
+          </article>
+        } @empty {
+          <p class="empty">Esta alerta no tiene detalles registrados.</p>
+        }
+      </div>
+    </section>
+
+    <!-- Acciones / Estado de Atención -->
+    @if (a.estado === 'PENDIENTE') {
+      <section class="card atender-card">
+        <div class="card-section-head">
+          <span class="tile tile-rounded tile-soft-primary seccion-ico"><tui-icon icon="@tui.circle-check" /></span>
+          <div>
+            <h3 class="seccion-titulo">Atender alerta clínica</h3>
+            <p class="seccion-desc">Registra las observaciones clínicas pertinentes o descarta la alerta.</p>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field-label">Observación clínica (opcional)</label>
+          <tui-textfield>
+            <textarea
+              tuiTextarea
+              rows="3"
+              [value]="observacion()"
+              (input)="observacion.set($any($event.target).value)"
+              placeholder="Ej: Derivada al especialista para ajuste de tratamiento y seguimiento nutricional">
+            </textarea>
+          </tui-textfield>
+        </div>
+
+        @if (atenderError()) {
+          <div class="error-caja-inline">
+            <tui-icon icon="@tui.triangle-alert" />
+            <span>{{ atenderError() }}</span>
+          </div>
+        }
+
+        <div class="form-acciones">
+          <button
+            tuiButton
+            appearance="primary"
+            size="m"
+            type="button"
+            [loading]="atenderLoading()"
+            [disabled]="operacionEnCurso() || cambiosPendientes()"
+            (click)="atender()">
+            <tui-icon icon="@tui.check" />
+            {{ atenderLoading() ? 'Atendiendo...' : 'Marcar como atendida' }}
+          </button>
+          <button
+            tuiButton
+            appearance="outline"
+            size="m"
+            type="button"
+            [disabled]="operacionEnCurso() || cambiosPendientes()"
+            (click)="anular()">
+            <tui-icon icon="@tui.ban" />
+            Anular alerta
+          </button>
+        </div>
+      </section>
+    }
+
+    @if (a.estado === 'ATENDIDA') {
+      <section class="card info-card">
+        <div class="card-section-head">
+          <span class="tile tile-rounded tile-soft-success seccion-ico"><tui-icon icon="@tui.circle-check" /></span>
+          <div>
+            <h3 class="seccion-titulo">Información de resolución</h3>
+            <p class="seccion-desc">Alerta procesada y atendida</p>
+          </div>
+        </div>
+        <div class="resolucion-grid">
+          <div class="resolucion-item">
+            <span class="resolucion-label">Atendida por</span>
+            <strong class="resolucion-val">Usuario #{{ a.usuarioAtiendeId }}</strong>
+          </div>
+          <div class="resolucion-item">
+            <span class="resolucion-label">Fecha de atención</span>
+            <strong class="resolucion-val">{{ a.fechaAtencion | date:'dd/MM/yyyy HH:mm' }}</strong>
+          </div>
+          @if (a.observacionAtencion) {
+            <div class="resolucion-item full-width">
+              <span class="resolucion-label">Observación registrada</span>
+              <p class="resolucion-texto">{{ a.observacionAtencion }}</p>
+            </div>
+          }
+        </div>
+      </section>
+    }
+
+    @if (a.estado === 'ANULADA') {
+      <section class="card info-card anulada-card">
+        <div class="card-section-head">
+          <span class="tile tile-rounded tile-soft-error seccion-ico"><tui-icon icon="@tui.ban" /></span>
+          <div>
+            <h3 class="seccion-titulo">Alerta anulada</h3>
+            <p class="seccion-desc">Esta alerta fue descartada y no requiere atención médica ni seguimiento.</p>
+          </div>
+        </div>
+      </section>
+    }
+  }
+</div>

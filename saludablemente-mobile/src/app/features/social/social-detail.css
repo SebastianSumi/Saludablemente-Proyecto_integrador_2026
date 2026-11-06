@@ -1,0 +1,72 @@
+.discussion-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: 24px;
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+}
+.discussion-post {
+  overflow-y: auto;
+  min-width: 0;
+  padding-right: 20px;
+  border-right: 1px solid var(--sal-line);
+  overscroll-behavior: contain;
+}
+.discussion-post .identity { align-items: center; gap: 10px; font-size: 13px; }
+.discussion-post h2 { font-size: 18px; margin: 18px 0 10px; }
+.discussion-post > social-text { font-size: 13px; }
+.discussion-media {
+  margin-top: 18px;
+  overflow: hidden;
+  border-radius: 10px;
+  background: var(--sal-hover);
+}
+@media (max-width: 900px) {
+  .discussion-layout { display: flex; }
+  .discussion-post { display: none; }
+}
+.conversation {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+}
+.comments-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  padding: 0 12px 12px 0;
+  scroll-padding: 12px;
+}
+.comments-scroll:focus-visible {
+  outline: 2px solid var(--sal-action);
+  outline-offset: -2px;
+  border-radius: 8px;
+}
+.conversation-composer {
+  flex: none;
+  border-top: 1px solid var(--sal-line);
+  padding-top: 16px;
+  padding-bottom: env(safe-area-inset-bottom);
+  background: var(--sal-card);
+  max-height: 55dvh;
+  overflow-y: auto;
+}
+@media (max-width: 600px) {
+  .comments-scroll {
+    padding-right: 4px;
+  }
+  .conversation-composer {
+    padding-top: 12px;
+  }
+}
+
+.reply-context {
+  font-size: 12px;
+  margin: 0 0 8px;
+  color: var(--sal-ink-soft);
+}

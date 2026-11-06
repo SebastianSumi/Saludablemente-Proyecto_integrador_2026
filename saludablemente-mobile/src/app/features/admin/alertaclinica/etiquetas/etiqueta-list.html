@@ -1,0 +1,17 @@
+<div class="cx-page">
+  <app-clinica-nav />
+  <header class="cx-card cx-head"><div class="cx-title"><span class="tile tile-rounded tile-soft-secondary"><tui-icon icon="@tui.tags" /></span><div><h1>Etiquetas clínicas</h1><p class="cx-muted">Organiza los parámetros y clasifica las alertas con trazabilidad.</p></div></div><a tuiButton appearance="primary" size="m" routerLink="nueva"><tui-icon icon="@tui.plus" />Nueva etiqueta</a></header>
+  <section class="cx-card" aria-label="Buscar etiquetas">
+    <form class="cx-fields" (ngSubmit)="cargar()"><label class="cx-field"><span>Nombre o código</span><input class="cx-input" name="texto" [(ngModel)]="texto" placeholder="Buscar etiquetas clínicas" /></label><label class="cx-field"><span>Estado</span><select class="cx-select" name="estado" [(ngModel)]="estado"><option value="">Todos los estados</option><option value="ACTIVO">Activas</option><option value="INACTIVO">Inactivas</option></select></label><div class="cx-actions"><button tuiButton appearance="primary" size="m" type="submit" [disabled]="cargando() || ocupado()">Aplicar filtros</button><button tuiButton appearance="flat" size="m" type="button" (click)="limpiar()" [disabled]="ocupado()">Limpiar</button></div></form>
+  </section>
+  @if (exito()) { <p class="cx-success" role="status">{{ exito() }}</p> }
+  @if (error()) { <div class="cx-error" role="alert">{{ error() }} <button tuiButton appearance="flat" size="s" type="button" (click)="cargar(pagina())">Reintentar</button></div> }
+  <section class="cx-card" [attr.aria-busy]="cargando()"><div class="cx-head"><h2 class="card-title">Catálogo de etiquetas</h2><span class="cx-badge">{{ total() }} resultado(s)</span></div>
+    @if (cargando()) { <div class="cx-loading" role="status">Cargando etiquetas…</div> } @else if (!error()) {
+      <ul class="cx-list">@for (etiqueta of items(); track etiqueta.id) {
+        <li class="cx-row"><div class="cx-row-main"><span class="cx-dot" [style.background]="color(etiqueta.colorHex)"></span><div><a [routerLink]="[etiqueta.id]">{{ etiqueta.nombre }}</a><p class="cx-muted">{{ etiqueta.codigo }}</p><div class="cx-tags"><span class="cx-badge" [class.cx-badge-warn]="etiqueta.estado === 'INACTIVO'">{{ etiqueta.estado === 'ACTIVO' ? 'Activa' : 'Inactiva' }}</span><span class="cx-muted">{{ etiqueta.cantidadParametros }} parámetros · {{ etiqueta.cantidadAlertas }} alertas</span></div></div></div><div class="cx-actions"><a tuiButton appearance="flat" size="s" [routerLink]="[etiqueta.id]">Ver detalle</a><a tuiButton appearance="outline" size="s" [routerLink]="[etiqueta.id, 'editar']">Editar</a><button tuiButton appearance="flat" size="s" type="button" [disabled]="ocupado()" (click)="cambiarEstado(etiqueta)">{{ etiqueta.estado === 'ACTIVO' ? 'Desactivar' : 'Reactivar' }}</button></div></li>
+      } @empty { <li class="cx-empty"><strong>No hay etiquetas para estos filtros.</strong><p>Prueba otra búsqueda o crea una etiqueta para empezar.</p><a tuiButton appearance="outline" size="m" routerLink="nueva">Nueva etiqueta</a></li> }</ul>
+      @if (paginas() > 1) { <div class="cx-pagination"><span class="cx-muted">Página {{ pagina() + 1 }} de {{ paginas() }}</span><div class="cx-actions"><button tuiButton appearance="flat" size="m" type="button" [disabled]="pagina() === 0 || ocupado()" (click)="cargar(pagina() - 1)">Anterior</button><button tuiButton appearance="flat" size="m" type="button" [disabled]="pagina() + 1 >= paginas() || ocupado()" (click)="cargar(pagina() + 1)">Siguiente</button></div></div> }
+    }
+  </section>
+</div>

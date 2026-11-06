@@ -1,0 +1,40 @@
+<div class="mapa-caja">
+  <div class="mapa-wrap">
+    <div #mapa class="mapa"></div>
+    <div class="mapa-toolbar">
+      <button tuiButton appearance="primary" size="s" type="button" [loading]="ubicando()" (click)="usarMiUbicacion()">
+        <tui-icon icon="@tui.locate-fixed" />
+        Mi ubicación
+      </button>
+      @if (enlaceMaps(); as url) {
+        <a tuiButton appearance="secondary" size="s" [href]="url" target="_blank" rel="noopener">
+          <tui-icon icon="@tui.map" />
+          Google Maps
+        </a>
+        <button tuiButton appearance="flat" size="s" type="button" (click)="compartir()">
+          <tui-icon icon="@tui.share-2" />
+          Compartir
+        </button>
+      }
+    </div>
+    <div class="mapa-hint">Toca el mapa para fijar la sede · arrastra el pin para ajustar</div>
+  </div>
+  <div class="mapa-estado" [class.con-pin]="!!pin()">
+    @if (pin(); as p) {
+      <span class="mapa-estado-icon mapa-estado-icon--ok">
+        <tui-icon icon="@tui.map-pin" />
+      </span>
+      <div class="mapa-estado-texto">
+        <strong class="font-mono">{{ p.latitud }}, {{ p.longitud }}</strong>
+        <a [href]="enlaceMaps()" target="_blank" rel="noopener">ver en Google Maps</a>
+      </div>
+      <span class="pill pill-soft-success">Sede fijada</span>
+    } @else {
+      <span class="mapa-estado-icon mapa-estado-icon--vacio">
+        <tui-icon icon="@tui.map-pin" />
+      </span>
+      <div class="mapa-estado-texto text-soft">Sin sede: toca el mapa o pulsa Mi ubicación.</div>
+      <span class="pill pill-soft-warning">Pendiente</span>
+    }
+  </div>
+</div>

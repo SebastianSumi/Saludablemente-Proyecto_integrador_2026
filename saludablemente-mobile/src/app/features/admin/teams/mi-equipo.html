@@ -1,0 +1,44 @@
+<div class="team-page" [style.--team-color]="color()">
+  <header class="page-heading"><div><p class="eyebrow">Nuestra comunidad</p><h1>Mi equipo</h1><p class="muted">Un espacio para conocernos y compartir lo que nos une.</p></div></header>
+  @if (cargando()) {
+    <section class="state-panel" role="status"><tui-icon icon="@tui.users" /><h2>Cargando tu equipo…</h2><p>Estamos preparando la información.</p></section>
+  } @else if (error()) {
+    <section class="state-panel" role="alert"><tui-icon icon="@tui.users" /><h2>Tu equipo aún no está disponible</h2><p>{{ error() }}</p><button tuiButton size="s" type="button" appearance="secondary" (click)="cargar()">Reintentar</button></section>
+  } @else if (equipo(); as team) {
+    <section class="team-hero" aria-label="Identidad del equipo">
+      <div class="team-banner" aria-hidden="true"><span></span><span></span></div>
+      <div class="team-identity">
+        <div class="team-logo">
+          @if (team.imagenUrl && !imagenFallida()) { <img [src]="team.imagenUrl" [alt]="'Logo de ' + team.nombre" (error)="imagenFallida.set(true)" /> }
+          @else { <span>{{ iniciales(team.nombre) }}</span> }
+        </div>
+        <div class="team-name"><p class="eyebrow">Somos equipo</p><h2>{{ team.nombre }}</h2>@if (team.slogan) { <p class="team-slogan">{{ team.slogan }}</p> }</div>
+        @if (puedeEditar()) { <a tuiButton appearance="secondary" size="s" [routerLink]="['/teams', team.id, 'editar']"><tui-icon icon="@tui.pencil" />Editar equipo</a> }
+      </div>
+    </section>
+    <div class="team-layout">
+      <aside class="team-about">
+        <section class="team-panel"><h2><tui-icon icon="@tui.info" />Sobre nuestro equipo</h2><p class="description">{{ team.descripcion || 'Este equipo todavía no ha añadido una presentación.' }}</p>
+          @if (team.textoVersiculo || team.referenciaBiblica) { <blockquote><tui-icon icon="@tui.quote" />@if (team.textoVersiculo) { <p>{{ team.textoVersiculo }}</p> }@if (team.referenciaBiblica) { <cite>{{ team.referenciaBiblica }}</cite> }</blockquote> }
+        </section>
+        <section class="team-panel social-invite"><span class="invite-icon"><tui-icon icon="@tui.messages-square" /></span><h2>La conversación continúa</h2><p>Encuentra las publicaciones y novedades de tu equipo.</p><a tuiButton size="s" appearance="secondary" [routerLink]="['/social/equipos', team.id]">Ver publicaciones<tui-icon icon="@tui.arrow-up-right" /></a></section>
+      </aside>
+      <section class="team-panel team-members" aria-labelledby="members-title">
+        <header class="members-heading"><div><h2 id="members-title">Quienes hacemos equipo</h2><p class="muted">Integrantes con cuenta activa</p></div>@if (!cargandoMiembros() && !errorMiembros()) { <span class="member-count">{{ miembros().length }} {{ miembros().length === 1 ? 'integrante' : 'integrantes' }}</span> }</header>
+        @if (cargandoMiembros()) { <p class="inline-state" role="status">Cargando integrantes…</p> }
+        @else if (errorMiembros()) { <div class="inline-state" role="alert"><p>No pudimos cargar los integrantes.</p><button tuiButton type="button" size="s" appearance="flat" (click)="cargarMiembros()">Reintentar</button></div> }
+        @else {
+          @if (miembros().length) { <label class="member-search"><tui-icon icon="@tui.search" /><input type="search" placeholder="Buscar integrante…" aria-label="Buscar integrante por nombre" [ngModel]="busqueda()" (ngModelChange)="busqueda.set($event)" /></label> }
+          <ul class="member-grid">
+            @for (miembro of filtrados(); track miembro.idUsuario) {
+              <li class="member-card" [class.is-leader]="miembro.idUsuario === team.idUsuarioLider"><span class="member-avatar" aria-hidden="true">{{ iniciales(miembro.nombre) }}</span><div class="member-copy"><h3>{{ miembro.nombre }}</h3>@if (miembro.idUsuario === team.idUsuarioLider) { <span class="leader-badge"><tui-icon icon="@tui.crown" />Líder del equipo</span> } @else { <span class="member-role">Integrante</span> }</div></li>
+            } @empty {
+              <li class="members-empty" role="status"><tui-icon icon="@tui.users" /><h3>{{ busqueda() ? 'No encontramos coincidencias' : 'Aún no hay integrantes para mostrar' }}</h3><p>{{ busqueda() ? 'Prueba con otro nombre o limpia la búsqueda.' : 'Aquí aparecerán los integrantes con cuenta activa.' }}</p>@if (busqueda()) { <button tuiButton type="button" appearance="flat" size="s" (click)="busqueda.set('')">Limpiar búsqueda</button> }</li>
+            }
+          </ul>
+          @if (!team.idUsuarioLider) { <p class="leader-note"><tui-icon icon="@tui.info" />Este equipo todavía no tiene un líder asignado.</p> }
+        }
+      </section>
+    </div>
+  }
+</div>

@@ -1,0 +1,52 @@
+<form [formGroup]="form" (ngSubmit)="consultar()">
+  <label tuiLabel class="field">
+    Racha mínima de faltas
+    <tui-textfield>
+      <input tuiInput type="number" formControlName="minRacha" min="2" />
+    </tui-textfield>
+  </label>
+  <div class="form-actions">
+    <button tuiButton appearance="primary" size="s" type="submit" [loading]="loading()">
+      Consultar
+    </button>
+    <button tuiButton appearance="outline" size="s" type="button" (click)="cerrar()">
+      Cerrar
+    </button>
+  </div>
+</form>
+
+@if (error()) {
+  <p class="error">{{ error() }}</p>
+}
+
+@if (datos(); as d) {
+  <dl class="detail-grid">
+    <dt>Racha mínima</dt>
+    <dd>{{ d.minRacha }}</dd>
+    <dt>Personas detectadas</dt>
+    <dd>{{ d.total }}</dd>
+  </dl>
+  @if (d.idsPersona.length > 0) {
+    <div class="table-wrapper">
+      <table tuiTable>
+        <thead>
+          <tr>
+            <th tuiTh>ID persona</th>
+          </tr>
+        </thead>
+        <tbody tuiTbody>
+          @for (id of d.idsPersona; track id) {
+            <tr>
+              <td tuiTd>
+                <tui-icon icon="@tui.user" />
+                #{{ id }}
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  } @else {
+    <p class="hint">Sin ausentismo crónico para esa racha.</p>
+  }
+}

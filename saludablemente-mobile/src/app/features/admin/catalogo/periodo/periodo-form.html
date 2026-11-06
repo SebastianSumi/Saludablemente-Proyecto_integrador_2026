@@ -1,0 +1,112 @@
+<!-- ======================================
+     CABECERA DEL FORMULARIO
+     ====================================== -->
+<header class="form-cabecera">
+  <div class="tile tile-rounded tile-soft-primary modulo-icono">
+    <tui-icon icon="@tui.calendar" />
+  </div>
+  <div>
+    <h2 class="card-title">{{ id() ? 'Editar Periodo' : 'Nuevo Periodo' }}</h2>
+    <p class="card-subtitle">Configuración temporal para evaluaciones y metas institucionales.</p>
+  </div>
+</header>
+
+@if (loading()) {
+  <div class="card cargando-caja">
+    <p class="hint">Cargando información del periodo…</p>
+  </div>
+}
+
+<form [formGroup]="form" (ngSubmit)="guardar()" class="form-contenedor">
+  <section class="card">
+    <div class="seccion-titulo">
+      <span class="tile tile-rounded tile-soft-primary seccion-icono">
+        <tui-icon icon="@tui.calendar" />
+      </span>
+      <div>
+        <h3 class="seccion-nombre">Datos del Periodo</h3>
+        <p class="seccion-desc">Código, descripción y fechas de vigencia.</p>
+      </div>
+    </div>
+
+    <div class="form-grid">
+      <label tuiLabel class="field">
+        Código de Periodo
+        <tui-textfield>
+          <input tuiInput type="text" formControlName="codigo" placeholder="Ej. 2026-1" />
+        </tui-textfield>
+        <tui-error formControlName="codigo" />
+      </label>
+
+      <label tuiLabel class="field">
+        Descripción del Periodo
+        <tui-textfield>
+          <input tuiInput type="text" formControlName="descripcion" placeholder="Ej. Primer Semestre 2026" />
+        </tui-textfield>
+        <tui-error formControlName="descripcion" />
+      </label>
+
+      <label tuiLabel class="field">
+        Fecha de Inicio
+        <tui-textfield>
+          <input tuiInputDate formControlName="fechaInicio" />
+          <ng-template tuiDropdown>
+            <tui-calendar />
+            <div class="cal-acciones">
+              <button tuiButton appearance="secondary" size="s" type="button" (click)="fijarHoy('fechaInicio')">
+                <tui-icon icon="@tui.calendar-check" />
+                Hoy
+              </button>
+              <button tuiButton appearance="flat" size="s" type="button" (click)="limpiarCampo('fechaInicio')">
+                <tui-icon icon="@tui.eraser" />
+                Limpiar
+              </button>
+            </div>
+          </ng-template>
+        </tui-textfield>
+        <tui-error formControlName="fechaInicio" />
+      </label>
+
+      <label tuiLabel class="field">
+        Fecha de Fin
+        <tui-textfield>
+          <input tuiInputDate formControlName="fechaFin" />
+          <ng-template tuiDropdown>
+            <tui-calendar />
+            <div class="cal-acciones">
+              <button tuiButton appearance="secondary" size="s" type="button" (click)="fijarHoy('fechaFin')">
+                <tui-icon icon="@tui.calendar-check" />
+                Hoy
+              </button>
+              <button tuiButton appearance="flat" size="s" type="button" (click)="limpiarCampo('fechaFin')">
+                <tui-icon icon="@tui.eraser" />
+                Limpiar
+              </button>
+            </div>
+          </ng-template>
+        </tui-textfield>
+        <tui-error formControlName="fechaFin" />
+      </label>
+    </div>
+  </section>
+
+  @if (error()) {
+    <div class="card error-caja">
+      <tui-icon icon="@tui.triangle-alert" class="icono-alerta" />
+      <p class="error-msg">{{ error() }}</p>
+    </div>
+  }
+
+  <!-- ======================================
+       ACCIONES DEL FORMULARIO
+       ====================================== -->
+  <div class="form-acciones">
+    <button tuiButton appearance="primary" size="m" type="submit" [loading]="guardando()" [disabled]="loading() || errorCarga()">
+      <tui-icon icon="@tui.check" />
+      Guardar periodo
+    </button>
+    <button tuiButton appearance="outline" size="m" type="button" (click)="cancelar()">
+      Cancelar
+    </button>
+  </div>
+</form>

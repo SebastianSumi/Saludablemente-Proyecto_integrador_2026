@@ -1,0 +1,106 @@
+<div class="form-cabecera">
+  <div class="tile tile-rounded tile-soft-secondary modulo-icono">
+    <tui-icon icon="@tui.activity" />
+  </div>
+  <div>
+    <h2 class="card-title">Nueva evaluación de aptitud física</h2>
+    <p class="card-subtitle">
+      Selecciona el colaborador, el periodo y la fecha para iniciar la evaluación.
+    </p>
+  </div>
+</div>
+
+<form [formGroup]="form" (ngSubmit)="guardar()" class="form-contenedor">
+  @if (cargandoDatos()) {
+    <div class="card estado-caja">
+      <p class="hint">Cargando personas y periodos disponibles…</p>
+    </div>
+  }
+
+  @if (error()) {
+    <div class="card error-caja">
+      <tui-icon icon="@tui.triangle-alert" class="icono-alerta" />
+      <p class="error-msg">{{ error() }}</p>
+    </div>
+  }
+
+  <section class="card">
+    <div class="seccion-titulo">
+      <span class="tile tile-rounded tile-soft-primary seccion-icono">
+        <tui-icon icon="@tui.user-check" />
+      </span>
+      <div>
+        <h3 class="seccion-nombre">Asignación de evaluación</h3>
+        <p class="seccion-desc">Persona evaluada, ciclo y fecha de la prueba</p>
+      </div>
+    </div>
+
+    <div class="form-grid">
+      <label tuiLabel class="field campo-full">
+        <span class="field-label">Colaborador <span class="required">*</span></span>
+        <tui-textfield tuiChevron>
+          <input tuiComboBox formControlName="persona" placeholder="— Busca por DNI o nombre —" />
+          <tui-data-list-wrapper
+            *tuiDropdown
+            [items]="personas() | tuiFilterByInput"
+            [itemContent]="optTpl"
+          />
+        </tui-textfield>
+        <tui-error formControlName="persona" />
+      </label>
+
+      <label tuiLabel class="field">
+        <span class="field-label">Periodo <span class="required">*</span></span>
+        <tui-textfield tuiChevron>
+          <input tuiComboBox formControlName="periodo" placeholder="— Seleccione periodo —" />
+          <tui-data-list-wrapper
+            *tuiDropdown
+            [items]="periodos() | tuiFilterByInput"
+            [itemContent]="optTpl"
+          />
+        </tui-textfield>
+        <tui-error formControlName="periodo" />
+      </label>
+
+      <label tuiLabel class="field">
+        <span class="field-label">Fecha de evaluación <span class="required">*</span></span>
+        <tui-textfield>
+          <input tuiInputDate formControlName="fechaEvaluacion" />
+          <ng-template tuiDropdown>
+            <tui-calendar />
+            <div class="cal-acciones">
+              <button tuiButton appearance="secondary" size="s" type="button" (click)="fijarHoy()">
+                <tui-icon icon="@tui.calendar-check" />
+                Hoy
+              </button>
+              <button tuiButton appearance="flat" size="s" type="button" (click)="limpiarFecha()">
+                <tui-icon icon="@tui.eraser" />
+                Limpiar
+              </button>
+            </div>
+          </ng-template>
+        </tui-textfield>
+        <tui-error formControlName="fechaEvaluacion" />
+      </label>
+    </div>
+  </section>
+
+  <div class="form-acciones">
+    <button
+      tuiButton
+      appearance="primary"
+      size="m"
+      type="submit"
+      [loading]="guardando()"
+      [disabled]="cargandoDatos()"
+    >
+      <tui-icon icon="@tui.circle-check" />
+      Iniciar evaluación
+    </button>
+    <button tuiButton appearance="outline" size="m" type="button" (click)="cancelar()">
+      Cancelar
+    </button>
+  </div>
+</form>
+
+<ng-template #optTpl let-item>{{ item.label }}</ng-template>

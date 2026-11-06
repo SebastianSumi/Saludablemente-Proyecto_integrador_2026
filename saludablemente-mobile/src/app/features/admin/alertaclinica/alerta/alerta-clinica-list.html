@@ -1,0 +1,203 @@
+<app-clinica-nav />
+<!-- ══════════════════════════════════════
+     CABECERA DE PÁGINA
+     ══════════════════════════════════════ -->
+<div class="page-banner card card-alerta">
+  <div class="page-banner-body">
+    <div class="page-banner-icon tile tile-rounded tile-soft-error">
+      <tui-icon icon="@tui.bell" />
+    </div>
+    <div>
+      <h2 class="card-title">Alertas Clínicas</h2>
+      <p class="card-subtitle">
+        @if (loading()) {
+          Cargando alertas clínicas...
+        } @else {
+          {{ items().length }} alerta(s) registradas por el motor clínico
+        }
+      </p>
+    </div>
+  </div>
+  <img [src]="portada" alt="Alertas clínicas" loading="lazy" />
+  <a tuiButton appearance="primary" size="m" routerLink="/alertaclinica/dashboard">
+    <tui-icon icon="@tui.chart-column" />
+    Dashboard clínico
+  </a>
+</div>
+
+<!-- ══════════════════════════════════════
+     FILTROS EN LÍNEA
+     ══════════════════════════════════════ -->
+<div class="filtros-card">
+  <div class="filtros-linea">
+    <!-- Estado -->
+    <div class="filtro-item">
+      <label class="filtro-etiqueta">Estado</label>
+      <tui-textfield tuiChevron>
+        <input tuiComboBox [formControl]="estadoCtrl" [strict]="true" placeholder="— Todos los estados —" />
+        <tui-data-list-wrapper *tuiDropdown [items]="estadoOpts | tuiFilterByInput" [itemContent]="opt" />
+      </tui-textfield>
+    </div>
+
+    <!-- Severidad -->
+    <div class="filtro-item">
+      <label class="filtro-etiqueta">Severidad</label>
+      <tui-textfield tuiChevron>
+        <input tuiComboBox [formControl]="severidadCtrl" [strict]="true" placeholder="— Todas —" />
+        <tui-data-list-wrapper *tuiDropdown [items]="severidadOpts | tuiFilterByInput" [itemContent]="opt" />
+      </tui-textfield>
+    </div>
+
+    <!-- Origen -->
+    <div class="filtro-item">
+      <label class="filtro-etiqueta">Origen</label>
+      <tui-textfield tuiChevron>
+        <input tuiComboBox [formControl]="tipoCtrl" [strict]="true" placeholder="— Todos —" />
+        <tui-data-list-wrapper *tuiDropdown [items]="tipoOpts | tuiFilterByInput" [itemContent]="opt" />
+      </tui-textfield>
+    </div>
+
+    <!-- ID Persona -->
+    <div class="filtro-item">
+      <label class="filtro-etiqueta">ID Persona</label>
+      <tui-textfield>
+        <input
+          tuiInput
+          type="number"
+          [value]="filtroPersonaId() ?? ''"
+          (input)="filtroPersonaId.set($any($event.target).value ? +$any($event.target).value : null); cargar()"
+          placeholder="Todos"
+        />
+      </tui-textfield>
+    </div>
+
+    <div class="filtro-item">
+      <label class="filtro-etiqueta" for="alertas-etiqueta">Etiqueta clínica</label>
+      <select id="alertas-etiqueta" class="etiqueta-select" [(ngModel)]="filtroEtiqueta" (ngModelChange)="cargar()">
+        <option value="">Todas las etiquetas</option>
+        @for (e of etiquetasFiltro(); track e.id) { <option [value]="e.codigo">{{ e.nombre }}{{ e.estado === 'INACTIVO' ? ' (inactiva)' : '' }}</option> }
+      </select>
+    </div>
+    <!-- Botón Limpiar -->
+    <button
+      tuiButton
+      appearance="outline"
+      size="m"
+      type="button"
+      (click)="limpiarFiltros()"
+      class="btn-limpiar"
+    >
+      <tui-icon icon="@tui.filter-x" />
+      Limpiar
+    </button>
+  </div>
+</div>
+
+@if (etiquetaFiltroError()) { <p class="error" role="alert">{{ etiquetaFiltroError() }} <button tuiButton appearance="flat" size="s" (click)="cargarEtiquetas()">Reintentar</button></p> }
+
+<ng-template #opt let-item>{{ item.label }}</ng-template>
+
+@if (error()) {
+  <div class="card error-caja">
+    <tui-icon icon="@tui.triangle-alert" class="icono-alerta" />
+    <p class="error-msg">{{ error() }}</p>
+  </div>
+}
+
+<!-- ══════════════════════════════════════
+     TABLA DE ALERTAS CLÍNICAS
+     ══════════════════════════════════════ -->
+<div class="card tabla-card flush">
+  <div class="table-wrapper flush">
+    <table tuiTable class="alerta-table">
+      <thead>
+        <tr>
+          <th tuiTh>ID</th>
+          <th tuiTh>Persona</th>
+          <th tuiTh>Origen</th>
+          <th tuiTh>Puntaje</th>
+          <th tuiTh>Severidad</th>
+          <th tuiTh>Estado</th>
+          <th tuiTh>Fecha</th>
+          <th tuiTh>Indicadores</th>
+          <th tuiTh>Etiquetas</th>
+          <th tuiTh class="th-acciones"><span class="sr-only">Acciones</span></th>
+        </tr>
+      </thead>
+      <tbody tuiTbody>
+        @for (item of items(); track item.idAlerta) {
+          <tr>
+            <td tuiTd class="id-cell font-mono">#{{ item.idAlerta }}</td>
+            <td tuiTd>
+              <div class="persona-tag">
+                <span class="tile tile-circle tile-soft-error persona-icono">
+                  <tui-icon icon="@tui.user" />
+                </span>
+                <span class="persona-id">{{ nombrePersona(item.personaId) }}</span>
+              </div>
+            </td>
+            <td tuiTd>
+              <span class="pill pill-soft-secondary">
+                {{ item.tipoEvaluacionOrigen === 'NUTRICIONAL' ? 'Nutricional' : 'Aptitud Física' }}
+              </span>
+            </td>
+            <td tuiTd class="puntaje-cell">
+              <strong class="puntaje-val">{{ item.puntajeTotal }}</strong>
+              <span class="text-soft"> pts</span>
+            </td>
+            <td tuiTd>
+              @if (item.nivelSeveridad === 'CRITICA') {
+                <span class="pill pill-soft-error">
+                  <tui-icon icon="@tui.triangle-alert" class="pill-icono" />
+                  Crítica
+                </span>
+              } @else if (item.nivelSeveridad === 'MODERADA') {
+                <span class="pill pill-soft-warning">
+                  <tui-icon icon="@tui.info" class="pill-icono" />
+                  Moderada
+                </span>
+              } @else {
+                <span class="pill pill-soft-success">
+                  <tui-icon icon="@tui.check" class="pill-icono" />
+                  Leve
+                </span>
+              }
+            </td>
+            <td tuiTd>
+              @if (item.estado === 'PENDIENTE') {
+                <span class="pill pill-soft-warning">Pendiente</span>
+              } @else if (item.estado === 'ATENDIDA') {
+                <span class="pill pill-soft-success">Atendida</span>
+              } @else {
+                <span class="pill pill-soft-neutral">Anulada</span>
+              }
+            </td>
+            <td tuiTd class="fecha-cell">{{ item.fechaGeneracion | date:'dd/MM/yyyy HH:mm' }}</td>
+            <td tuiTd>
+              <span class="indicadores-tag pill pill-soft-primary">
+                <tui-icon icon="@tui.activity" />
+                {{ item.detalles.length }} indicador(es)
+              </span>
+            </td>
+            <td tuiTd><div class="etiquetas-lista"><app-etiquetas-clinicas [etiquetas]="item.etiquetas || []" rutaBase="/alertaclinica/etiquetas" /></div></td>
+            <td tuiTd class="td-acciones">
+              <div class="row-actions">
+                <a tuiButton appearance="flat" size="s" [routerLink]="['/alertaclinica/alertas', item.idAlerta]">
+                  <tui-icon icon="@tui.eye" />
+                  Ver detalle
+                </a>
+              </div>
+            </td>
+          </tr>
+        } @empty {
+          @if (!loading() && !error()) {
+            <tr>
+              <td tuiTd colspan="10" class="empty">No hay alertas con esos filtros.</td>
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+  </div>
+</div>
+

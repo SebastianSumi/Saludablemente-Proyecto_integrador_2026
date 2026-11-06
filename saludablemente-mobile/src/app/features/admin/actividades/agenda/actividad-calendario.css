@@ -1,0 +1,203 @@
+.cal-card {
+  padding: 1.25rem 1.5rem 1.5rem;
+  border-radius: 20px;
+  max-width: none !important;
+  width: 100%;
+}
+
+.cal-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.cal-nav-left {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.cal-mes {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--sal-ink);
+  min-width: 11ch;
+  text-align: center;
+}
+
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 0.4rem;
+}
+
+.cal-dow {
+  text-align: center;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--sal-ink-soft);
+  padding: 0.35rem 0;
+}
+
+.cal-celda {
+  min-height: 104px;
+  border-radius: 12px;
+  background: var(--sal-hover);
+  border: 1px solid var(--sal-line);
+  padding: 0.35rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+  cursor: pointer;
+  transition: border-color 120ms ease;
+}
+
+.cal-celda:hover {
+  border-color: color-mix(in srgb, var(--sal-primary) 45%, var(--sal-line));
+}
+
+.cal-fuera {
+  opacity: 0.45;
+}
+
+.cal-hoy {
+  border: 1px solid color-mix(in srgb, var(--sal-primary) 55%, var(--sal-line));
+  background: color-mix(in srgb, var(--sal-primary) 6%, var(--sal-card));
+}
+
+.cal-dia {
+  align-self: flex-start;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font: inherit;
+}
+
+.cal-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.7rem;
+  height: 1.7rem;
+  border-radius: 50%;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--sal-ink-soft);
+}
+
+.cal-num-hoy {
+  background: var(--sal-primary);
+  color: white;
+}
+
+.cal-eventos {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.cal-pill {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  width: 100%;
+  padding: 0.28rem 0.5rem;
+  border-radius: 8px;
+  border: none;
+  border-left: 3px solid currentColor;
+  background: color-mix(in srgb, currentColor 12%, var(--sal-card));
+  color: var(--sal-ink);
+  font: inherit;
+  font-size: 0.76rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+  min-width: 0;
+  transition: transform 120ms ease;
+}
+
+.cal-pill:hover {
+  transform: translateY(-1px);
+}
+
+.cal-pill-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  flex-shrink: 0;
+}
+
+.cal-pill-titulo {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.ev-planificada { color: var(--sal-primary); }
+.ev-programada { color: var(--sal-secondary); }
+.ev-curso { color: var(--sal-warning); }
+.ev-finalizada { color: var(--sal-success); }
+.ev-cancelada {
+  color: var(--sal-danger);
+  text-decoration: line-through;
+}
+.ev-neutra { color: var(--sal-ink-soft); }
+
+.ev-curso .cal-pill-dot {
+  animation: ev-pulse 1.4s infinite;
+}
+
+@keyframes ev-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+
+.cal-mas {
+  background: none;
+  border: none;
+  padding: 0.15rem 0.5rem;
+  font: inherit;
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: var(--sal-ink-soft);
+  cursor: pointer;
+  text-align: left;
+}
+
+.cal-mas:hover {
+  color: var(--sal-primary);
+  text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+  .cal-card {
+    padding: 1rem;
+  }
+
+  .cal-celda {
+    min-height: 64px;
+    align-items: center;
+  }
+
+  .cal-pill .cal-pill-titulo {
+    display: none;
+  }
+
+  .cal-pill {
+    width: auto;
+    padding: 0.3rem;
+    border-left: none;
+    background: transparent;
+  }
+}

@@ -1,0 +1,119 @@
+<section class="login-fondo">
+  <div class="login-card">
+    <div class="login-marca">
+      <img class="login-logo" src="img/logo-icon.svg" alt="Saludablemente" />
+      <div>
+        <span tuiBadge appearance="primary" size="s">Saludablemente ERP</span>
+        <h1>Crear cuenta</h1>
+      </div>
+      <span class="login-tema">
+        <button tuiIconButton appearance="flat" size="s" type="button"
+          [iconStart]="esOscuro() ? '@tui.sun' : '@tui.moon'"
+          (click)="alternarTema()" aria-label="Cambiar tema claro/oscuro">
+          Tema
+        </button>
+      </span>
+    </div>
+
+    @if (paso() === 1) {
+      <p class="hint">Paso 1 de 2: confirma tu identidad. Debes estar registrado como persona en el sistema.</p>
+      <form [formGroup]="formIdentidad" (ngSubmit)="verificar()">
+        <div class="form-grid">
+          <label tuiLabel class="field">
+            Documento de identidad
+            <tui-textfield>
+              <input tuiInput type="text" formControlName="documentoIdentidad" maxlength="20" autocomplete="off" />
+            </tui-textfield>
+            <tui-error formControlName="documentoIdentidad" />
+          </label>
+          <label tuiLabel class="field">
+            Email (será tu usuario)
+            <tui-textfield>
+              <input tuiInput type="email" formControlName="email" maxlength="120" autocomplete="email" />
+            </tui-textfield>
+            <tui-error formControlName="email" />
+          </label>
+        </div>
+
+        @if (estado() === 'no-encontrada') {
+          <div class="aviso error-box">
+            <strong>Persona no encontrada.</strong>
+            <p class="hint">No existe una persona activa con ese documento. Solo puedes volver al inicio de sesión.</p>
+            <button tuiButton appearance="outline" size="m" type="button" (click)="irALogin()">
+              Volver al inicio de sesión
+            </button>
+          </div>
+        }
+        @if (estado() === 'ya-tiene-cuenta') {
+          <div class="aviso">
+            <strong>Ya tienes una cuenta creada.</strong>
+            <p class="hint">Si no recuerdas tu clave, recupérala aquí:</p>
+            <button tuiButton appearance="outline" size="m" type="button" routerLink="/login">
+              Olvidaste tu contraseña
+            </button>
+          </div>
+        }
+        @if (error()) {
+          <p class="error">{{ error() }}</p>
+        }
+
+        <div class="login-acciones">
+          <button tuiButton appearance="primary" size="l" type="submit" [loading]="procesando()">
+            Verificar identidad
+          </button>
+          <a tuiButton appearance="flat" size="m" routerLink="/login">Ya tengo cuenta</a>
+        </div>
+      </form>
+    }
+
+    @if (paso() === 2) {
+      <p class="hint">Paso 2 de 2: hola <strong>{{ nombreMostrado() }}</strong>, crea tu contraseña.</p>
+      <form [formGroup]="formClave" (ngSubmit)="registrar()">
+        <div class="form-grid">
+          <label tuiLabel class="field">
+            Contraseña (mínimo 8 caracteres)
+            <tui-textfield>
+              <input tuiInput type="password" formControlName="password" maxlength="80" autocomplete="new-password" />
+            </tui-textfield>
+            <tui-error formControlName="password" />
+          </label>
+          <label tuiLabel class="field">
+            Confirmar contraseña
+            <tui-textfield>
+              <input tuiInput type="password" formControlName="confirmar" maxlength="80" autocomplete="new-password" />
+            </tui-textfield>
+            <tui-error formControlName="confirmar" />
+          </label>
+        </div>
+        @if (estado() === 'ya-tiene-cuenta') {
+          <div class="aviso">
+            <strong>Ya tienes una cuenta creada.</strong>
+            <p class="hint">Si no recuerdas tu clave, recupérala aquí:</p>
+            <button tuiButton appearance="outline" size="m" type="button" routerLink="/login">
+              Olvidaste tu contraseña
+            </button>
+          </div>
+        }
+        @if (error()) {
+          <p class="error">{{ error() }}</p>
+        }
+        <div class="login-acciones">
+          <button tuiButton appearance="primary" size="l" type="submit" [loading]="procesando()">
+            Crear mi cuenta
+          </button>
+        </div>
+      </form>
+    }
+
+    @if (paso() === 3) {
+      <div class="aviso ok">
+        <tui-icon icon="@tui.check-circle" />
+        <strong>¡Cuenta creada!</strong>
+        <p class="hint">Ya puedes entrar con tu email y contraseña.</p>
+        <button tuiButton appearance="primary" size="l" type="button" (click)="irALogin()">
+          Ir al inicio de sesión
+        </button>
+      </div>
+    }
+  </div>
+</section>

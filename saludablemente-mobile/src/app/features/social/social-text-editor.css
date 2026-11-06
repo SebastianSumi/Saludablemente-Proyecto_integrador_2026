@@ -1,0 +1,131 @@
+.text-box {
+  position: relative;
+}
+.text-box.compact {
+  background: var(--sal-hover);
+  border: 1px solid var(--sal-line);
+  border-radius: 16px;
+  padding: 12px;
+}
+.text-box.compact:focus-within {
+  border-color: var(--sal-action);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--sal-action) 12%, transparent);
+}
+.text-box.compact textarea {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  border: 0;
+  background: transparent;
+  border-radius: 0;
+  padding: 0;
+  min-height: 52px;
+  max-height: 120px;
+  resize: none;
+  box-shadow: none;
+  outline: none;
+}
+.editor-toolbar.compact-toolbar {
+  gap: 2px 6px;
+  margin-top: 6px;
+}
+.compact-toolbar small {
+  margin-left: auto;
+  order: 4;
+  font-size: 11px;
+  white-space: nowrap;
+}
+.compact-toolbar [tuiButton] {
+  font-size: 12px;
+  min-height: 32px;
+  padding: 0 6px;
+  gap: 4px;
+}
+.mention-picker {
+  min-height: 0;
+}
+.mention-types {
+  gap: 4px;
+}
+.mention-types button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.mention-search input {
+  box-sizing: border-box;
+}
+.mention-result-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.mention-result-heading [aria-pressed='true'] {
+  background: var(--sal-hover);
+  color: var(--sal-action);
+}
+.mention-results {
+  display: grid;
+  gap: 8px;
+  max-height: min(440px, 48dvh);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 3px;
+}
+.mention-result {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid var(--sal-line);
+  border-radius: 12px;
+  background: var(--sal-card);
+  color: var(--sal-ink);
+  text-align: left;
+  cursor: pointer;
+  font: inherit;
+}
+.mention-result:hover {
+  background: var(--sal-hover);
+  border-color: var(--sal-action);
+}
+.mention-copy {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+  flex: 1;
+  overflow-wrap: anywhere;
+}
+.mention-copy strong {
+  font-size: 13px;
+}
+.mention-copy small {
+  font-size: 11px;
+}
+.mention-result > social-icon {
+  color: var(--sal-action);
+  width: 16px;
+}
+.mention-results.cards {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.cards .mention-result {
+  flex-direction: column;
+  text-align: center;
+  align-items: center;
+}
+.cards .mention-result > social-icon {
+  display: none;
+}
+@media (max-width: 380px) {
+  .mention-types button {
+    padding-inline: 7px;
+    font-size: 12px;
+  }
+  .mention-result {
+    padding: 10px;
+  }
+}

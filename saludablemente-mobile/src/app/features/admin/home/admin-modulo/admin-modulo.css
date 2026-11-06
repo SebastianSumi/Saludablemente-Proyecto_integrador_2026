@@ -1,0 +1,235 @@
+:host {
+  display: block;
+}
+
+.card.modulo-hero {
+  max-width: none;
+}
+
+.volver {
+  margin-bottom: 0.75rem;
+}
+
+.volver tui-icon {
+  transition: transform 180ms ease;
+}
+
+.volver:hover tui-icon {
+  transform: translateX(-2px);
+}
+
+.modulo-hero-body {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+}
+
+.modulo-hero-body h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  letter-spacing: -0.01em;
+}
+
+.modulo-hero-body .hint {
+  margin: 0.2rem 0 0;
+}
+
+.flex-auto {
+  flex: 1 1 auto;
+}
+
+.buscador {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 1rem;
+  background: var(--sal-hover);
+  border: 1px solid var(--sal-line);
+  border-radius: 16px;
+  padding: 0.65rem 1rem;
+  color: var(--sal-ink-soft);
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    background-color 180ms ease;
+}
+
+.buscador:focus-within {
+  border-color: color-mix(in srgb, var(--modulo-color, var(--sal-primary)) 55%, var(--sal-line));
+  background: var(--sal-card);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--modulo-color, var(--sal-primary)) 15%, transparent);
+}
+
+.buscador input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font: inherit;
+  color: var(--sal-ink);
+  min-width: 0;
+}
+
+/* ==== Hijas como filas horizontales ==== */
+.hijas {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.card.hija {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0;
+  max-width: none;
+  text-decoration: none;
+  color: inherit;
+  padding: 1.1rem 1.25rem;
+  transition: transform 120ms ease, box-shadow 120ms ease;
+  animation: modulo-entrar 300ms cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
+}
+
+.card.hija:hover {
+  transform: translateX(4px);
+  box-shadow: 0 6px 20px rgb(17 28 45 / 0.1);
+}
+
+.hija-texto {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.hija-texto strong {
+  font-size: 0.98rem;
+}
+
+.hija-texto .hint {
+  margin: 0;
+}
+
+.hija-flecha {
+  color: var(--sal-ink-soft);
+  flex-shrink: 0;
+  transition: color 140ms ease, transform 140ms ease;
+}
+
+.card.hija:hover .hija-flecha {
+  color: var(--sal-primary);
+  transform: translateX(2px);
+}
+
+.modulo-icono.tile-circle {
+  width: 3.25rem;
+  height: 3.25rem;
+  font-size: 1.5rem;
+}
+
+.modulo-icono.tile-rounded.sm {
+  width: 2.5rem;
+  height: 2.5rem;
+  font-size: 1.2rem;
+}
+
+/* ==== Destacadas: cards grandes (+0.7 sobre la base /admin) ==== */
+.destacadas-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.25rem;
+  margin-bottom: 1.25rem;
+}
+
+.card.hija-grande {
+  margin: 0;
+  max-width: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  text-decoration: none;
+  color: inherit;
+  padding: 2.2rem;
+  --acento: var(--modulo-color, var(--sal-primary));
+  transition:
+    transform 240ms cubic-bezier(0.2, 0.7, 0.2, 1),
+    box-shadow 240ms cubic-bezier(0.2, 0.7, 0.2, 1),
+    border-color 240ms ease;
+  animation: modulo-entrar 300ms cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
+}
+
+.card.hija-grande:is(:hover, :focus-visible) {
+  transform: translateY(-6px);
+  border-color: color-mix(in srgb, var(--acento) 45%, var(--sal-line));
+  box-shadow:
+    0 18px 40px rgb(17 28 45 / 0.16),
+    0 0 0 1px color-mix(in srgb, var(--acento) 18%, transparent),
+    0 8px 24px color-mix(in srgb, var(--acento) 14%, transparent);
+}
+
+.card.hija-grande:active {
+  transform: translateY(-2px) scale(0.995);
+}
+
+.card.hija-grande:focus-visible {
+  outline: 2px solid var(--acento);
+  outline-offset: 3px;
+}
+
+.card.hija-grande .card-image {
+  opacity: 0.92;
+  transform-origin: 50% 45%;
+  transition:
+    transform 450ms cubic-bezier(0.2, 0.7, 0.2, 1),
+    opacity 240ms ease,
+    filter 300ms ease;
+  will-change: transform;
+}
+
+@media (hover: hover) {
+  .card.hija-grande:hover .card-image {
+    transform: scale(1.045);
+    opacity: 1;
+  }
+}
+
+.hija-grande-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.modulo-icono.tile-circle.lg {
+  width: 4.2rem;
+  height: 4.2rem;
+  font-size: 2rem;
+}
+
+.hija-grande-titulo {
+  margin: 0;
+  font-size: 1.45rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.card.hija-grande .hint {
+  margin: 0;
+  flex: 1;
+  font-size: 0.95rem;
+}
+
+.hija-grande-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 0.5rem;
+  padding-top: 1.1rem;
+  border-top: 1px solid var(--sal-line);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--sal-ink);
+}
+
+/* ==== Reglas: mismo tamaño que las cards de /admin ==== */

@@ -1,0 +1,290 @@
+@if (loading()) {
+  <div class="card estado-caja">
+    <p class="hint">Cargando evaluación nutricional…</p>
+  </div>
+}
+
+@if (error()) {
+  <div class="card error-caja">
+    <tui-icon icon="@tui.triangle-alert" class="icono-alerta" />
+    <p class="error-msg">{{ error() }}</p>
+  </div>
+}
+
+@if (mensajeExito()) {
+  <div class="card exito-caja">
+    <tui-icon icon="@tui.circle-check" class="icono-exito" />
+    <p class="exito-msg">{{ mensajeExito() }}</p>
+  </div>
+}
+
+@if (evaluacion(); as e) {
+  <div class="detail-nav">
+    <a tuiButton appearance="flat" size="s" routerLink="/evaluador/nutricional">
+      <tui-icon icon="@tui.arrow-left" />
+      Volver a evaluaciones
+    </a>
+    <a tuiButton appearance="outline" size="s" [routerLink]="['/evaluador/colaboradores', e.idPersona]">
+      <tui-icon icon="@tui.user" />
+      Ver ficha del colaborador
+    </a>
+    <button tuiButton appearance="primary" size="s" type="button" (click)="descargarPdf()">
+      <tui-icon icon="@tui.download" />
+      Descargar ficha PDF
+    </button>
+  </div>
+
+  <section class="hero-card card">
+    <span class="tile tile-rounded tile-soft-success page-banner-icon">
+      <tui-icon icon="@tui.apple" />
+    </span>
+    <div class="hero-body">
+      <div class="hero-meta">
+        @if (e.estadoEvaluacion === 'COMPLETA') {
+          <span class="pill pill-success">Completa</span>
+        } @else if (e.estadoEvaluacion === 'ANULADA') {
+          <span class="pill pill-neutral">Anulada</span>
+        } @else {
+          <span class="pill pill-warning">Pendiente</span>
+        }
+        <span class="pill pill-primary font-mono">Periodo {{ e.idPeriodo }}</span>
+      </div>
+      <h2 class="card-title">
+        Evaluación #{{ e.idEvaluacion }} — {{ e.nombresCompletos }}
+      </h2>
+      <p class="card-subtitle">
+        DNI {{ e.documentoIdentidad }} · {{ e.edadAlMomento }} años · {{ e.sexoAlMomento }} ·
+        Área: {{ e.areaTrabajoAlMomento || '—' }} · Fecha: {{ e.fechaEvaluacion }}
+      </p>
+    </div>
+  </section>
+
+  @if (e.detalleAntropometrico; as antro) {
+    <div class="metric-grid">
+      <div class="metric-card">
+        <span class="metric-label">Estatura</span>
+        <span class="metric-value">{{ antro.estaturaCm }} cm</span>
+      </div>
+      <div class="metric-card">
+        <span class="metric-label">Peso</span>
+        <span class="metric-value">{{ antro.pesoKg }} kg</span>
+      </div>
+      <div class="metric-card">
+        <span class="metric-label">IMC</span>
+        <span class="metric-value">{{ antro.imc ?? '—' }}</span>
+        @if (antro.dxImc) {
+          <span class="pill pill-primary">{{ antro.dxImc }}</span>
+        }
+      </div>
+      <div class="metric-card">
+        <span class="metric-label">Perímetro abdominal</span>
+        <span class="metric-value">{{ antro.perimetroAbdominalCm ?? '—' }} cm</span>
+        @if (antro.dxPerimetroAbdominal) {
+          <span class="pill pill-secondary">{{ antro.dxPerimetroAbdominal }}</span>
+        }
+      </div>
+      <div class="metric-card">
+        <span class="metric-label">% Grasa</span>
+        <span class="metric-value">{{ antro.porcentajeGrasa ?? '—' }}%</span>
+        @if (antro.dxGrasa) {
+          <span class="pill pill-warning">{{ antro.dxGrasa }}</span>
+        }
+      </div>
+      <div class="metric-card">
+        <span class="metric-label">% Masa muscular</span>
+        <span class="metric-value">{{ antro.porcentajeMasaMuscular ?? '—' }}%</span>
+        @if (antro.dxMasaMuscular) {
+          <span class="pill pill-success">{{ antro.dxMasaMuscular }}</span>
+        }
+      </div>
+    </div>
+  }
+
+  <div class="tabs-shell card">
+    <tui-tabs [activeItemIndex]="tabActivo()" (activeItemIndexChange)="tabActivo.set($event)">
+      <button tuiTab>
+        <tui-icon icon="@tui.scale" />
+        Antropometría
+      </button>
+      <button tuiTab>
+        <tui-icon icon="@tui.flask-conical" />
+        Bioquímica
+      </button>
+      <button tuiTab>
+        <tui-icon icon="@tui.file-text" />
+        Observaciones
+      </button>
+    </tui-tabs>
+  </div>
+
+  @if (tabActivo() === 0) {
+    <section class="card">
+      <div class="seccion-titulo">
+        <span class="tile tile-rounded tile-soft-warning seccion-icono">
+          <tui-icon icon="@tui.scale" />
+        </span>
+        <div>
+          <h3 class="seccion-nombre">
+            {{ modoEdicionAntro() ? 'Actualizar antropometría' : 'Registrar antropometría' }}
+          </h3>
+          <p class="seccion-desc">Medidas corporales y composición</p>
+        </div>
+      </div>
+
+      <form [formGroup]="antroForm" (ngSubmit)="guardarAntropometria()">
+        <div class="form-grid">
+          <label tuiLabel class="field">
+            <span class="field-label">Estatura (cm) <span class="required">*</span></span>
+            <tui-textfield>
+              <input tuiInput type="number" formControlName="estaturaCm" min="100" max="250" />
+            </tui-textfield>
+            <tui-error formControlName="estaturaCm" />
+          </label>
+          <label tuiLabel class="field">
+            <span class="field-label">Peso (kg) <span class="required">*</span></span>
+            <tui-textfield>
+              <input tuiInput type="number" formControlName="pesoKg" min="20" max="300" />
+            </tui-textfield>
+            <tui-error formControlName="pesoKg" />
+          </label>
+          <label tuiLabel class="field">
+            <span class="field-label">Perímetro abdominal (cm)</span>
+            <tui-textfield>
+              <input tuiInput type="number" formControlName="perimetroAbdominalCm" />
+            </tui-textfield>
+            <tui-error formControlName="perimetroAbdominalCm" />
+          </label>
+          <label tuiLabel class="field">
+            <span class="field-label">% Grasa corporal</span>
+            <tui-textfield>
+              <input tuiInput type="number" formControlName="porcentajeGrasa" />
+            </tui-textfield>
+            <tui-error formControlName="porcentajeGrasa" />
+          </label>
+          <label tuiLabel class="field">
+            <span class="field-label">% Masa muscular</span>
+            <tui-textfield>
+              <input tuiInput type="number" formControlName="porcentajeMasaMuscular" />
+            </tui-textfield>
+            <tui-error formControlName="porcentajeMasaMuscular" />
+          </label>
+          <label tuiLabel class="field">
+            <span class="field-label">Grasa visceral</span>
+            <tui-textfield>
+              <input tuiInput type="number" formControlName="porcentajeGrasaVisceral" />
+            </tui-textfield>
+            <tui-error formControlName="porcentajeGrasaVisceral" />
+          </label>
+        </div>
+
+        <div class="form-acciones">
+          @if (modoEdicionAntro()) {
+            <button tuiButton appearance="outline" size="m" type="button" (click)="recalcular()">
+              <tui-icon icon="@tui.refresh-cw" />
+              Recalcular diagnósticos
+            </button>
+          }
+          <button tuiButton appearance="primary" size="m" type="submit" [loading]="guardando()">
+            <tui-icon icon="@tui.circle-check" />
+            {{ modoEdicionAntro() ? 'Actualizar' : 'Registrar' }}
+          </button>
+        </div>
+      </form>
+    </section>
+  }
+
+  @if (tabActivo() === 1) {
+    <section class="card">
+      <div class="seccion-titulo">
+        <span class="tile tile-rounded tile-soft-error seccion-icono">
+          <tui-icon icon="@tui.flask-conical" />
+        </span>
+        <div>
+          <h3 class="seccion-nombre">
+            {{ modoEdicionBio() ? 'Actualizar bioquímica' : 'Registrar bioquímica' }}
+          </h3>
+          <p class="seccion-desc">Parámetros sanguíneos y presión arterial (pueden quedar en blanco)</p>
+        </div>
+      </div>
+
+      <form [formGroup]="bioForm" (ngSubmit)="guardarBioquimico()">
+        <div class="form-grid">
+          <label tuiLabel class="field">
+            <span class="field-label">Glucosa en ayunas (mg/dL)</span>
+            <tui-textfield>
+              <input tuiInput type="number" formControlName="glucosa" />
+            </tui-textfield>
+          </label>
+          <label tuiLabel class="field">
+            <span class="field-label">Colesterol total (mg/dL)</span>
+            <tui-textfield>
+              <input tuiInput type="number" formControlName="colesterol" />
+            </tui-textfield>
+          </label>
+          <label tuiLabel class="field">
+            <span class="field-label">Triglicéridos (mg/dL)</span>
+            <tui-textfield>
+              <input tuiInput type="number" formControlName="trigliceridos" />
+            </tui-textfield>
+          </label>
+          <label tuiLabel class="field">
+            <span class="field-label">Presión sistólica (mmHg)</span>
+            <tui-textfield>
+              <input tuiInput type="number" formControlName="presionSistolica" />
+            </tui-textfield>
+          </label>
+          <label tuiLabel class="field">
+            <span class="field-label">Presión diastólica (mmHg)</span>
+            <tui-textfield>
+              <input tuiInput type="number" formControlName="presionDiastolica" />
+            </tui-textfield>
+          </label>
+        </div>
+
+        <div class="form-acciones">
+          <button tuiButton appearance="primary" size="m" type="submit" [loading]="guardando()">
+            <tui-icon icon="@tui.circle-check" />
+            {{ modoEdicionBio() ? 'Actualizar' : 'Registrar' }}
+          </button>
+        </div>
+      </form>
+    </section>
+  }
+
+  @if (tabActivo() === 2) {
+    <section class="card">
+      <div class="seccion-titulo">
+        <span class="tile tile-rounded tile-soft-primary seccion-icono">
+          <tui-icon icon="@tui.clipboard-pen" />
+        </span>
+        <div>
+          <h3 class="seccion-nombre">Observaciones y plan nutricional</h3>
+          <p class="seccion-desc">Recomendaciones y seguimiento personalizado</p>
+        </div>
+      </div>
+
+      <form [formGroup]="obsForm" (ngSubmit)="guardarObservaciones()">
+        <label tuiLabel class="field campo-full">
+          <span class="field-label">Observaciones (máximo 500 caracteres)</span>
+          <tui-textfield>
+            <textarea
+              tuiTextarea
+              formControlName="observaciones"
+              rows="5"
+              maxlength="500"
+              placeholder="Ingrese anotaciones y recomendaciones nutricionales…"
+            ></textarea>
+          </tui-textfield>
+          <tui-error formControlName="observaciones" />
+        </label>
+
+        <div class="form-acciones">
+          <button tuiButton appearance="primary" size="m" type="submit" [loading]="guardando()">
+            <tui-icon icon="@tui.circle-check" />
+            Guardar observaciones
+          </button>
+        </div>
+      </form>
+    </section>
+  }
+}

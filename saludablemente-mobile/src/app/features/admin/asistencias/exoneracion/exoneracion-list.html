@@ -1,0 +1,146 @@
+<!-- ══════════════════════════════════════
+     CABECERA DE PÁGINA
+     ══════════════════════════════════════ -->
+<div class="page-banner card">
+  <div class="page-banner-body">
+    <div class="page-banner-icon tile tile-rounded tile-soft-primary">
+      <tui-icon icon="@tui.file-check" />
+    </div>
+    <div>
+      <h2 class="card-title">Exoneraciones y Justificaciones</h2>
+      <p class="card-subtitle">
+        @if (loading()) {
+          Cargando solicitudes...
+        } @else {
+          {{ total() }} solicitud(es) registradas
+        }
+      </p>
+    </div>
+  </div>
+  <div class="page-banner-actions">
+    <button tuiButton appearance="outline" size="m" type="button" (click)="verAusentismo()">
+      <tui-icon icon="@tui.shield-alert" />
+      Ver ausentismo crónico
+    </button>
+    <a tuiButton appearance="primary" size="m" routerLink="/asistencias/exoneraciones/nueva">
+      <tui-icon icon="@tui.plus" />
+      Solicitar exoneración
+    </a>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     FILTROS EN LÍNEA
+     ══════════════════════════════════════ -->
+<div class="filtros-card">
+  <div class="filtros-linea">
+    <div class="filtro-item">
+      <label class="filtro-etiqueta">Estado de la solicitud</label>
+      <tui-textfield tuiChevron>
+        <input tuiComboBox [formControl]="estadoCtrl" placeholder="— Todos los estados —" />
+        <tui-data-list-wrapper *tuiDropdown [items]="estadoOpts | tuiFilterByInput" [itemContent]="filtro" />
+      </tui-textfield>
+    </div>
+  </div>
+</div>
+
+<ng-template #filtro let-item>{{ item.label }}</ng-template>
+
+@if (error()) {
+  <div class="card error-caja">
+    <tui-icon icon="@tui.triangle-alert" class="icono-alerta" />
+    <p class="error-msg">{{ error() }}</p>
+  </div>
+}
+
+<!-- ══════════════════════════════════════
+     TABLA DE EXONERACIONES
+     ══════════════════════════════════════ -->
+<div class="card tabla-card flush">
+  <div class="table-wrapper flush">
+    <table tuiTable>
+      <thead>
+        <tr>
+          <th tuiTh>ID</th>
+          <th tuiTh>Actividad</th>
+          <th tuiTh>Persona</th>
+          <th tuiTh>Motivo</th>
+          <th tuiTh>Estado</th>
+          <th tuiTh>Fecha de solicitud</th>
+          <th tuiTh class="th-acciones"><span class="sr-only">Acciones</span></th>
+        </tr>
+      </thead>
+      <tbody tuiTbody>
+        @for (j of items(); track j.idJustificacion) {
+          <tr>
+            <td tuiTd class="id-cell font-mono">#{{ j.idJustificacion }}</td>
+            <td tuiTd class="text-soft font-mono">Actividad #{{ j.idActividad }}</td>
+            <td tuiTd>
+              <div class="fila-persona">
+                <span tuiAvatar size="s" [round]="true">P{{ j.idPersona }}</span>
+                <span class="fw-bold font-mono">Persona #{{ j.idPersona }}</span>
+              </div>
+            </td>
+            <td tuiTd class="text-ink">{{ j.motivo }}</td>
+            <td tuiTd>
+              @if (j.estado === 'PENDIENTE') {
+                <span class="pill pill-soft-warning">Pendiente</span>
+              } @else if (j.estado === 'APROBADO') {
+                <span class="pill pill-soft-success">Aprobado</span>
+              } @else {
+                <span class="pill pill-soft-error">Rechazado</span>
+              }
+            </td>
+            <td tuiTd class="text-soft font-mono">{{ j.fechaSolicitud ?? '—' }}</td>
+            <td tuiTd class="td-acciones">
+              <div class="row-actions">
+                @if (j.estado === 'PENDIENTE') {
+                  <button tuiButton appearance="outline" size="s" type="button" (click)="dictaminar(j)">
+                    <tui-icon icon="@tui.check" />
+                    Dictaminar
+                  </button>
+                } @else {
+                  <span class="text-soft">Dictaminada</span>
+                }
+              </div>
+            </td>
+          </tr>
+        } @empty {
+          @if (!loading() && !error()) {
+            <tr>
+              <td tuiTd colspan="7" class="empty">Sin solicitudes registradas con los filtros seleccionados.</td>
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+  </div>
+
+  @if (totalPages() > 1) {
+    <div class="paginacion-bar">
+      <button
+        tuiButton
+        appearance="outline"
+        size="s"
+        type="button"
+        [disabled]="page() === 0"
+        (click)="paginaAnterior()"
+      >
+        <tui-icon icon="@tui.chevron-left" />
+        Anterior
+      </button>
+      <span class="paginacion-info">Página {{ page() + 1 }} de {{ totalPages() }}</span>
+      <button
+        tuiButton
+        appearance="outline"
+        size="s"
+        type="button"
+        [disabled]="page() + 1 >= totalPages()"
+        (click)="paginaSiguiente()"
+      >
+        Siguiente
+        <tui-icon icon="@tui.chevron-right" />
+      </button>
+    </div>
+  }
+</div>

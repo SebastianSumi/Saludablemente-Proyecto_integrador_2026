@@ -1,0 +1,173 @@
+@if (loading()) {
+  <div class="card cargando-caja">
+    <p class="hint">Cargando información de la meta…</p>
+  </div>
+}
+
+@if (error()) {
+  <div class="card error-caja">
+    <tui-icon icon="@tui.triangle-alert" class="icono-alerta" />
+    <p class="error-msg">{{ error() }}</p>
+  </div>
+}
+
+@if (progreso(); as p) {
+  <div class="detail-shell">
+    <!-- ══════════════════════════════════════
+         NAV SUPERIOR
+         ══════════════════════════════════════ -->
+    <div class="detail-nav">
+      <a tuiButton appearance="outline" size="m" routerLink="/metas">
+        <tui-icon icon="@tui.arrow-left" />
+        Volver
+      </a>
+    </div>
+
+    <!-- ══════════════════════════════════════
+         CABECERA DE DETALLE
+         ══════════════════════════════════════ -->
+    <div class="page-banner card">
+      <div class="page-banner-body">
+        <div class="page-banner-icon tile tile-rounded tile-soft-primary">
+          <tui-icon icon="@tui.target" />
+        </div>
+        <div>
+          <h2 class="card-title">{{ p.indicador }}</h2>
+          <p class="card-subtitle">{{ p.descripcion }}</p>
+        </div>
+      </div>
+      <div class="detail-actions">
+        <button tuiButton appearance="primary" size="m" type="button" (click)="registrarCheckin()">
+          <tui-icon icon="@tui.check" />
+          Registrar check-in
+        </button>
+      </div>
+    </div>
+
+  <!-- ══════════════════════════════════════
+       GRID DE KPIS / PROGRESO
+       ══════════════════════════════════════ -->
+  <div class="kpi-grid">
+    <div class="card kpi-card">
+      <div class="kpi-top">
+        <span class="kpi-label">Porcentaje de Avance</span>
+        <span class="pill pill-soft-primary">{{ p.porcentajeAvance }}%</span>
+      </div>
+      <div class="kpi-valor">{{ p.porcentajeAvance }}%</div>
+      <progress tuiProgressBar [max]="100" [value]="p.porcentajeAvance" class="progreso-barra"></progress>
+    </div>
+
+    <div class="card kpi-card">
+      <div class="kpi-label">Valor Actual / Objetivo</div>
+      <div class="kpi-valor">{{ p.valorActual }} / {{ p.valorObjetivo }} <span class="kpi-unidad">{{ p.unidad ?? '' }}</span></div>
+      <p class="kpi-hint">Valores de control</p>
+    </div>
+
+    <div class="card kpi-card">
+      <div class="kpi-label">Racha Actual</div>
+      <div class="kpi-valor text-success">{{ p.rachaActual }} días</div>
+      <p class="kpi-hint">Días consecutivos de check-in</p>
+    </div>
+
+    <div class="card kpi-card">
+      <div class="kpi-label">Total Check-ins</div>
+      <div class="kpi-valor">{{ p.totalCheckIns }}</div>
+      <p class="kpi-hint">Registros completados</p>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       DETALLES GENERALES
+       ══════════════════════════════════════ -->
+  <section class="card detail-card">
+    <div class="seccion-titulo">
+      <span class="tile tile-rounded tile-soft-primary seccion-icono">
+        <tui-icon icon="@tui.target" />
+      </span>
+      <div>
+        <h3 class="seccion-nombre">Parámetros de la Meta</h3>
+      </div>
+    </div>
+    <div class="detail-grid">
+      <div class="detail-item">
+        <span class="detail-etiqueta">Estado actual</span>
+        <div class="detail-valor">
+          @if (p.estado === 'ACTIVA') {
+            <span class="pill pill-soft-primary">Activa</span>
+          } @else if (p.estado === 'COMPLETADA') {
+            <span class="pill pill-soft-success">Completada</span>
+          } @else if (p.estado === 'DESVIADA') {
+            <span class="pill pill-soft-warning">Desviada</span>
+          } @else {
+            <span class="pill pill-soft-neutral">{{ p.estado }}</span>
+          }
+          @if (p.desviada) {
+            <span class="pill pill-soft-warning">Desviada</span>
+          }
+        </div>
+      </div>
+
+      <div class="detail-item">
+        <span class="detail-etiqueta">Pilar de Salud</span>
+        <span class="detail-valor font-medium">{{ p.pilar }}</span>
+      </div>
+
+      <div class="detail-item">
+        <span class="detail-etiqueta">Modalidad y Origen</span>
+        <span class="detail-valor font-medium">{{ p.modalidad }} · {{ p.tipoOrigen }}</span>
+      </div>
+
+      <div class="detail-item">
+        <span class="detail-etiqueta">Vigencia</span>
+        <span class="detail-valor font-medium">{{ p.fechaInicio }} → {{ p.fechaObjetivo }}</span>
+      </div>
+
+      <div class="detail-item">
+        <span class="detail-etiqueta">Último Check-in registrado</span>
+        <span class="detail-valor font-medium">{{ p.ultimoCheckIn ?? '—' }}</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════
+       HISTORIAL DE CHECK-INS
+       ══════════════════════════════════════ -->
+  <section class="card tabla-card flush">
+    <div class="tabla-header">
+      <h3 class="seccion-nombre">Historial de Check-ins</h3>
+    </div>
+    @if (historial().length === 0) {
+      <p class="empty">Sin check-ins registrados.</p>
+    } @else {
+      <div class="table-wrapper flush">
+        <table tuiTable>
+          <thead>
+            <tr>
+              <th tuiTh>Fecha</th>
+              <th tuiTh>Avance Alcanzado</th>
+              <th tuiTh>Estado</th>
+            </tr>
+          </thead>
+          <tbody tuiTbody>
+            @for (h of historial(); track $index) {
+              <tr>
+                <td tuiTd class="text-soft">{{ h.ultimoCheckIn ?? h.fechaInicio }}</td>
+                <td tuiTd><span class="font-mono fw-bold">{{ h.porcentajeAvance }}%</span></td>
+                <td tuiTd>
+                  @if (h.estado === 'ACTIVA') {
+                    <span class="pill pill-soft-primary">Activa</span>
+                  } @else if (h.estado === 'COMPLETADA') {
+                    <span class="pill pill-soft-success">Completada</span>
+                  } @else {
+                    <span class="pill pill-soft-neutral">{{ h.estado }}</span>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+  </div>
+}

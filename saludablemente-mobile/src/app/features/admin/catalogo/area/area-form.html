@@ -1,0 +1,70 @@
+<!-- ======================================
+     CABECERA DEL FORMULARIO
+     ====================================== -->
+<header class="form-cabecera">
+  <div class="tile tile-rounded tile-soft-primary modulo-icono">
+    <tui-icon icon="@tui.briefcase" />
+  </div>
+  <div>
+    <h2 class="card-title">{{ id() ? 'Editar Área de Trabajo' : 'Nueva Área de Trabajo' }}</h2>
+    <p class="card-subtitle">Estructura organizacional para clasificación del personal y métricas.</p>
+  </div>
+</header>
+
+@if (loading()) {
+  <div class="card cargando-caja">
+    <p class="hint">Cargando información del área…</p>
+  </div>
+}
+
+<form [formGroup]="form" (ngSubmit)="guardar()" class="form-contenedor">
+  <section class="card">
+    <div class="seccion-titulo">
+      <span class="tile tile-rounded tile-soft-primary seccion-icono">
+        <tui-icon icon="@tui.briefcase" />
+      </span>
+      <div>
+        <h3 class="seccion-nombre">Datos del Área</h3>
+        <p class="seccion-desc">Nombre representativo y descripción de funciones.</p>
+      </div>
+    </div>
+
+    <div class="form-grid">
+      <label tuiLabel class="field span-2">
+        Nombre del Área
+        <tui-textfield>
+          <input tuiInput type="text" formControlName="nombre" maxlength="100" placeholder="Ej. Dirección de Recursos Humanos" />
+        </tui-textfield>
+        <tui-error formControlName="nombre" />
+      </label>
+
+      <label tuiLabel class="field span-2">
+        Descripción del Área
+        <tui-textfield>
+          <textarea tuiTextarea formControlName="descripcion" rows="4" maxlength="250" placeholder="Breve descripción de las actividades del área..."></textarea>
+        </tui-textfield>
+        <tui-error formControlName="descripcion" />
+      </label>
+    </div>
+  </section>
+
+  @if (error()) {
+    <div class="card error-caja">
+      <tui-icon icon="@tui.triangle-alert" class="icono-alerta" />
+      <p class="error-msg">{{ error() }}</p>
+    </div>
+  }
+
+  <!-- ======================================
+       ACCIONES DEL FORMULARIO
+       ====================================== -->
+  <div class="form-acciones">
+    <button tuiButton appearance="primary" size="m" type="submit" [loading]="guardando()" [disabled]="loading() || errorCarga()">
+      <tui-icon icon="@tui.check" />
+      Guardar área
+    </button>
+    <button tuiButton appearance="outline" size="m" type="button" (click)="cancelar()">
+      Cancelar
+    </button>
+  </div>
+</form>

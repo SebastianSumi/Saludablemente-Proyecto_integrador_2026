@@ -1,0 +1,119 @@
+@if (loading()) {
+  <div class="card estado-caja">
+    <p class="hint">Cargando meta…</p>
+  </div>
+}
+
+@if (error()) {
+  <div class="card error-caja">
+    <tui-icon icon="@tui.triangle-alert" class="icono-alerta" />
+    <p class="error-msg">{{ error() }}</p>
+  </div>
+}
+
+@if (progreso(); as p) {
+  <div class="detail-nav">
+    <a tuiButton appearance="flat" size="s" routerLink="/evaluador/metas">
+      <tui-icon icon="@tui.arrow-left" />
+      Volver a metas
+    </a>
+    <a tuiButton appearance="outline" size="s" [routerLink]="['/evaluador/colaboradores', p.idPersona]">
+      <tui-icon icon="@tui.user" />
+      Ver ficha del colaborador
+    </a>
+  </div>
+
+  <section class="hero-card card">
+    <span class="tile tile-rounded tile-soft-violet page-banner-icon">
+      <tui-icon icon="@tui.target" />
+    </span>
+    <div class="hero-body">
+      <div class="hero-meta">
+        <span [class]="pillEstado(p.estado)">{{ p.estado }}</span>
+        <span class="pill pill-primary">{{ p.pilar }}</span>
+        <span class="pill pill-neutral">{{ p.tipoOrigen }}</span>
+        @if (p.desviada) {
+          <span class="pill pill-error">Desviada</span>
+        }
+      </div>
+      <h2 class="card-title">{{ p.descripcion }}</h2>
+      <p class="card-subtitle">
+        Indicador: {{ p.indicador }} · Inicio {{ p.fechaInicio }} · Objetivo {{ p.fechaObjetivo }}
+      </p>
+    </div>
+    <button tuiButton appearance="primary" size="m" type="button" (click)="registrarCheckin()">
+      <tui-icon icon="@tui.clipboard-check" />
+      Registrar check-in
+    </button>
+  </section>
+
+  <div class="metric-grid">
+    <div class="metric-card">
+      <span class="metric-label">Avance</span>
+      <span class="metric-value">{{ p.porcentajeAvance }}%</span>
+    </div>
+    <div class="metric-card">
+      <span class="metric-label">Valor actual</span>
+      <span class="metric-value">{{ p.valorActual }} {{ p.unidad ?? '' }}</span>
+    </div>
+    <div class="metric-card">
+      <span class="metric-label">Valor inicial</span>
+      <span class="metric-value">{{ p.valorInicial }} {{ p.unidad ?? '' }}</span>
+    </div>
+    <div class="metric-card">
+      <span class="metric-label">Meta</span>
+      <span class="metric-value">{{ p.valorObjetivo }} {{ p.unidad ?? '' }}</span>
+    </div>
+    <div class="metric-card">
+      <span class="metric-label">Racha actual</span>
+      <span class="metric-value">{{ p.rachaActual }}</span>
+    </div>
+    <div class="metric-card">
+      <span class="metric-label">Total check-ins</span>
+      <span class="metric-value">{{ p.totalCheckIns }}</span>
+    </div>
+  </div>
+
+  <section class="card">
+    <div class="lista-head">
+      <h3 class="card-title">Progreso hacia el objetivo</h3>
+      <span class="fw-bold">{{ p.porcentajeAvance }}%</span>
+    </div>
+    <div class="minibar">
+      <span [style.width.%]="p.porcentajeAvance"></span>
+    </div>
+  </section>
+
+  <section class="card tabla-card flush">
+    <div class="lista-head">
+      <h3 class="card-title">Historial de check-ins</h3>
+      <span class="pill pill-neutral">{{ historial().length }}</span>
+    </div>
+    <div class="table-wrapper flush">
+      <table tuiTable>
+        <thead>
+          <tr>
+            <th tuiTh>Fecha</th>
+            <th tuiTh>Valor reportado</th>
+            <th tuiTh>Avance</th>
+            <th tuiTh>Estado</th>
+          </tr>
+        </thead>
+        <tbody tuiTbody>
+          @for (h of historial(); track h.idMeta + '-' + $index) {
+            <tr>
+              <td tuiTd class="text-soft">{{ h.ultimoCheckIn ?? '—' }}</td>
+              <td tuiTd class="font-mono">{{ h.valorActual }} {{ h.unidad ?? '' }}</td>
+              <td tuiTd class="text-soft">{{ h.porcentajeAvance }}%</td>
+              <td tuiTd><span [class]="pillEstado(h.estado)">{{ h.estado }}</span></td>
+            </tr>
+          } @empty {
+            <tr>
+              <td tuiTd colspan="4" class="empty">Sin check-ins registrados todavía.</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+}

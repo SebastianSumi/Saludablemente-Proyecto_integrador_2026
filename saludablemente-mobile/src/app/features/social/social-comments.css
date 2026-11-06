@@ -1,0 +1,49 @@
+.comment {
+  position: relative;
+  padding: 10px 0;
+  border-bottom: 0;
+}
+.comment-bubble {
+  margin-left: 42px;
+  padding: 10px 12px;
+  background: var(--sal-hover);
+  border-radius: 16px;
+  overflow-wrap: anywhere;
+}
+.comment .identity { margin: 0; }
+.comment .identity app-avatar { position: absolute; top: 12px; left: 0; }
+.comment .identity small { font-size: 10px; line-height: 1.5; }
+.comment .identity strong {
+  font-size: 13px;
+}
+.comment-text {
+  padding: 0;
+  margin: 5px 0 0;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.comment-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-left: 42px;
+  gap: 0 4px;
+}
+.comment .actions {
+  gap: 0;
+  margin: 0;
+}
+.comment .actions [tuiButton] {
+  min-height: 32px;
+  gap: 4px;
+}
+.attachments { margin-left: 42px; }
+.attachments:empty { display: none; }
+.reply {
+  border-left: 1px solid var(--sal-line);
+  margin-left: 16px;
+  padding-left: 10px;
+}
+@media (max-width: 600px) {
+  .reply { margin-left: 10px; padding-left: 6px; }
+}

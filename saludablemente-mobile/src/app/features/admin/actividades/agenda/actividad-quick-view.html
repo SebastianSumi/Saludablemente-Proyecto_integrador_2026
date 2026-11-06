@@ -1,0 +1,148 @@
+@if (modo() === 'ficha' && actividad(); as a) {
+  <div class="qv-head">
+    <div class="qv-title-row">
+      @if (a.logoUrl) {
+        <img [src]="resolverUrl(a.logoUrl)" alt="" class="qv-logo-img" />
+      }
+      <div class="qv-title-info">
+        <h3 class="qv-title">{{ a.nombre }}</h3>
+        <span class="pill {{ claseEstado(a) }}">{{ etiquetaEstado(a) }}</span>
+      </div>
+    </div>
+    <button tuiButton appearance="flat" size="s" type="button" (click)="cerrar()" aria-label="Cerrar">
+      <tui-icon icon="@tui.x" />
+    </button>
+  </div>
+
+  <dl class="qv-list">
+    <div class="qv-row">
+      <dt><tui-icon icon="@tui.calendar" />Fecha</dt>
+      <dd>{{ fechaLarga() | titlecase }}</dd>
+    </div>
+    <div class="qv-row">
+      <dt><tui-icon icon="@tui.clock" />Horario</dt>
+      <dd class="font-mono">
+        {{ a.horaInicio }} – {{ a.horaFin }}
+        @if (duracion(a); as d) {
+          <span class="text-soft">· {{ d }}</span>
+        }
+      </dd>
+    </div>
+    <div class="qv-row qv-lugar">
+      <dt><tui-icon icon="@tui.map-pin" />Ubicación</dt>
+      <dd>
+        <strong>{{ a.lugar }}</strong>
+        <a
+          class="qv-mapa"
+          [href]="enlaceMapa(a)"
+          target="_blank"
+          rel="noopener"
+        >
+          <tui-icon icon="@tui.map-pin" />
+          Abrir en mapa
+        </a>
+      </dd>
+    </div>
+    <div class="qv-row">
+      <dt><tui-icon icon="@tui.user" />Coordinador</dt>
+      <dd>{{ a.nombreCoordinador ?? '—' }}</dd>
+    </div>
+    @if (a.descripcion) {
+      <div class="qv-row">
+        <dt><tui-icon icon="@tui.file-text" />Descripción</dt>
+        <dd class="qv-desc">{{ a.descripcion }}</dd>
+      </div>
+    }
+  </dl>
+
+  @if (a.imagenes && a.imagenes.length > 0) {
+    <div class="qv-galeria-seccion">
+      <h4 class="qv-galeria-titulo">
+        <tui-icon icon="@tui.images" />
+        Fotos de la actividad ({{ a.imagenes.length }})
+      </h4>
+      <div class="qv-galeria-strip">
+        @for (img of a.imagenes; track img.idImagen) {
+          <div class="qv-galeria-thumb" [title]="img.descripcion || 'Foto'">
+            <img [src]="resolverUrl(img.url)" [alt]="img.descripcion || 'Foto'" />
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <div class="qv-actions">
+    @if (delDia().length > 0) {
+      <button tuiButton appearance="flat" size="m" type="button" (click)="volverAlDia()">
+        <tui-icon icon="@tui.arrow-left" />
+        Volver al día
+      </button>
+    }
+    <span class="qv-spacer"></span>
+    <button tuiButton appearance="outline" size="m" type="button" (click)="cerrar()">
+      Cerrar
+    </button>
+    <a tuiButton appearance="primary" size="m" [routerLink]="['/actividades', a.idActividad]" (click)="cerrar()">
+      <tui-icon icon="@tui.eye" />
+      Ver detalles
+    </a>
+  </div>
+} @else if (modo() === 'dia') {
+  <div class="qv-head">
+    <div class="qv-title-row">
+      <h3 class="qv-title">{{ fechaLarga() | titlecase }}</h3>
+      <span class="pill pill-neutral">{{ delDia().length }} actividad(es)</span>
+    </div>
+    <button tuiButton appearance="flat" size="s" type="button" (click)="cerrar()" aria-label="Cerrar">
+      <tui-icon icon="@tui.x" />
+    </button>
+  </div>
+
+  <div class="qv-dia-list">
+    @for (a of delDia(); track a.idActividad) {
+      <button type="button" class="qv-dia-item" (click)="verFicha(a)">
+        <span class="qv-dot {{ claseEstado(a) }}" aria-hidden="true"></span>
+        <span class="qv-dia-body">
+          <strong>{{ a.nombre }}</strong>
+          <span class="text-soft font-mono">{{ a.horaInicio }} – {{ a.horaFin }}</span>
+        </span>
+      <span class="pill {{ claseEstado(a) }}">{{ etiquetaEstado(a) }}</span>
+      </button>
+    }
+  </div>
+
+  <div class="qv-actions">
+    <span class="qv-spacer"></span>
+    <button tuiButton appearance="outline" size="m" type="button" (click)="cerrar()">
+      Cerrar
+    </button>
+  </div>
+} @else {
+  <div class="qv-head">
+    <div class="qv-title-row">
+      <h3 class="qv-title">{{ fechaLarga() | titlecase }}</h3>
+    </div>
+    <button tuiButton appearance="flat" size="s" type="button" (click)="cerrar()" aria-label="Cerrar">
+      <tui-icon icon="@tui.x" />
+    </button>
+  </div>
+
+  <div class="qv-empty">
+    <span class="tile tile-rounded tile-soft-success qv-empty-icon">
+      <tui-icon icon="@tui.circle-check" />
+    </span>
+    <p class="qv-empty-title">Sin actividades</p>
+    <p class="text-soft">No hay nada programado para este día.</p>
+  </div>
+
+  <div class="qv-actions">
+    <span class="qv-spacer"></span>
+    <button tuiButton appearance="outline" size="m" type="button" (click)="cerrar()">
+      Cerrar
+    </button>
+    <a tuiButton appearance="primary" size="m" routerLink="/actividades/nueva" (click)="cerrar()">
+      <tui-icon icon="@tui.plus" />
+      Nueva actividad
+    </a>
+  </div>
+}

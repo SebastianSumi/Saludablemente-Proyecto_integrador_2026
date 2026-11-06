@@ -1,0 +1,252 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-width: min(26rem, 80vw);
+}
+
+.qv-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.qv-title-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.qv-title {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--sal-ink);
+}
+
+.qv-list {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.qv-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.7rem 0.9rem;
+  border-radius: 12px;
+  background: var(--sal-hover);
+  border: 1px solid var(--sal-line);
+  font-size: 0.875rem;
+}
+
+.qv-row dt {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--sal-ink-soft);
+}
+
+.qv-row dd {
+  margin: 0;
+  font-weight: 600;
+  color: var(--sal-ink);
+}
+
+.qv-lugar {
+  border-left: 4px solid var(--sal-primary);
+}
+
+.qv-lugar strong {
+  display: block;
+  margin-bottom: 0.3rem;
+}
+
+.qv-mapa {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.qv-desc {
+  font-weight: 500;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.qv-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.qv-spacer {
+  flex: 1 1 auto;
+}
+
+.qv-dia-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-height: 50vh;
+  overflow-y: auto;
+}
+
+.qv-dia-item {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.7rem 0.85rem;
+  border-radius: 12px;
+  background: var(--sal-hover);
+  border: 1px solid var(--sal-line);
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  transition: transform 120ms ease;
+}
+
+.qv-dia-item:hover {
+  transform: translateY(-1px);
+}
+
+.qv-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: currentColor;
+  flex-shrink: 0;
+}
+
+.qv-dia-body {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  font-size: 0.875rem;
+}
+
+.qv-dia-body strong {
+  color: var(--sal-ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.qv-dia-body .text-soft {
+  font-size: 0.76rem;
+}
+
+.qv-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.4rem;
+  padding: 1.5rem 1rem;
+  border-radius: 14px;
+  border: 1px dashed var(--sal-line);
+  background: var(--sal-hover);
+}
+
+.qv-empty-icon {
+  width: 46px;
+  height: 46px;
+  font-size: 1.35rem;
+}
+
+.qv-empty-title {
+  margin: 0.4rem 0 0;
+  font-weight: 700;
+  color: var(--sal-ink);
+}
+
+.qv-empty p {
+  margin: 0;
+}
+
+.text-soft {
+  color: var(--sal-ink-soft);
+}
+
+.font-mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.qv-logo-img {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  object-fit: cover;
+  border: 1px solid var(--sal-line);
+  background: var(--sal-surface, #f8fafc);
+  flex-shrink: 0;
+}
+
+.qv-title-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.qv-galeria-seccion {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 0.75rem 0.9rem;
+  border-radius: 12px;
+  background: var(--sal-hover);
+  border: 1px solid var(--sal-line);
+}
+
+.qv-galeria-titulo {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--sal-ink-soft);
+}
+
+.qv-galeria-strip {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding: 0.25rem 0;
+}
+
+.qv-galeria-thumb {
+  width: 64px;
+  height: 48px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--sal-line);
+  flex-shrink: 0;
+}
+
+.qv-galeria-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}

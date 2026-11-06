@@ -1,0 +1,113 @@
+<!-- ══════════════════════════════════════
+     CABECERA DEL FORMULARIO
+     ══════════════════════════════════════ -->
+<div class="form-cabecera">
+  <div class="tile tile-rounded tile-soft-primary modulo-icono">
+    <tui-icon icon="@tui.file-check" />
+  </div>
+  <div>
+    <h2 class="card-title">Solicitar Exoneración</h2>
+    <p class="card-subtitle">Justificación formal de ausencia a actividad programada con documentación de respaldo</p>
+  </div>
+</div>
+
+<form [formGroup]="form" (ngSubmit)="guardar()" class="form-contenedor">
+  @if (loading()) {
+    <div class="card estado-caja">
+      <p class="sal-subtitulo">Cargando actividades y personas disponibles...</p>
+    </div>
+  }
+
+  @if (error()) {
+    <div class="card error-caja">
+      <tui-icon icon="@tui.triangle-alert" class="icono-alerta" />
+      <p class="error-msg">{{ error() }}</p>
+    </div>
+  }
+
+  <section class="card">
+    <div class="seccion-titulo">
+      <span class="tile tile-rounded tile-soft-primary seccion-icono">
+        <tui-icon icon="@tui.file-text" />
+      </span>
+      <div>
+        <h3 class="seccion-nombre">Detalles de la exoneración</h3>
+        <p class="seccion-desc">Actividad, persona y motivo de inasistencia</p>
+      </div>
+    </div>
+
+    <div class="form-grid">
+      <!-- Actividad -->
+      <label tuiLabel class="field campo-full">
+        <span class="field-label">Actividad institucional <span class="required">*</span></span>
+        <tui-textfield tuiChevron>
+          <input tuiComboBox formControlName="actividad" [strict]="true" placeholder="— Busca y selecciona la actividad —" />
+          <tui-data-list-wrapper *tuiDropdown [items]="actividades() | tuiFilterByInput" [itemContent]="actTpl" />
+        </tui-textfield>
+        <tui-error formControlName="actividad" />
+      </label>
+
+      <!-- Persona -->
+      <label tuiLabel class="field campo-full">
+        <span class="field-label">Colaborador / Estudiante <span class="required">*</span></span>
+        <tui-textfield tuiChevron>
+          <input tuiComboBox formControlName="persona" placeholder="— Busca por DNI o nombres —" />
+          <tui-data-list-wrapper *tuiDropdown [items]="personas() | tuiFilterByInput" [itemContent]="perTpl" />
+        </tui-textfield>
+        <tui-error formControlName="persona" />
+      </label>
+
+      <!-- Motivo -->
+      <label tuiLabel class="field campo-full">
+        <span class="field-label">Motivo de la justificación <span class="required">*</span></span>
+        <tui-textfield>
+          <input tuiInput type="text" formControlName="motivo" maxlength="300" placeholder="Ej. Descanso médico, comisión de servicio, permiso oficial" />
+        </tui-textfield>
+        <tui-error formControlName="motivo" />
+      </label>
+
+      <!-- URL Documento -->
+      <label tuiLabel class="field campo-full">
+        <span class="field-label">Enlace al documento sustentatorio (opcional)</span>
+        <tui-textfield>
+          <input tuiInput type="text" formControlName="urlDocumento" maxlength="250" placeholder="https://drive.google.com/..." />
+        </tui-textfield>
+      </label>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════
+       BOTONES DE ACCIÓN
+       ══════════════════════════════════════ -->
+  <div class="form-acciones">
+    <button
+      tuiButton
+      appearance="primary"
+      size="m"
+      type="submit"
+      [loading]="guardando()"
+      [disabled]="loading()">
+      <tui-icon icon="@tui.send" />
+      Enviar solicitud de exoneración
+    </button>
+    <button
+      tuiButton
+      appearance="outline"
+      size="m"
+      type="button"
+      (click)="cancelar()">
+      Cancelar
+    </button>
+  </div>
+</form>
+
+<ng-template #actTpl let-item>
+  <span class="opcion-actividad">
+    <strong class="opcion-actividad-nombre">{{ item.nombre }}</strong>
+    @if (item.fechaActividad || item.lugar) {
+      <span class="opcion-actividad-meta text-soft">{{ item.fechaActividad ?? '' }}{{ item.fechaActividad && item.lugar ? ' · ' : '' }}{{ item.lugar ?? '' }}</span>
+    }
+  </span>
+</ng-template>
+
+<ng-template #perTpl let-item>{{ nombrePersona(item) }}</ng-template>

@@ -1,0 +1,44 @@
+<div class="col-stack">
+  <a tuiButton appearance="flat" size="s" routerLink="/colaborador/noticias" class="back">
+    <tui-icon icon="@tui.arrow-left" />
+    Volver al feed
+  </a>
+
+  @if (loading()) {
+    <div appearance="floating" tuiCardLarge>
+      <header tuiHeader><h2 tuiTitle>Cargando noticia...<span tuiSubtitle>Un momento</span></h2></header>
+    </div>
+  }
+  @if (error()) {
+    <div appearance="floating" tuiCardLarge>
+      <header tuiHeader><h2 tuiTitle>No se pudo cargar la noticia<span tuiSubtitle>{{ error() }}</span></h2></header>
+    </div>
+  }
+
+  @if (noticia(); as n) {
+    <article appearance="floating" tuiCardLarge>
+      <header tuiHeader>
+        <h1 tuiTitle>
+          {{ n.titulo }}
+          <span tuiSubtitle>{{ n.categoria?.nombre ?? 'General' }} · Por {{ n.nombreAutor ?? 'Redacción' }} · {{ n.fechaPublicacion | date:'dd/MM/yyyy' }}</span>
+        </h1>
+        <aside tuiAccessories><div appearance="secondary" tuiAvatar="@tui.newspaper"></div></aside>
+      </header>
+      @if (n.subtitulo) { <section><div tuiTitle>{{ n.subtitulo }}</div></section> }
+      @if (imagenDe(n); as img) {
+        <section>
+          <app-imagen-mini
+            [src]="img"
+            [titulo]="n.titulo"
+            [subtitulo]="n.subtitulo"
+            [galeria]="galeriaDe(n)"
+            forma="ancha"
+            [altoPx]="320"
+          />
+        </section>
+      }
+      <section><p class="cuerpo">{{ n.contenido }}</p></section>
+      <footer><span tuiBadge appearance="neutral" size="s">Solo lectura</span></footer>
+    </article>
+  }
+</div>

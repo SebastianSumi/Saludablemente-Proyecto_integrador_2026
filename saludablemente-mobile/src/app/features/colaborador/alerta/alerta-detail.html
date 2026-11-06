@@ -1,0 +1,169 @@
+<div class="col-stack">
+  <a tuiButton appearance="flat" size="s" routerLink="/colaborador/mis-alertas" class="back">
+    <tui-icon icon="@tui.arrow-left" />
+    Volver a mis alertas
+  </a>
+
+  @if (loading()) {
+    <div class="card">
+      <div class="sk sk-line sk-line-lg"></div>
+      <div class="sk sk-line"></div>
+      <div class="sk sk-line"></div>
+    </div>
+  }
+
+  @if (error()) {
+    <div class="card error-caja" role="alert">
+      <span class="tile tile-rounded tile-soft-error">
+        <tui-icon icon="@tui.triangle-alert" class="icono-alerta" />
+      </span>
+      <div class="error-body">
+        <p class="error-title">No se pudo cargar tu alerta</p>
+        <p class="error-msg">{{ error() }}</p>
+        <button tuiButton appearance="flat" size="s" type="button" (click)="reintentar()">Reintentar</button>
+      </div>
+    </div>
+  }
+
+  @if (alerta(); as a) {
+    <!-- ════════════ HERO ════════════ -->
+    <div class="card card-alerta alerta-hero">
+      <div class="hero-body">
+        <span class="tile tile-rounded tile-soft-error hero-icono">
+          <tui-icon icon="@tui.bell" />
+        </span>
+        <div class="hero-info">
+          <h1 class="hero-titulo">Mi alerta #{{ a.idAlerta }}</h1>
+          <p class="hero-sub">
+            Generada el {{ a.fechaGeneracion | date:'dd/MM/yyyy HH:mm' }} · {{ etiquetaOrigen(a.tipoEvaluacionOrigen) }}
+          </p>
+          <div class="hero-chips">
+            <span [class]="pillSeveridad(a.nivelSeveridad)">
+              <tui-icon [icon]="iconoSeveridad(a.nivelSeveridad)" class="pill-icono" />
+              {{ etiquetaSeveridad(a.nivelSeveridad) }}
+            </span>
+            <span [class]="pillEstado(a.estado)">{{ etiquetaEstado(a.estado) }}</span>
+            <span class="pill pill-neutral">
+              <tui-icon icon="@tui.lock" class="pill-icono" />
+              Solo lectura
+            </span>
+          </div>
+        </div>
+      </div>
+      <img [src]="portada" alt="Alerta clínica" loading="lazy" />
+    </div>
+
+    <!-- ════════════ MÉTRICAS ════════════ -->
+    <div class="metricas-grid">
+      <div class="card metrica">
+        <span class="tile tile-rounded tile-soft-primary"><tui-icon [icon]="iconoOrigen(a.tipoEvaluacionOrigen)" /></span>
+        <div>
+          <p class="metrica-etiqueta">Origen</p>
+          <p class="metrica-valor">{{ etiquetaOrigen(a.tipoEvaluacionOrigen) }}</p>
+        </div>
+      </div>
+      <div class="card metrica">
+        <span class="tile tile-rounded tile-soft-warning"><tui-icon icon="@tui.flame" /></span>
+        <div>
+          <p class="metrica-etiqueta">Puntaje de riesgo</p>
+          <p class="metrica-valor">{{ a.puntajeTotal }} pts</p>
+        </div>
+      </div>
+      <div class="card metrica">
+        <span class="tile tile-rounded tile-soft-secondary"><tui-icon icon="@tui.calendar" /></span>
+        <div>
+          <p class="metrica-etiqueta">Fecha de generación</p>
+          <p class="metrica-valor">{{ a.fechaGeneracion | date:'dd/MM/yyyy HH:mm' }}</p>
+        </div>
+      </div>
+      <div class="card metrica">
+        <span class="tile tile-rounded tile-soft-violet"><tui-icon icon="@tui.clipboard-list" /></span>
+        <div>
+          <p class="metrica-etiqueta">Indicadores fuera de rango</p>
+          <p class="metrica-valor">{{ a.detalles.length }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════ RESUMEN ════════════ -->
+    @if (a.mensajeResumen) {
+      <div class="card resumen-caja">
+        <span class="tile tile-rounded tile-soft-primary">
+          <tui-icon icon="@tui.info" />
+        </span>
+        <p class="resumen-texto">{{ a.mensajeResumen }}</p>
+      </div>
+    }
+
+    <section class="card etiquetas-card" aria-labelledby="mis-etiquetas-titulo">
+      <div class="etiquetas-cabecera"><span class="tile tile-rounded tile-soft-secondary"><tui-icon icon="@tui.tags" /></span><div><h2 id="mis-etiquetas-titulo" class="card-title">Etiquetas clínicas</h2><p class="card-subtitle">Estas etiquetas ayudan al equipo responsable a clasificar tu alerta.</p></div></div>
+      <app-etiquetas-clinicas [etiquetas]="a.etiquetas || []" [detallado]="true" />
+    </section>
+    <!-- ════════════ INDICADORES ════════════ -->
+    <div class="card">
+      <h2 class="card-title">Indicadores afectados</h2>
+      <p class="card-subtitle">{{ a.detalles.length }} fuera del rango normal</p>
+      <div class="indicadores-grid">
+        @for (d of a.detalles; track d.idDetalle) {
+          <div class="indicador-card">
+            <div class="indicador-top">
+              <span class="tile tile-rounded tile-soft-error"><tui-icon icon="@tui.triangle-alert" /></span>
+              <div class="indicador-nombre">
+                <b>{{ d.tipoIndicador }}</b>
+                <span class="pill pill-error">{{ d.clasificacion }} · +{{ d.puntosRiesgo }} pts</span>
+              </div>
+            </div>
+            <div class="indicador-valores">
+              <div>
+                <span class="indicador-etiqueta">Medido</span>
+                <span class="indicador-valor">{{ d.valorMedido }}</span>
+              </div>
+              <div>
+                <span class="indicador-etiqueta">Rango normal</span>
+                <span class="indicador-valor">{{ rango(d.valorMin) }} – {{ rango(d.valorMax) }}</span>
+              </div>
+            </div>
+            @if (d.mensaje) {
+              <p class="indicador-mensaje">{{ d.mensaje }}</p>
+            }
+          </div>
+        } @empty {
+          <p class="text-soft">Esta alerta no tiene detalles registrados.</p>
+        }
+      </div>
+    </div>
+
+    <!-- ════════════ RESOLUCIÓN ════════════ -->
+    @if (a.estado === 'ATENDIDA') {
+      <div class="card resolucion">
+        <span class="tile tile-rounded tile-soft-success"><tui-icon icon="@tui.check-circle" /></span>
+        <div>
+          <h2 class="card-title">Resolución</h2>
+          <p class="card-subtitle">
+            Atendida por el equipo clínico el {{ a.fechaAtencion | date:'dd/MM/yyyy HH:mm' }}
+          </p>
+          @if (a.observacionAtencion) {
+            <p class="resolucion-obs">{{ a.observacionAtencion }}</p>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- ════════════ ACCIONES ════════════ -->
+    <div class="detalle-pie">
+      <a tuiButton appearance="primary" size="m" [routerLink]="rutaEvaluacion(a)">
+        <tui-icon icon="@tui.external-link" />
+        Ver evaluación de origen
+      </a>
+      <button tuiButton appearance="outline" size="m" type="button" (click)="volver()">
+        <tui-icon icon="@tui.arrow-left" />
+        Volver a mis alertas
+      </button>
+    </div>
+
+    <p class="nota-lectura">
+      <tui-icon icon="@tui.lock" class="pill-icono" />
+      Alerta informativa. El equipo clínico la atiende; no puedes atenderla ni anularla desde aquí.
+    </p>
+  }
+</div>

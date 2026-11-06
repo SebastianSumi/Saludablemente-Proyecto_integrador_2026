@@ -1,0 +1,241 @@
+<!-- ══════════════════════════════════════
+     CABECERA DEL FORMULARIO
+     ══════════════════════════════════════ -->
+<div class="form-cabecera">
+  <div class="tile tile-rounded tile-soft-primary modulo-icono">
+    <tui-icon icon="@tui.calendar-plus" />
+  </div>
+  <div>
+    <h2 class="card-title">{{ modoEdicion() ? 'Editar Sede de Actividad' : 'Nueva Actividad Institucional' }}</h2>
+    <p class="card-subtitle">Programa una nueva actividad para control de asistencias, geocerca y gamificación</p>
+  </div>
+</div>
+
+<form [formGroup]="form" (ngSubmit)="guardar()" class="form-contenedor">
+  @if (loading()) {
+    <div class="card estado-caja">
+      <p class="sal-subtitulo">Cargando catálogos de usuarios y coordinadores...</p>
+    </div>
+  }
+
+  @if (error()) {
+    <div class="card error-caja">
+      <tui-icon icon="@tui.triangle-alert" class="icono-alerta" />
+      <p class="error-msg">{{ error() }}</p>
+    </div>
+  }
+
+  <!-- ══════════════════════════════════════
+       SECCIÓN 1: DATOS GENERALES
+       ══════════════════════════════════════ -->
+  <section class="card">
+    <div class="seccion-titulo">
+      <span class="tile tile-rounded tile-soft-primary seccion-icono">
+        <tui-icon icon="@tui.info" />
+      </span>
+      <div>
+        <h3 class="seccion-nombre">Datos generales de la actividad</h3>
+        <p class="seccion-desc">Nombre, fecha, horario y lugar de ejecución</p>
+      </div>
+    </div>
+
+    <div class="form-grid">
+      <!-- Nombre -->
+      <label tuiLabel class="field campo-full">
+        <span class="field-label">Nombre de la actividad <span class="required">*</span></span>
+        <tui-textfield>
+          <input tuiInput type="text" formControlName="nombre" maxlength="100" placeholder="Ej. Taller de Nutrición y Salud Mental" />
+        </tui-textfield>
+        <tui-error formControlName="nombre" />
+      </label>
+
+      <!-- Lugar -->
+      <label tuiLabel class="field">
+        <span class="field-label">Lugar / Espacio <span class="required">*</span></span>
+        <tui-textfield>
+          <input tuiInput type="text" formControlName="lugar" maxlength="100" placeholder="Ej. Auditorio Principal" />
+        </tui-textfield>
+        <tui-error formControlName="lugar" />
+      </label>
+
+      <!-- Periodo -->
+      <label tuiLabel class="field">
+        <span class="field-label">Periodo <span class="required">*</span></span>
+        <tui-textfield tuiChevron>
+          <input tuiComboBox formControlName="periodo" [strict]="true" placeholder="— Selecciona el periodo —" />
+          <tui-data-list-wrapper *tuiDropdown [items]="periodos() | tuiFilterByInput" [itemContent]="per" />
+        </tui-textfield>
+        <tui-error formControlName="periodo" />
+        @if (!loading() && periodos().length === 0) {
+          <span class="seccion-desc">Sin periodos: crea uno en <a routerLink="/catalogo/periodos/nuevo">Catálogo / Periodos</a>.</span>
+        }
+      </label>
+
+      <!-- Fecha -->
+      <label tuiLabel class="field">
+        <span class="field-label">Fecha de la actividad <span class="required">*</span></span>
+        <tui-textfield>
+          <input tuiInputDate formControlName="fechaActividad" />
+          <ng-template tuiDropdown>
+            <tui-calendar />
+            <div class="cal-acciones">
+              <button tuiButton appearance="secondary" size="s" type="button" (click)="fijarHoy('fechaActividad')">
+                <tui-icon icon="@tui.calendar-check" />
+                Hoy
+              </button>
+              <button tuiButton appearance="flat" size="s" type="button" (click)="limpiarCampo('fechaActividad')">
+                <tui-icon icon="@tui.eraser" />
+                Limpiar
+              </button>
+            </div>
+          </ng-template>
+        </tui-textfield>
+        <tui-error formControlName="fechaActividad" />
+      </label>
+
+      <!-- Coordinador -->
+      <label tuiLabel class="field">
+        <span class="field-label">Coordinador responsable <span class="required">*</span></span>
+        <tui-textfield tuiChevron>
+          <input tuiComboBox formControlName="coordinador" [strict]="true" placeholder="— Busca y selecciona coordinador —" />
+          <tui-data-list-wrapper *tuiDropdown [items]="coordinadores() | tuiFilterByInput" [itemContent]="usr" />
+        </tui-textfield>
+        <tui-error formControlName="coordinador" />
+      </label>
+
+      <!-- Hora Inicio -->
+      <label tuiLabel class="field">
+        <span class="field-label">Hora de inicio <span class="required">*</span></span>
+        <tui-textfield>
+          <input tuiInput type="time" formControlName="horaInicio" />
+        </tui-textfield>
+        <tui-error formControlName="horaInicio" />
+      </label>
+
+      <!-- Hora Fin -->
+      <label tuiLabel class="field">
+        <span class="field-label">Hora de fin <span class="required">*</span></span>
+        <tui-textfield>
+          <input tuiInput type="time" formControlName="horaFin" />
+        </tui-textfield>
+        <tui-error formControlName="horaFin" />
+      </label>
+
+      <!-- Descripción -->
+      <label tuiLabel class="field campo-full">
+        <span class="field-label">Descripción detallada (opcional)</span>
+        <tui-textfield>
+          <input tuiInput type="text" formControlName="descripcion" maxlength="300" placeholder="Objetivo de la sesión, dinámicas o materiales a llevar" />
+        </tui-textfield>
+      </label>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════
+       SECCIÓN 2: ASISTENCIA Y CONTROL
+       ══════════════════════════════════════ -->
+  <section class="card">
+    <div class="seccion-titulo">
+      <span class="tile tile-rounded tile-soft-warning seccion-icono">
+        <tui-icon icon="@tui.map-pin" />
+      </span>
+      <div>
+        <h3 class="seccion-nombre">Parámetros de asistencia y geocerca</h3>
+        <p class="seccion-desc">Configuración de radio de proximidad y métodos de marcación</p>
+      </div>
+    </div>
+
+    <div class="form-grid">
+      <!-- Tolerancia Geocerca -->
+      <label tuiLabel class="field">
+        <span class="field-label">Radio de tolerancia geocerca (metros) <span class="required">*</span></span>
+        <tui-textfield>
+          <input tuiInput type="number" formControlName="toleranciaGeocercaMetros" min="10" max="2000" placeholder="Ej. 100" />
+        </tui-textfield>
+        <tui-error formControlName="toleranciaGeocercaMetros" />
+      </label>
+
+      <!-- Duración -->
+      <label tuiLabel class="field">
+        <span class="field-label">Duración estimada (minutos)</span>
+        <tui-textfield>
+          <input tuiInput type="number" formControlName="duracionMinutos" min="0" placeholder="Ej. 60" />
+        </tui-textfield>
+      </label>
+    </div>
+
+    <!-- Sede en mapa (obligatoria por actividad) -->
+    <div class="field campo-full">
+      <span class="field-label">Sede en mapa <span class="required">*</span> — toca el mapa o usa Mi ubicación</span>
+      <app-mapa-sede
+        [inicial]="sedePin()"
+        [tolerancia]="form.controls.toleranciaGeocercaMetros.value || 100"
+        titulo="Sede de la actividad"
+        (sedeChange)="onSedeChange($event)"
+      />
+      @if (form.controls.latitudOficial.touched && form.controls.latitudOficial.invalid) {
+        <p class="error-msg">Fija la sede en el mapa (obligatoria).</p>
+      } @else if (enlaceSede(); as url) {
+        <p class="seccion-desc">Coords: <strong class="font-mono">{{ form.controls.latitudOficial.value }}, {{ form.controls.longitudOficial.value }}</strong> ·
+          <a [href]="url" target="_blank" rel="noopener">abrir en Google Maps</a>
+        </p>
+      }
+    </div>
+
+    <div class="checks-grid">
+      <label tuiLabel class="check-fila">
+        <input tuiCheckbox type="checkbox" formControlName="requiereCheckInOut" />
+        <span>Requiere marcación de entrada (Check-in) y salida (Check-out)</span>
+      </label>
+
+      <label tuiLabel class="check-fila">
+        <input tuiCheckbox type="checkbox" formControlName="permiteAutoservicio" />
+        <span>Permite autoservicio (El participante escanea con su QR)</span>
+      </label>
+
+      <label tuiLabel class="check-fila">
+        <input tuiCheckbox type="checkbox" formControlName="permiteEscaneoCoordinador" />
+        <span>Permite escaneo de credencial por parte del coordinador</span>
+      </label>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════
+       BOTONES DE ACCIÓN
+       ══════════════════════════════════════ -->
+  <div class="form-acciones">
+    <button
+      tuiButton
+      appearance="primary"
+      size="m"
+      type="submit"
+      [loading]="guardando()"
+      [disabled]="loading()">
+      <tui-icon icon="@tui.circle-check" />
+      {{ modoEdicion() ? 'Guardar sede' : 'Crear actividad' }}
+    </button>
+    <button
+      tuiButton
+      appearance="outline"
+      size="m"
+      type="button"
+      (click)="cancelar()">
+      Cancelar
+    </button>
+  </div>
+</form>
+
+<ng-template #usr let-item>{{ nombreUsuario(item) }}</ng-template>
+<ng-template #per let-item>
+  <span class="opcion-actividad">
+    <strong class="opcion-actividad-nombre">{{ item.codigo }}</strong>
+    <span class="opcion-actividad-meta text-soft">
+      {{ item.descripcion ?? '' }}
+      @if (item.estado === 'VIGENTE') {
+        <span class="pill pill-soft-success">Vigente</span>
+      } @else {
+        <span class="pill pill-soft-warning">{{ item.estado ?? 'Planificado' }}</span>
+      }
+    </span>
+  </span>
+</ng-template>

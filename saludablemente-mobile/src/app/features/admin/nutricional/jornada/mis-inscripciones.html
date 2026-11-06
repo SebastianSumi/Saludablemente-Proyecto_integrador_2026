@@ -1,0 +1,81 @@
+<div class="page-banner card">
+  <div class="page-banner-body">
+    <div class="page-banner-icon tile tile-rounded tile-soft-primary">
+      <tui-icon icon="@tui.ticket" />
+    </div>
+    <div>
+      <h2 class="card-title">Mis inscripciones</h2>
+      <p class="card-subtitle">
+        @if (loading()) {
+          Cargando turnos…
+        } @else {
+          {{ inscripciones().length }} inscripción(es) registrada(s)
+        }
+      </p>
+    </div>
+  </div>
+  <div class="page-banner-actions">
+    <a tuiButton appearance="outline" size="m" routerLink="/nutricional/jornadas">
+      <tui-icon icon="@tui.calendar-heart" />
+      Ver jornadas
+    </a>
+  </div>
+</div>
+
+@if (error()) {
+  <div class="card error-caja">
+    <tui-icon icon="@tui.triangle-alert" class="icono-alerta" />
+    <p class="error-msg">{{ error() }}</p>
+  </div>
+}
+
+<div class="card tabla-card flush">
+  <div class="table-wrapper flush">
+    <table tuiTable>
+      <thead>
+        <tr>
+          <th tuiTh scope="col">Turno</th>
+          <th tuiTh scope="col">Jornada</th>
+          <th tuiTh scope="col">Fecha</th>
+          <th tuiTh scope="col">Hora</th>
+          <th tuiTh scope="col">Estado</th>
+          <th tuiTh scope="col" class="th-acciones"><span class="sr-only">Acciones</span></th>
+        </tr>
+      </thead>
+      <tbody tuiTbody>
+        @for (i of inscripciones(); track i.idInscripcion) {
+          <tr>
+            <td tuiTd>
+              <span class="turno-chip">{{ i.numeroTurno }}</span>
+            </td>
+            <td tuiTd class="fw-bold">{{ i.nombreJornada ?? 'Jornada' }}</td>
+            <td tuiTd class="text-soft">{{ formatearFecha(i.fechaJornada) }}</td>
+            <td tuiTd class="text-soft">{{ formatearHora(i.horaJornada) }}</td>
+            <td tuiTd>
+              <span [class]="claseEstado(i.estado)">{{ etiquetaEstado(i.estado) }}</span>
+            </td>
+            <td tuiTd class="td-acciones">
+              <a
+                tuiButton
+                appearance="flat"
+                size="s"
+                [routerLink]="['/nutricional/jornadas', i.idJornada]"
+              >
+                <tui-icon icon="@tui.eye" />
+                Ver jornada
+              </a>
+            </td>
+          </tr>
+        } @empty {
+          @if (!loading() && !error()) {
+            <tr>
+              <td tuiTd colspan="6" class="empty">
+                Todavía no tienes inscripciones. Explora las jornadas disponibles.
+              </td>
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

@@ -1,0 +1,139 @@
+<!-- ══════════ Cabecera ══════════ -->
+<div class="page-banner card">
+  <div class="page-banner-body">
+    <div class="page-banner-icon tile tile-rounded tile-soft-primary">
+      <tui-icon icon="@tui.users" />
+    </div>
+    <div>
+      <h2 class="card-title">Colaboradores</h2>
+      <p class="card-subtitle">
+        @if (loading()) {
+          Cargando registros…
+        } @else {
+          {{ personas().length }} colaborador(es) activo(s)
+        }
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ Filtros ══════════ -->
+<div class="filtros-card">
+  <div class="filtros-linea">
+    <label class="filtro-item">
+      <span class="filtro-etiqueta">Buscar por nombre o DNI</span>
+      <tui-textfield>
+        <tui-icon icon="@tui.search" />
+        <input
+          tuiInput
+          type="text"
+          [formControl]="textoCtrl"
+          placeholder="Ingrese el nombre o DNI"
+        />
+      </tui-textfield>
+    </label>
+
+    <label class="filtro-item">
+      <span class="filtro-etiqueta">Área de trabajo</span>
+      <tui-textfield tuiChevron>
+        <input tuiComboBox [formControl]="areaCtrl" placeholder="— Todas las áreas —" />
+        <tui-data-list-wrapper
+          *tuiDropdown
+          [items]="areaOpts() | tuiFilterByInput"
+          [itemContent]="areaTpl"
+        />
+      </tui-textfield>
+    </label>
+
+    <button
+      tuiButton
+      appearance="outline"
+      size="m"
+      type="button"
+      (click)="limpiarFiltros()"
+      class="btn-limpiar"
+    >
+      <tui-icon icon="@tui.filter-x" />
+      Limpiar
+    </button>
+  </div>
+</div>
+
+<ng-template #areaTpl let-item>{{ item.label }}</ng-template>
+
+@if (error()) {
+  <div class="card error-caja">
+    <tui-icon icon="@tui.triangle-alert" class="icono-alerta" />
+    <p class="error-msg">{{ error() }}</p>
+  </div>
+}
+
+<!-- ══════════ Tabla ══════════ -->
+<div class="card tabla-card flush">
+  <div class="table-wrapper flush">
+    <table tuiTable>
+      <thead>
+        <tr>
+          <th tuiTh style="width: 54px"><span class="sr-only">Avatar</span></th>
+          <th tuiTh>Nombre completo</th>
+          <th tuiTh>DNI / Documento</th>
+          <th tuiTh>Área</th>
+          <th tuiTh>Equipo</th>
+          <th tuiTh>Edad</th>
+          <th tuiTh class="th-acciones"><span class="sr-only">Acciones</span></th>
+        </tr>
+      </thead>
+      <tbody tuiTbody>
+        @for (persona of personas(); track persona.id) {
+          <tr>
+            <td tuiTd>
+              <app-avatar [foto]="fotoDe(persona)" [iniciales]="iniciales(persona)" size="s" />
+            </td>
+            <td tuiTd class="fw-bold">{{ nombreCompleto(persona) }}</td>
+            <td tuiTd class="text-soft font-mono">{{ persona.documentoIdentidad }}</td>
+            <td tuiTd>
+              @if (persona.areaTrabajo?.nombre) {
+                <span class="pill pill-primary">{{ persona.areaTrabajo?.nombre }}</span>
+              } @else {
+                <span class="text-soft">—</span>
+              }
+            </td>
+            <td tuiTd class="text-soft">{{ persona.equipo?.nombre ?? '—' }}</td>
+            <td tuiTd class="text-soft">{{ persona.edad }} años</td>
+            <td tuiTd class="td-acciones">
+              <div class="row-actions">
+                <a
+                  tuiButton
+                  appearance="flat"
+                  size="s"
+                  [routerLink]="['/evaluador/colaboradores', persona.id]"
+                >
+                  <tui-icon icon="@tui.eye" />
+                  Ver ficha
+                </a>
+                <a
+                  tuiButton
+                  appearance="outline"
+                  size="s"
+                  [routerLink]="['/evaluador/nutricional/nueva']"
+                  [queryParams]="{ persona: persona.id }"
+                >
+                  <tui-icon icon="@tui.plus" />
+                  Evaluar
+                </a>
+              </div>
+            </td>
+          </tr>
+        } @empty {
+          @if (!loading() && !error()) {
+            <tr>
+              <td tuiTd colspan="7" class="empty">
+                No se encontraron colaboradores con los filtros seleccionados.
+              </td>
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

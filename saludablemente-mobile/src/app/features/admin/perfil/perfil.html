@@ -1,0 +1,396 @@
+<div class="perfil-page">
+  @if (loading()) {
+    <div class="detail-skeleton" aria-busy="true" aria-label="Cargando perfil">
+      <div class="card skeleton-hero">
+        <div class="sk sk-avatar"></div>
+        <div class="sk-col">
+          <div class="sk sk-line sk-line-lg"></div>
+          <div class="sk sk-line"></div>
+          <div class="sk sk-line sk-line-sm"></div>
+        </div>
+      </div>
+      <div class="card"><div class="sk sk-line sk-line-lg"></div><div class="sk sk-line"></div><div class="sk sk-line"></div></div>
+    </div>
+  } @else if (error()) {
+    <div class="card error-caja" role="alert">
+      <span class="tile tile-rounded tile-soft-error">
+        <tui-icon icon="@tui.triangle-alert" class="icono-alerta" />
+      </span>
+      <div class="error-body">
+        <p class="error-title">No se pudo cargar tu perfil</p>
+        <p class="error-msg">{{ error() }}</p>
+      </div>
+      <div class="error-actions">
+        <button tuiButton appearance="primary" size="s" type="button" (click)="cargar()">
+          <tui-icon icon="@tui.refresh-cw" />
+          Reintentar
+        </button>
+      </div>
+    </div>
+  } @else if (perfil(); as p) {
+    <!-- ══════════════════════════════════════
+         BREADCRUMB
+         ══════════════════════════════════════ -->
+    <nav class="breadcrumb" aria-label="Miga de pan">
+      <a routerLink="/" class="crumb-link">Inicio</a>
+      <tui-icon icon="@tui.chevron-right" class="crumb-sep" />
+      <span class="crumb-actual">Mi perfil</span>
+      <span class="crumb-spacer"></span>
+    </nav>
+
+    <!-- ══════════════════════════════════════
+         HERO BANNER DE PERFIL
+         ══════════════════════════════════════ -->
+    <div class="perfil-hero card">
+      <div class="hero-banner" aria-hidden="true">
+        <span class="hero-orb hero-orb-a"></span>
+        <span class="hero-orb hero-orb-b"></span>
+      </div>
+      <div class="hero-body">
+        <div class="hero-avatar-wrap">
+          <app-avatar
+            [foto]="fotoUrl()"
+            [iniciales]="iniciales()"
+            size="xxl"
+            class="hero-avatar"
+            [class.hero-avatar-inactivo]="!p.activo"
+          />
+          <span
+            class="hero-estado-dot"
+            [class.hero-estado-dot-inactivo]="!p.activo"
+            [title]="p.activo ? 'Activo' : 'Inactivo'"
+          ></span>
+          <div class="hero-foto-acciones">
+            <label tuiButton appearance="outline" size="s" class="btn-foto">
+              <tui-icon icon="@tui.pencil" />
+              Cambiar foto
+              <input type="file" accept="image/*" class="sr-only" (change)="cambiarFoto($event)" />
+            </label>
+            @if (fotoUrl()) {
+              <button tuiButton appearance="flat" size="s" type="button" (click)="quitarFoto()">
+                Quitar
+              </button>
+            }
+          </div>
+        </div>
+
+        <div class="perfil-hero-body">
+          <div class="hero-title-row">
+            <h2 class="perfil-hero-nombre">{{ p.nombreCompleto }}</h2>
+            @if (p.activo) {
+              <span class="pill pill-success"><span class="dot"></span>Activo</span>
+            } @else {
+              <span class="pill pill-neutral"><span class="dot"></span>Inactivo</span>
+            }
+          </div>
+          <div class="hero-chips">
+            <span class="meta-chip">
+              <tui-icon icon="@tui.mail" />
+              <span class="font-mono">{{ p.email }}</span>
+            </span>
+            <span class="meta-chip">
+              <tui-icon icon="@tui.id-card" />
+              {{ p.documentoIdentidad }}
+            </span>
+            <span class="meta-chip">
+              <tui-icon icon="@tui.map-pin" />
+              {{ personalVivo()?.areaTrabajo?.nombre ?? p.areaTrabajo ?? '—' }}
+            </span>
+            <span class="meta-chip meta-chip-soft">
+              <tui-icon icon="@tui.calendar" />
+              Desde {{ p.fechaCreacion | date: 'MM/yyyy' }}
+            </span>
+          </div>
+          <div class="perfil-hero-roles">
+            <tui-icon icon="@tui.shield" class="roles-icono" />
+            @for (rol of p.roles; track rol) {
+              <span class="pill pill-primary">{{ rol }}</span>
+            }
+          </div>
+          <div class="hero-quick">
+            <button tuiButton appearance="outline" size="s" type="button" (click)="copiar(p.email, 'email')">
+              <tui-icon icon="@tui.copy" />
+              {{ copiado() === 'email' ? '¡Copiado!' : 'Copiar correo' }}
+            </button>
+            <button tuiButton appearance="outline" size="s" type="button" (click)="copiar(p.documentoIdentidad, 'dni')">
+              <tui-icon icon="@tui.copy" />
+              {{ copiado() === 'dni' ? '¡Copiado!' : 'Copiar DNI' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════
+         TABS DE NAVEGACIÓN
+         ══════════════════════════════════════ -->
+    <div class="tabs-wrapper">
+      <tui-tabs [activeItemIndex]="tabActivo()" (activeItemIndexChange)="tabActivo.set($event)">
+        <button tuiTab>
+          <tui-icon icon="@tui.user" />
+          Información personal
+        </button>
+        <button tuiTab>
+          <tui-icon icon="@tui.users" />
+          Laboral
+        </button>
+        <button tuiTab>
+          <tui-icon icon="@tui.lock" />
+          Seguridad
+        </button>
+      </tui-tabs>
+    </div>
+
+    <!-- ══════════════════════════════════════
+         TAB 0: INFORMACIÓN PERSONAL
+         ══════════════════════════════════════ -->
+    @if (tabActivo() === 0) {
+      <div class="perfil-grid">
+        <section class="card detail-card">
+          <div class="section-title">
+            <div class="section-title-left">
+              <span class="tile tile-rounded tile-soft-primary seccion-icono">
+                <tui-icon icon="@tui.user" />
+              </span>
+              <div>
+                <h3>Datos personales</h3>
+                <p class="seccion-desc">Identidad de tu cuenta</p>
+              </div>
+            </div>
+          </div>
+          <div class="info-tiles">
+            <div class="info-tile">
+              <span class="tile tile-rounded tile-soft-primary info-tile-icon"><tui-icon icon="@tui.user" /></span>
+              <div class="info-tile-body">
+                <span class="info-tile-label">Nombre completo</span>
+                <strong class="info-tile-value">{{ p.nombreCompleto }}</strong>
+              </div>
+            </div>
+            <div class="info-tile">
+              <span class="tile tile-rounded tile-soft-secondary info-tile-icon"><tui-icon icon="@tui.mail" /></span>
+              <div class="info-tile-body">
+                <span class="info-tile-label">Correo electrónico</span>
+                <strong class="info-tile-value font-mono">{{ p.email }}</strong>
+              </div>
+            </div>
+            <div class="info-tile">
+              <span class="tile tile-rounded tile-soft-violet info-tile-icon"><tui-icon icon="@tui.id-card" /></span>
+              <div class="info-tile-body">
+                <span class="info-tile-label">Documento de identidad</span>
+                <strong class="info-tile-value font-mono">{{ p.documentoIdentidad }}</strong>
+              </div>
+            </div>
+            <div class="info-tile">
+              <span class="tile tile-rounded tile-soft-warning info-tile-icon"><tui-icon icon="@tui.calendar" /></span>
+              <div class="info-tile-body">
+                <span class="info-tile-label">Creación de cuenta</span>
+                <strong class="info-tile-value">{{ p.fechaCreacion | date: 'dd/MM/yyyy' }}</strong>
+              </div>
+            </div>
+            <div class="info-tile">
+              <span class="tile tile-rounded tile-soft-success info-tile-icon"><tui-icon icon="@tui.smartphone" /></span>
+              <div class="info-tile-body">
+                <span class="info-tile-label">Teléfono celular</span>
+                <strong class="info-tile-value font-mono">{{ personalVivo()?.celular ?? 'No registrado' }}</strong>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <aside class="card detail-card">
+          <div class="section-title section-title-compact">
+            <div class="section-title-left">
+              <span class="tile tile-rounded tile-soft-success seccion-icono seccion-icono-sm">
+                <tui-icon icon="@tui.clipboard-list" />
+              </span>
+              <div>
+                <h3>Resumen institucional</h3>
+              </div>
+            </div>
+          </div>
+          <dl class="resumen-list">
+            <div class="resumen-row">
+              <dt>Área</dt>
+              <dd>{{ personalVivo()?.areaTrabajo?.nombre ?? p.areaTrabajo ?? '—' }}</dd>
+            </div>
+            <div class="resumen-row">
+              <dt>Equipo</dt>
+              <dd>{{ personalVivo()?.equipo?.nombre ?? 'Sin equipo' }}</dd>
+            </div>
+            <div class="resumen-row">
+              <dt>Estado</dt>
+              <dd>
+                @if (p.activo) {
+                  <span class="pill pill-success">Activo</span>
+                } @else {
+                  <span class="pill pill-neutral">Inactivo</span>
+                }
+              </dd>
+            </div>
+          </dl>
+        </aside>
+      </div>
+    }
+
+    <!-- ══════════════════════════════════════
+         TAB 1: LABORAL
+         ══════════════════════════════════════ -->
+    @if (tabActivo() === 1) {
+      <div class="perfil-grid">
+        <section class="card detail-card">
+          <div class="section-title">
+            <div class="section-title-left">
+              <span class="tile tile-rounded tile-soft-secondary seccion-icono">
+                <tui-icon icon="@tui.briefcase" />
+              </span>
+              <div>
+                <h3>Datos laborales</h3>
+                <p class="seccion-desc">Asignación institucional</p>
+              </div>
+            </div>
+          </div>
+          <div class="info-tiles">
+            <div class="info-tile">
+              <span class="tile tile-rounded tile-soft-primary info-tile-icon"><tui-icon icon="@tui.briefcase" /></span>
+              <div class="info-tile-body">
+                <span class="info-tile-label">Área de trabajo</span>
+                <strong class="info-tile-value">{{ personalVivo()?.areaTrabajo?.nombre ?? p.areaTrabajo ?? '—' }}</strong>
+              </div>
+            </div>
+            <div class="info-tile">
+              <span class="tile tile-rounded tile-soft-secondary info-tile-icon"><tui-icon icon="@tui.users" /></span>
+              <div class="info-tile-body">
+                <span class="info-tile-label">Equipo de trabajo</span>
+                <strong class="info-tile-value">{{ personalVivo()?.equipo?.nombre ?? 'Sin equipo' }}</strong>
+              </div>
+            </div>
+            <div class="info-tile">
+              <span class="tile tile-rounded tile-soft-success info-tile-icon"><tui-icon icon="@tui.smartphone" /></span>
+              <div class="info-tile-body">
+                <span class="info-tile-label">Celular corporativo</span>
+                <strong class="info-tile-value font-mono">{{ personalVivo()?.celular ?? 'No registrado' }}</strong>
+              </div>
+            </div>
+            <div class="info-tile">
+              <span class="tile tile-rounded tile-soft-warning info-tile-icon"><tui-icon icon="@tui.cake" /></span>
+              <div class="info-tile-body">
+                <span class="info-tile-label">Edad</span>
+                <strong class="info-tile-value">{{ personalVivo()?.edad ? (personalVivo()?.edad + ' años') : '—' }}</strong>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <aside class="card detail-card">
+          <div class="section-title section-title-compact">
+            <div class="section-title-left">
+              <span class="tile tile-rounded tile-soft-warning seccion-icono seccion-icono-sm">
+                <tui-icon icon="@tui.bell" />
+              </span>
+              <div>
+                <h3>Preferencias de contacto</h3>
+              </div>
+            </div>
+          </div>
+          @if (preferencias(); as pref) {
+            <div class="pref-stats">
+              <div class="pref-stat">
+                <span class="tile tile-rounded tile-soft-secondary pref-stat-icon"><tui-icon icon="@tui.message-circle" /></span>
+                <span class="info-tile-label">Canal preferido</span>
+                <span class="pill pill-secondary">{{ pref.canalPreferido }}</span>
+              </div>
+              <div class="pref-stat">
+                <span class="tile tile-rounded tile-soft-primary pref-stat-icon"><tui-icon icon="@tui.clock" /></span>
+                <span class="info-tile-label">Horario</span>
+                <strong class="info-tile-value font-mono">{{ pref.horarioContactoInicio }} – {{ pref.horarioContactoFin }}</strong>
+              </div>
+              <div class="pref-stat">
+                <span class="tile tile-rounded tile-soft-success pref-stat-icon"><tui-icon icon="@tui.bell" /></span>
+                <span class="info-tile-label">Recordatorios</span>
+                <span [class]="pref.aceptaRecordatorios ? 'pill pill-success' : 'pill pill-neutral'">
+                  {{ pref.aceptaRecordatorios ? 'Acepta' : 'No acepta' }}
+                </span>
+              </div>
+            </div>
+          } @else {
+            <div class="empty-state empty-state-compact">
+              <span class="tile tile-rounded tile-soft-warning empty-state-icon">
+                <tui-icon icon="@tui.bell-off" />
+              </span>
+              <p class="empty-state-title">Sin preferencias registradas</p>
+              <p class="text-soft empty-state-desc">Aún no defines tu canal y horario de contacto.</p>
+            </div>
+          }
+        </aside>
+      </div>
+    }
+
+    <!-- ══════════════════════════════════════
+         TAB 2: SEGURIDAD
+         ══════════════════════════════════════ -->
+    @if (tabActivo() === 2) {
+      <div class="perfil-grid">
+        <section class="card detail-card">
+          <div class="section-title">
+            <div class="section-title-left">
+              <span class="tile tile-rounded tile-soft-violet seccion-icono">
+                <tui-icon icon="@tui.key" />
+              </span>
+              <div>
+                <h3>Credenciales y contraseña</h3>
+                <p class="seccion-desc">Acceso a tu cuenta institucional</p>
+              </div>
+            </div>
+          </div>
+          <p class="text-soft">
+            El cambio de contraseña desde el perfil estará disponible en una próxima versión.
+            Por ahora, contacta al administrador para restablecerla.
+          </p>
+        </section>
+
+        <section class="card detail-card">
+          <div class="section-title section-title-compact">
+            <div class="section-title-left">
+              <span class="tile tile-rounded tile-soft-success seccion-icono seccion-icono-sm">
+                <tui-icon icon="@tui.user-check" />
+              </span>
+              <div>
+                <h3>Información de sesión</h3>
+              </div>
+            </div>
+          </div>
+          <dl class="resumen-list">
+            <div class="resumen-row">
+              <dt>Fecha de alta</dt>
+              <dd>{{ p.fechaCreacion | date: 'dd/MM/yyyy' }}</dd>
+            </div>
+            <div class="resumen-row">
+              <dt>Estado</dt>
+              <dd>
+                @if (p.activo) {
+                  <span class="pill pill-success">Activo</span>
+                } @else {
+                  <span class="pill pill-neutral">Inactivo</span>
+                }
+              </dd>
+            </div>
+            <div class="resumen-row resumen-row-col">
+              <dt>Roles del usuario</dt>
+              <dd class="roles-list">
+                @for (rol of p.roles; track rol) {
+                  <span class="pill pill-primary">{{ rol }}</span>
+                }
+              </dd>
+            </div>
+          </dl>
+          <div class="form-actions-local">
+            <button tuiButton appearance="destructive" size="m" type="button" (click)="cerrarSesion()" class="sesion-btn">
+              <tui-icon icon="@tui.log-out" />
+              Cerrar sesión
+            </button>
+          </div>
+        </section>
+      </div>
+    }
+  }
+</div>

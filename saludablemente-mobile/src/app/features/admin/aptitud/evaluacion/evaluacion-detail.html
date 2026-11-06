@@ -1,0 +1,308 @@
+@if (loading()) {
+  <div class="card cargando-caja">
+    <p class="hint">Cargando detalles de la evaluación…</p>
+  </div>
+}
+
+@if (error()) {
+  <div class="card error-caja">
+    <tui-icon icon="@tui.triangle-alert" class="icono-alerta" />
+    <p class="error-msg">{{ error() }}</p>
+  </div>
+}
+
+@if (mensajeExito()) {
+  <div class="card exito-caja">
+    <tui-icon icon="@tui.circle-check" class="icono-exito" />
+    <p class="exito-msg">{{ mensajeExito() }}</p>
+  </div>
+}
+
+@if (evaluacion(); as e) {
+  <!-- ══════════════════════════════════════
+       HERO BANNER DE EVALUACIÓN
+       ══════════════════════════════════════ -->
+  <div class="perfil-hero card">
+    <div class="perfil-hero-avatar">
+      <span [tuiAvatar]="iniciales(e.nombresCompletosAlMomento)" size="xxl" [round]="true"></span>
+    </div>
+
+    <div class="perfil-hero-body">
+      <h2 class="perfil-hero-nombre">{{ e.nombresCompletosAlMomento ?? 'Evaluación de Aptitud' }}</h2>
+      <div class="perfil-hero-meta">
+        <span class="meta-item">
+          <tui-icon icon="@tui.id-card" />
+          {{ e.documentoIdentidadAlMomento ?? '—' }}
+        </span>
+        <span class="meta-sep" aria-hidden="true">·</span>
+        <span class="meta-item">
+          <tui-icon icon="@tui.map-pin" />
+          {{ e.areaTrabajoAlMomento ?? '—' }}
+        </span>
+        <span class="meta-sep" aria-hidden="true">·</span>
+        <span class="meta-item">
+          <tui-icon icon="@tui.calendar" />
+          {{ e.fechaEvaluacion }}
+        </span>
+      </div>
+      <div class="perfil-hero-roles">
+        @if (e.dictamenGlobal === 'APTO') {
+          <span class="pill pill-soft-success">Apto</span>
+        } @else if (e.dictamenGlobal === 'APTO_CON_RESTRICCIONES') {
+          <span class="pill pill-soft-warning">Apto con Restricciones</span>
+        } @else if (e.dictamenGlobal === 'NO_APTO') {
+          <span class="pill pill-soft-error">No Apto</span>
+        } @else if (e.dictamenGlobal) {
+          <span class="pill pill-soft-neutral">{{ e.dictamenGlobal }}</span>
+        }
+        @if (e.estadoEvaluacion === 'COMPLETA') {
+          <span class="pill pill-soft-success">Completa</span>
+        } @else if (e.estadoEvaluacion === 'PENDIENTE') {
+          <span class="pill pill-soft-warning">Pendiente</span>
+        } @else if (e.estadoEvaluacion === 'ANULADA') {
+          <span class="pill pill-soft-error">Anulada</span>
+        } @else {
+          <span class="pill pill-soft-neutral">{{ e.estadoEvaluacion }}</span>
+        }
+      </div>
+    </div>
+
+    <div class="score-card">
+      <span class="score-valor">{{ e.fitnessScore ?? '—' }}</span>
+      @if (e.fitnessScore !== undefined && e.fitnessScore !== null) {
+        <span class="pill" [ngClass]="clasificacionFitness(e.fitnessScore).clase">
+          {{ clasificacionFitness(e.fitnessScore).label }}
+        </span>
+      }
+      <span class="score-label">Fitness Score</span>
+    </div>
+  </div>
+
+  <div class="acciones-barra">
+    @if (e.estadoEvaluacion !== 'ANULADA') {
+      <button tuiButton appearance="destructive" size="m" type="button" [loading]="guardando()" (click)="anular()">
+        <tui-icon icon="@tui.ban" />
+        Anular evaluación
+      </button>
+    }
+    <a tuiButton appearance="outline" size="m" routerLink="/aptitud">
+      <tui-icon icon="@tui.arrow-left" />
+      Volver al listado
+    </a>
+  </div>
+
+  <div class="tabs-wrapper">
+    <tui-tabs [activeItemIndex]="tabActivo()" (activeItemIndexChange)="tabActivo.set($event)">
+      <button tuiTab>
+        <tui-icon icon="@tui.activity" />
+        Fuerza
+      </button>
+      <button tuiTab>
+        <tui-icon icon="@tui.heart-pulse" />
+        Cardio
+      </button>
+      <button tuiTab>
+        <tui-icon icon="@tui.file-text" />
+        Observaciones
+      </button>
+    </tui-tabs>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       TAB 0: FUERZA
+       ══════════════════════════════════════ -->
+  @if (tabActivo() === 0) {
+    <div class="seccion-grid">
+      <section class="card form-card">
+        <div class="section-header">
+          <h3 class="section-title">{{ tieneFuerza() ? 'Editar Pruebas de Fuerza' : 'Registrar Pruebas de Fuerza' }}</h3>
+          <p class="section-subtitle">Ingresa los resultados obtenidos en las pruebas físicas.</p>
+        </div>
+        <form [formGroup]="fuerzaForm" (ngSubmit)="guardarFuerza()">
+          <div class="form-grid-inner">
+            <label tuiLabel class="field">
+              Abdominales (0–100 repeticiones)
+              <tui-textfield>
+                <input tuiInput type="number" formControlName="repeticionesAbdominales" min="0" max="100" placeholder="0" />
+              </tui-textfield>
+              <tui-error formControlName="repeticionesAbdominales" />
+            </label>
+            <label tuiLabel class="field">
+              Flexiones de brazo (0–100 repeticiones)
+              <tui-textfield>
+                <input tuiInput type="number" formControlName="repeticionesFlexionBrazo" min="0" max="100" placeholder="0" />
+              </tui-textfield>
+              <tui-error formControlName="repeticionesFlexionBrazo" />
+            </label>
+            <label tuiLabel class="field">
+              Salto de longitud cm (0–400 cm)
+              <tui-textfield>
+                <input tuiInput type="number" formControlName="saltoLongitudCm" min="0" max="400" placeholder="0" />
+              </tui-textfield>
+              <tui-error formControlName="saltoLongitudCm" />
+            </label>
+          </div>
+          <div class="form-actions-inner">
+            <button tuiButton appearance="primary" size="m" type="submit" [loading]="guardando()" [disabled]="soloLectura()">
+              <tui-icon icon="@tui.check" />
+              {{ tieneFuerza() ? 'Actualizar fuerza' : 'Guardar fuerza' }}
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <aside class="card dx-card">
+        <div class="section-header">
+          <h3 class="section-title">Diagnósticos de Fuerza</h3>
+        </div>
+        @if (e.detalleFuerza; as f) {
+          <div class="dx-lista">
+            <div class="dx-item">
+              <span class="dx-label">Core / Abdomen</span>
+              <div class="dx-val-con-pill">
+                <span class="pill" [ngClass]="clasificacionDiagnostico(f.dxCore).clase">
+                  {{ clasificacionDiagnostico(f.dxCore).label }}
+                </span>
+              </div>
+            </div>
+            <div class="dx-item">
+              <span class="dx-label">Tren Superior</span>
+              <div class="dx-val-con-pill">
+                <span class="pill" [ngClass]="clasificacionDiagnostico(f.dxTrenSuperior).clase">
+                  {{ clasificacionDiagnostico(f.dxTrenSuperior).label }}
+                </span>
+              </div>
+            </div>
+            <div class="dx-item">
+              <span class="dx-label">Tren Inferior</span>
+              <div class="dx-val-con-pill">
+                <span class="pill" [ngClass]="clasificacionDiagnostico(f.dxTrenInferior).clase">
+                  {{ clasificacionDiagnostico(f.dxTrenInferior).label }}
+                </span>
+              </div>
+            </div>
+            <div class="dx-item">
+              <span class="dx-label">Fuerza Global</span>
+              <div class="dx-val-con-pill">
+                <span class="pill" [ngClass]="clasificacionDiagnostico(f.dxFuerzaGlobal).clase">
+                  {{ clasificacionDiagnostico(f.dxFuerzaGlobal).label }}
+                </span>
+              </div>
+            </div>
+          </div>
+        } @else {
+          <p class="empty-small">Sin registro de fuerza guardado todavía.</p>
+        }
+      </aside>
+    </div>
+  }
+
+  <!-- ══════════════════════════════════════
+       TAB 1: CARDIO
+       ══════════════════════════════════════ -->
+  @if (tabActivo() === 1) {
+    <div class="seccion-grid">
+      <section class="card form-card">
+        <div class="section-header">
+          <h3 class="section-title">{{ tieneCardio() ? 'Editar Pruebas Cardiovasculares' : 'Registrar Pruebas Cardiovasculares' }}</h3>
+          <p class="section-subtitle">Ingresa los tiempos y repeticiones del test de resistencia.</p>
+        </div>
+        <form [formGroup]="cardioForm" (ngSubmit)="guardarCardio()">
+          <div class="form-grid-inner">
+            <label tuiLabel class="field">
+              Salto de soga en 30 s (0–200 repeticiones)
+              <tui-textfield>
+                <input tuiInput type="number" formControlName="repeticionesSoga30s" min="0" max="200" placeholder="0" />
+              </tui-textfield>
+              <tui-error formControlName="repeticionesSoga30s" />
+            </label>
+            <label tuiLabel class="field">
+              Carrera 400 m en segundos (30–900 s)
+              <tui-textfield>
+                <input tuiInput type="number" formControlName="tiempoCarrera400mSeg" min="30" max="900" placeholder="segundos" />
+              </tui-textfield>
+              <tui-error formControlName="tiempoCarrera400mSeg" />
+            </label>
+          </div>
+          <div class="form-actions-inner">
+            <button tuiButton appearance="primary" size="m" type="submit" [loading]="guardando()" [disabled]="soloLectura()">
+              <tui-icon icon="@tui.check" />
+              {{ tieneCardio() ? 'Actualizar cardio' : 'Guardar cardio' }}
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <aside class="card dx-card">
+        <div class="section-header">
+          <h3 class="section-title">Diagnóstico Cardiovascular</h3>
+        </div>
+        @if (e.detalleCardio; as c) {
+          <div class="dx-lista">
+            <div class="dx-item">
+              <span class="dx-label">Diagnóstico Cardiovascular</span>
+              <div class="dx-val-con-pill">
+                <span class="pill" [ngClass]="clasificacionDiagnostico(c.dxCardiovascular).clase">
+                  {{ clasificacionDiagnostico(c.dxCardiovascular).label }}
+                </span>
+              </div>
+            </div>
+            <div class="dx-item">
+              <span class="dx-label">Soga 30 seg</span>
+              <span class="dx-valor font-mono">{{ c.repeticionesSoga30s ?? '—' }} rep</span>
+            </div>
+            <div class="dx-item">
+              <span class="dx-label">Carrera 400 m</span>
+              <span class="dx-valor font-mono">{{ c.tiempoCarrera400mSeg ?? '—' }} seg</span>
+            </div>
+          </div>
+        } @else {
+          <p class="empty-small">Sin registro de cardio guardado todavía.</p>
+        }
+      </aside>
+    </div>
+  }
+
+  <!-- ══════════════════════════════════════
+       TAB 2: OBSERVACIONES
+       ══════════════════════════════════════ -->
+  @if (tabActivo() === 2) {
+    <section class="card form-card">
+      <div class="section-header">
+        <h3 class="section-title">Observaciones y Restricciones</h3>
+        <p class="section-subtitle">Notas médicas, condiciones particulares o recomendaciones físicas.</p>
+      </div>
+      @if (!editandoObs() || soloLectura()) {
+        <div class="observaciones-caja">
+          <p class="obs-texto">{{ e.observacionesRestricciones || 'Sin observaciones registradas.' }}</p>
+          @if (!soloLectura()) {
+            <div class="form-actions-inner">
+              <button tuiButton appearance="outline" size="m" type="button" (click)="editandoObs.set(true)">
+                <tui-icon icon="@tui.pencil" />
+                Editar observaciones
+              </button>
+            </div>
+          }
+        </div>
+      } @else {
+        <form [formGroup]="obsForm" (ngSubmit)="guardarObservaciones()">
+          <label tuiLabel class="field">
+            Observaciones y recomendaciones (máximo 500 caracteres)
+            <tui-textfield>
+              <textarea tuiTextarea formControlName="observaciones" rows="5" maxlength="500" placeholder="Escribe aquí las observaciones..."></textarea>
+            </tui-textfield>
+          </label>
+          <div class="form-actions-inner">
+            <button tuiButton appearance="primary" size="m" type="submit" [loading]="guardando()">
+              <tui-icon icon="@tui.check" />
+              Guardar observaciones
+            </button>
+            <button tuiButton appearance="outline" size="m" type="button" (click)="editandoObs.set(false)">
+              Cancelar
+            </button>
+          </div>
+        </form>
+      }
+    </section>
+  }
+}

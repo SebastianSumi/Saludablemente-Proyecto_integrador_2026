@@ -1,0 +1,294 @@
+<div class="col-stack">
+  <!-- ════════════ HERO ════════════ -->
+  <div class="card card-alerta page-banner">
+    <div class="page-banner-body">
+      <span class="tile tile-rounded tile-soft-primary page-banner-icon">
+        <tui-icon icon="@tui.activity" />
+      </span>
+      <div class="page-banner-info">
+        <h1 class="card-title hero-titulo">Mi historial de salud</h1>
+        <p class="card-subtitle">
+          @if (loading()) {
+            Cargando tu historial…
+          } @else {
+            {{ conteos().total }} evaluación(es) propias · solo lectura
+          }
+        </p>
+        <div class="hero-chips">
+          <span class="pill pill-success">
+            <tui-icon icon="@tui.apple" class="pill-icono" />
+            Nutricional: {{ conteos().nutricional }}
+          </span>
+          <span class="pill pill-violet">
+            <tui-icon icon="@tui.activity" class="pill-icono" />
+            Aptitud: {{ conteos().aptitud }}
+          </span>
+          <span class="pill pill-primary">Completas: {{ conteos().completas }}</span>
+          <span class="pill pill-warning">Pendientes: {{ conteos().pendientes }}</span>
+          <span class="pill pill-error">Anuladas: {{ conteos().anuladas }}</span>
+        </div>
+      </div>
+    </div>
+    <img [src]="portada" alt="Evaluaciones" loading="lazy" />
+  </div>
+
+  <!-- ════════════ FILTROS ════════════ -->
+  <div class="card filtros-card">
+    <div class="filtros-linea">
+      <div class="filtro-item">
+        <span class="filtro-etiqueta">Tipo</span>
+        <div class="seg" role="tablist" aria-label="Tipo de evaluación">
+          <button type="button" [class.seg-activo]="tipo() === 'todo'" (click)="filtrarTipo('todo')">
+            Todas ({{ conteos().total }})
+          </button>
+          <button type="button" [class.seg-activo]="tipo() === 'nutricional'" (click)="filtrarTipo('nutricional')">
+            <tui-icon icon="@tui.apple" />
+            Nutricional ({{ conteos().nutricional }})
+          </button>
+          <button type="button" [class.seg-activo]="tipo() === 'aptitud'" (click)="filtrarTipo('aptitud')">
+            <tui-icon icon="@tui.activity" />
+            Aptitud ({{ conteos().aptitud }})
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="filtros-linea">
+      <div class="filtro-item">
+        <span class="filtro-etiqueta">Estado</span>
+        <div class="seg" role="tablist" aria-label="Estado">
+          <button type="button" [class.seg-activo]="estado() === ''" (click)="filtrarEstado('')">Todas</button>
+          <button type="button" [class.seg-activo]="estado() === 'COMPLETA'" (click)="filtrarEstado('COMPLETA')">
+            Completas ({{ conteos().completas }})
+          </button>
+          <button type="button" [class.seg-activo]="estado() === 'PENDIENTE'" (click)="filtrarEstado('PENDIENTE')">
+            Pendientes ({{ conteos().pendientes }})
+          </button>
+          <button type="button" [class.seg-activo]="estado() === 'ANULADA'" (click)="filtrarEstado('ANULADA')">
+            Anuladas ({{ conteos().anuladas }})
+          </button>
+        </div>
+      </div>
+
+      <div class="filtro-item">
+        <span class="filtro-etiqueta">Ordenar por</span>
+        <div class="seg" role="tablist" aria-label="Orden">
+          <button type="button" [class.seg-activo]="orden() === 'fecha'" (click)="setOrden('fecha')">Fecha</button>
+          <button type="button" [class.seg-activo]="orden() === 'tipo'" (click)="setOrden('tipo')">Tipo</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="filtros-linea">
+      <div class="filtro-item filtro-fecha">
+        <span class="filtro-etiqueta">Desde</span>
+        <tui-textfield>
+          <input tuiInput type="date" [value]="desde()" (input)="desde.set($any($event.target).value)" />
+        </tui-textfield>
+      </div>
+      <div class="filtro-item filtro-fecha">
+        <span class="filtro-etiqueta">Hasta</span>
+        <tui-textfield>
+          <input tuiInput type="date" [value]="hasta()" (input)="hasta.set($any($event.target).value)" />
+        </tui-textfield>
+      </div>
+      <div class="filtro-item filtro-buscar">
+        <span class="filtro-etiqueta">Buscar</span>
+        <tui-textfield>
+          <tui-icon icon="@tui.search" />
+          <input tuiInput [formControl]="textoCtrl" placeholder="Periodo, dictamen o área" />
+        </tui-textfield>
+      </div>
+      <div class="filtro-item">
+        <span class="filtro-etiqueta">Vista</span>
+        <div class="seg" role="tablist" aria-label="Modo de vista">
+          <button type="button" [class.seg-activo]="modo() === 'tarjetas'" (click)="modo.set('tarjetas')">
+            <tui-icon icon="@tui.grid" />
+            Tarjetas
+          </button>
+          <button type="button" [class.seg-activo]="modo() === 'lista'" (click)="modo.set('lista')">
+            <tui-icon icon="@tui.list" />
+            Lista
+          </button>
+        </div>
+      </div>
+      <button tuiButton appearance="outline" size="m" type="button" class="btn-limpiar" (click)="limpiarFiltros()">
+        <tui-icon icon="@tui.filter-x" />
+        Limpiar
+      </button>
+    </div>
+  </div>
+
+  <!-- ════════════ ERROR ════════════ -->
+  @if (error()) {
+    <div class="card error-caja" role="alert">
+      <span class="tile tile-rounded tile-soft-error">
+        <tui-icon icon="@tui.triangle-alert" class="icono-alerta" />
+      </span>
+      <div class="error-body">
+        <p class="error-title">No se pudo cargar tu historial</p>
+        <p class="error-msg">{{ error() }}</p>
+      </div>
+      <button tuiButton appearance="secondary" size="m" type="button" (click)="cargar()">
+        <tui-icon icon="@tui.refresh-cw" />
+        Reintentar
+      </button>
+    </div>
+  }
+
+  <!-- ════════════ CONTENIDO ════════════ -->
+  @if (loading()) {
+    <div class="card">
+      <div class="sk sk-line sk-line-lg"></div>
+      <div class="sk sk-line"></div>
+      <div class="sk sk-line"></div>
+    </div>
+  } @else if (modo() === 'tarjetas') {
+    <div class="grid-eval">
+      @for (e of evaluaciones(); track clave(e)) {
+        <article
+          class="card eval-card"
+          [class.tipo-nutricional]="e.tipo === 'nutricional'"
+          [class.tipo-aptitud]="e.tipo === 'aptitud'"
+        >
+          <div class="eval-top">
+            <span [class]="pillTipo(e.tipo)">
+              <tui-icon [icon]="iconoTipo(e.tipo)" class="pill-icono" />
+              {{ etiquetaTipo(e.tipo) }}
+            </span>
+            <span [class]="pillEstado(e.estado)">
+              <tui-icon icon="@tui.circle-dot" class="pill-icono" />
+              {{ etiquetaEstado(e.estado) }}
+            </span>
+          </div>
+          <div class="eval-head">
+            <span [class]="tileTipo(e.tipo)">
+              <tui-icon [icon]="iconoTipo(e.tipo)" />
+            </span>
+            <div>
+              <h3 class="eval-titulo">{{ e.titulo }}</h3>
+              <p class="eval-sub">{{ e.subtitulo }}</p>
+            </div>
+          </div>
+          @if (e.area) {
+            <p class="eval-meta">
+              <tui-icon icon="@tui.map-pin" class="pill-icono" />
+              {{ e.area }}
+            </p>
+          }
+          <p class="eval-meta">
+            <tui-icon icon="@tui.calendar" class="pill-icono" />
+            {{ e.fecha | date:'dd/MM/yyyy' }}
+          </p>
+          <div class="eval-pie">
+            <a tuiButton appearance="flat" size="s" [routerLink]="e.ruta">
+              <tui-icon icon="@tui.eye" />
+              Ver detalle
+            </a>
+          </div>
+        </article>
+      } @empty {
+        <div class="card empty">No tienes evaluaciones con esos filtros.</div>
+      }
+    </div>
+  } @else {
+    <div class="card tabla-card">
+      <div class="table-scroll">
+        <table tuiTable>
+          <thead>
+            <tr>
+              <th tuiTh class="th-expandir"><span class="sr-only">Expandir</span></th>
+              <th tuiTh>Tipo</th>
+              <th tuiTh>Detalle</th>
+              <th tuiTh>Periodo / Dictamen</th>
+              <th tuiTh>Fecha</th>
+              <th tuiTh>Estado</th>
+              <th tuiTh class="th-acciones"><span class="sr-only">Acciones</span></th>
+            </tr>
+          </thead>
+          <tbody tuiTbody>
+            @for (e of evaluaciones(); track clave(e)) {
+              <tr>
+                <td tuiTd class="td-expandir">
+                  <button
+                    type="button"
+                    class="expander"
+                    [class.abierto]="expandido() === clave(e)"
+                    [attr.aria-expanded]="expandido() === clave(e)"
+                    [attr.aria-label]="expandido() === clave(e) ? 'Ocultar resumen' : 'Ver resumen'"
+                    (click)="toggleExpandir(clave(e))"
+                  >
+                    <tui-icon icon="@tui.chevron-down" />
+                  </button>
+                </td>
+                <td tuiTd>
+                  <span [class]="pillTipo(e.tipo)">
+                    <tui-icon [icon]="iconoTipo(e.tipo)" class="pill-icono" />
+                    {{ e.tipo === 'nutricional' ? 'Nutricional' : 'Aptitud' }}
+                  </span>
+                </td>
+                <td tuiTd class="font-mono">
+                  <a class="fila-nombre" [routerLink]="e.ruta">#{{ e.id }}</a>
+                  <span class="fila-sub">{{ e.titulo }}</span>
+                </td>
+                <td tuiTd class="text-soft">
+                  {{ e.tipo === 'nutricional' ? 'Periodo ' + (e.periodo ?? '—') : etiquetaDictamen(e.dictamen) }}
+                </td>
+                <td tuiTd class="text-soft font-mono">{{ e.fecha | date:'dd/MM/yyyy' }}</td>
+                <td tuiTd><span [class]="pillEstado(e.estado)">{{ etiquetaEstado(e.estado) }}</span></td>
+                <td tuiTd class="td-acciones">
+                  <div class="row-actions">
+                    <a tuiButton appearance="flat" size="s" [routerLink]="e.ruta">
+                      <tui-icon icon="@tui.eye" />
+                      Ver detalle
+                    </a>
+                  </div>
+                </td>
+              </tr>
+              @if (expandido() === clave(e)) {
+                <tr class="fila-detalle">
+                  <td tuiTd colspan="7">
+                    <div class="detalle-chips">
+                      <span class="pill pill-neutral">
+                        <tui-icon icon="@tui.tag" class="pill-icono" />
+                        Evaluación #{{ e.id }}
+                      </span>
+                      @if (e.tipo === 'nutricional') {
+                        <span class="pill pill-neutral">
+                          <tui-icon icon="@tui.layers" class="pill-icono" />
+                          Periodo {{ e.periodo ?? '—' }}
+                        </span>
+                      } @else {
+                        <span [class]="pillDictamen(e.dictamen)">
+                          <tui-icon icon="@tui.clipboard-check" class="pill-icono" />
+                          {{ etiquetaDictamen(e.dictamen) }}
+                        </span>
+                        <span class="pill pill-neutral">
+                          <tui-icon icon="@tui.trophy" class="pill-icono" />
+                          Fitness: {{ e.fitnessScore ?? '—' }} pts
+                        </span>
+                      }
+                      @if (e.area) {
+                        <span class="pill pill-neutral">
+                          <tui-icon icon="@tui.map-pin" class="pill-icono" />
+                          {{ e.area }}
+                        </span>
+                      }
+                    </div>
+                  </td>
+                </tr>
+              }
+            } @empty {
+              <tr>
+                <td tuiTd colspan="7" class="empty">No tienes evaluaciones con esos filtros.</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      <footer class="tabla-foot">
+        <a tuiButton appearance="flat" size="s" routerLink="/colaborador">Volver a mi panel</a>
+      </footer>
+    </div>
+  }
+</div>

@@ -1,0 +1,115 @@
+<!-- ══════════════════════════════════════
+     CABECERA DE PÁGINA
+     ══════════════════════════════════════ -->
+<div class="page-banner card">
+  <div class="page-banner-body">
+    <div class="page-banner-icon tile tile-rounded tile-soft-primary">
+      <tui-icon icon="@tui.chart-column" />
+    </div>
+    <div>
+      <h2 class="card-title">Dashboard de Personal</h2>
+      <p class="card-subtitle">Métricas demográficas, distribución por áreas y estado de los colaboradores</p>
+    </div>
+  </div>
+  <a tuiButton appearance="primary" size="m" routerLink="/personal/personas">
+    <tui-icon icon="@tui.users" />
+    Ver lista de personas
+  </a>
+</div>
+
+@if (loading()) {
+  <div class="card estado-caja">
+    <p class="sal-subtitulo">Cargando métricas y reportes...</p>
+  </div>
+}
+
+@if (error()) {
+  <div class="card error-caja">
+    <tui-icon icon="@tui.triangle-alert" class="icono-alerta" />
+    <p class="error-msg">{{ error() }}</p>
+  </div>
+}
+
+@if (resumen(); as r) {
+
+  <!-- ══════════════════════════════════════
+       TARJETAS KPI
+       ══════════════════════════════════════ -->
+  <div class="kpi-grid">
+    <article class="card kpi-card">
+      <div class="kpi-top">
+        <span class="tile tile-circle tile-soft-primary kpi-icon">
+          <tui-icon icon="@tui.users" />
+        </span>
+        <span class="pill pill-soft-primary">Total</span>
+      </div>
+      <div class="kpi-body">
+        <strong class="kpi-value">{{ r.totalPersonal }}</strong>
+        <span class="kpi-label">Total personal</span>
+      </div>
+    </article>
+
+    <article class="card kpi-card">
+      <div class="kpi-top">
+        <span class="tile tile-circle tile-soft-success kpi-icon">
+          <tui-icon icon="@tui.circle-check" />
+        </span>
+        <span class="pill pill-soft-success">En nómina</span>
+      </div>
+      <div class="kpi-body">
+        <strong class="kpi-value val-activos">{{ r.totalActivos }}</strong>
+        <span class="kpi-label">Colaboradores activos</span>
+      </div>
+    </article>
+
+    <article class="card kpi-card">
+      <div class="kpi-top">
+        <span class="tile tile-circle tile-soft-primary kpi-icon">
+          <tui-icon icon="@tui.mars" />
+        </span>
+        <span class="pill pill-soft-primary">Hombres</span>
+      </div>
+      <div class="kpi-body">
+        <strong class="kpi-value val-hombres">{{ r.totalHombres }}</strong>
+        <span class="kpi-label">Personal masculino</span>
+      </div>
+    </article>
+
+    <article class="card kpi-card">
+      <div class="kpi-top">
+        <span class="tile tile-circle tile-soft-warning kpi-icon">
+          <tui-icon icon="@tui.venus" />
+        </span>
+        <span class="pill pill-soft-warning">Mujeres</span>
+      </div>
+      <div class="kpi-body">
+        <strong class="kpi-value val-mujeres">{{ r.totalMujeres }}</strong>
+        <span class="kpi-label">Personal femenino</span>
+      </div>
+    </article>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       GRÁFICOS
+       ══════════════════════════════════════ -->
+  <div class="charts-grid">
+    <div class="card chart-card chart-wide">
+      <div echarts [options]="opcionesPorEquipo()" class="chart-canvas"></div>
+    </div>
+
+    <div class="card chart-card">
+      <div echarts [options]="opcionesPorArea()" class="chart-canvas"></div>
+    </div>
+
+    <div class="card chart-card">
+      <div echarts [options]="opcionesActivos()" class="chart-canvas"></div>
+    </div>
+  </div>
+
+} @else {
+  @if (!loading() && !error()) {
+    <div class="card estado-caja">
+      <p class="sal-subtitulo">No hay datos disponibles en el módulo de personal.</p>
+    </div>
+  }
+}

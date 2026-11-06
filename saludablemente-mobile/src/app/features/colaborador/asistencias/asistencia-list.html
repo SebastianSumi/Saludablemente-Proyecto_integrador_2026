@@ -1,0 +1,53 @@
+<div class="col-stack">
+  <div appearance="floating" tuiCardLarge>
+    <header tuiHeader>
+      <h1 tuiTitle>
+        Mis asistencias
+        <span tuiSubtitle>
+          @if (loading()) { Cargando tu historial... }
+          @else { {{ historial().length }} registro(s) propios · {{ hoy().length }} actividad(es) hoy · solo lectura }
+        </span>
+      </h1>
+      <aside tuiAccessories><div appearance="warning" tuiAvatar="@tui.clipboard-check"></div></aside>
+    </header>
+  </div>
+
+  @if (error()) {
+    <div appearance="floating" tuiCardLarge>
+      <header tuiHeader><h2 tuiTitle>No se pudo cargar tus asistencias<span tuiSubtitle>{{ error() }}</span></h2></header>
+    </div>
+  }
+
+  <div appearance="floating" tuiCardLarge>
+    <header tuiHeader><h2 tuiTitle>Actividades de hoy</h2></header>
+    @for (a of hoy(); track a.idActividad) {
+      <div tuiTitle>{{ a.nombre }}<div tuiSubtitle>{{ a.fechaActividad ?? '—' }} {{ a.horaInicio ?? '' }} · {{ a.lugar ?? '' }}</div></div>
+    } @empty {
+      @if (!loading() && !error()) { <section><div tuiSubtitle>No hay actividades hoy.</div></section> }
+    }
+  </div>
+
+  <div appearance="floating" tuiCardLarge class="tabla-card">
+    <header tuiHeader class="pad"><h2 tuiTitle>Mi historial</h2></header>
+    <div class="table-scroll">
+      <table tuiTable>
+        <thead><tr><th tuiTh>Actividad</th><th tuiTh>Fecha</th><th tuiTh>Estado</th><th tuiTh>Método</th></tr></thead>
+        <tbody tuiTbody>
+          @for (h of historial(); track h.idAsistencia) {
+            <tr>
+              <td tuiTd>
+                <div tuiTitle>{{ h.nombreActividad }}<div tuiSubtitle>Act. #{{ h.idActividad }}</div></div>
+              </td>
+              <td tuiTd>{{ h.fechaActividad | date:'dd/MM/yyyy' }} {{ h.horaMarcado ?? '' }}</td>
+              <td tuiTd><span tuiBadge [appearance]="estadoBadge(h.estado)" size="s">{{ h.estado }}</span></td>
+              <td tuiTd>{{ h.metodoRegistro }}</td>
+            </tr>
+          } @empty {
+            @if (!loading() && !error()) { <tr><td tuiTd colspan="4" class="empty">Aún no tienes asistencias registradas.</td></tr> }
+          }
+        </tbody>
+      </table>
+    </div>
+    <footer><a tuiButton appearance="flat" size="s" routerLink="/colaborador">Volver a mi panel</a></footer>
+  </div>
+</div>

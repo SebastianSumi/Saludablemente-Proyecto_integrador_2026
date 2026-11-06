@@ -1,0 +1,341 @@
+<!-- ══════════════════════════════════════
+     CABECERA DE PÁGINA
+     ══════════════════════════════════════ -->
+<div class="page-banner card">
+  <div class="page-banner-body">
+    <div class="page-banner-icon tile tile-rounded tile-soft-primary">
+      <tui-icon icon="@tui.clipboard-check" />
+    </div>
+    <div>
+      <h2 class="card-title">Control de Asistencias</h2>
+      <p class="card-subtitle">
+        @if (loading()) {
+          Cargando registros...
+        } @else {
+          {{ resumen().asistentes }}/{{ resumen().esperados }} asistencias ({{ resumen().porcentaje }}%) · {{ resumen().tardes }} tarde · {{ resumen().faltas }} falta · {{ resumen().pendientes }} pendiente(s)
+        }
+      </p>
+    </div>
+  </div>
+  <div class="page-banner-actions">
+    <button
+      tuiButton
+      appearance="outline"
+      size="m"
+      type="button"
+      [loading]="cerrando()"
+      [disabled]="!actividadCtrl.value"
+      (click)="forzarCierre()"
+    >
+      <tui-icon icon="@tui.lock" />
+      Forzar cierre
+    </button>
+    <a tuiButton appearance="primary" size="m" routerLink="/asistencias/registro/nuevo">
+      <tui-icon icon="@tui.plus" />
+      Marcar asistencia
+    </a>
+    <a tuiButton appearance="outline" size="m" [routerLink]="['/asistencias/registro/nuevo']" [queryParams]="{ modo: 'qr' }">
+      <tui-icon icon="@tui.qr-code" />
+      Escanear QR
+    </a>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     FILTRO / SELECTOR DE ACTIVIDAD
+     ══════════════════════════════════════ -->
+<div class="filtros-card">
+  <div class="filtros-linea">
+    <div class="filtro-item">
+      <label class="filtro-etiqueta">Actividad institucional</label>
+      <tui-textfield tuiChevron>
+        <input tuiComboBox [formControl]="actividadCtrl" [strict]="true" placeholder="— Busca y selecciona una actividad —" />
+        <tui-data-list-wrapper *tuiDropdown [items]="actividades() | tuiFilterByInput" [itemContent]="act" />
+      </tui-textfield>
+    </div>
+
+    @if (actividadCtrl.value; as act) {
+      <a tuiButton appearance="outline" size="m" [routerLink]="['/asistencias/qr', act.idActividad]" class="btn-qr">
+        <tui-icon icon="@tui.qr-code" />
+        Mostrar código QR
+      </a>
+    }
+  </div>
+</div>
+
+<ng-template #act let-item>
+  <span class="opcion-actividad">
+    <strong class="opcion-actividad-nombre">{{ item.nombre }}</strong>
+    @if (item.fechaActividad || item.lugar) {
+      <span class="opcion-actividad-meta text-soft">{{ item.fechaActividad ?? '' }}{{ item.fechaActividad && item.lugar ? ' · ' : '' }}{{ item.lugar ?? '' }}</span>
+    }
+  </span>
+</ng-template>
+
+<!-- ══════════════════════════════════════
+     CABECERA DE ACTIVIDAD + RESUMEN
+     ══════════════════════════════════════ -->
+@if (actividadDetalle(); as det) {
+  <div class="card cierre-resumen">
+    <div class="seccion-titulo">
+      <span class="tile tile-rounded tile-soft-primary seccion-icono">
+        <tui-icon icon="@tui.calendar" />
+      </span>
+      <div>
+        <h3 class="seccion-nombre">{{ det.nombre }}</h3>
+        <p class="seccion-desc">
+          {{ det.fechaActividad ?? '' }}{{ det.fechaActividad && det.lugar ? ' · ' : '' }}{{ det.lugar ?? '' }}
+          · Estado: {{ det.estado ?? '—' }}
+          @if (det.nombreCoordinador) { · Coord: {{ det.nombreCoordinador }} }
+        </p>
+        @if (det.latitudOficial != null && det.longitudOficial != null) {
+          <p class="seccion-desc">
+            Sede: <strong class="font-mono">{{ det.latitudOficial }}, {{ det.longitudOficial }}</strong>
+            (radio {{ det.toleranciaGeocercaMetros ?? 100 }} m) ·
+            <a [href]="'https://www.google.com/maps?q=' + det.latitudOficial + ',' + det.longitudOficial" target="_blank" rel="noopener">abrir sede en Google Maps</a>
+          </p>
+        } @else {
+          <p class="error-msg">Sin sede fijada: edita la actividad y marca el pin en el mapa.</p>
+        }
+      </div>
+    </div>
+
+    <!-- GPS obligatorio -->
+    <div
+      class="gps-panel"
+      [class.gps-panel--ok]="gpsListo()"
+      [class.gps-panel--error]="geo.estado() === 'error'"
+    >
+      <span class="gps-panel-icono">
+        <tui-icon icon="@tui.locate-fixed" />
+      </span>
+      <div class="gps-panel-cuerpo">
+        @if (gpsListo()) {
+          <span class="gps-panel-titulo">GPS listo</span>
+          <p class="gps-panel-detalle">
+            <strong class="font-mono">{{ geo.ubicacion()?.latitud }}, {{ geo.ubicacion()?.longitud }}</strong>
+            @if (geo.ubicacion()?.precisionM != null) { (±{{ geo.ubicacion()?.precisionM }} m) }
+          </p>
+        } @else {
+          <span class="gps-panel-titulo">GPS obligatorio</span>
+          <p class="gps-panel-detalle">{{ geo.error() ?? 'Otorga permiso para registrar.' }}</p>
+        }
+      </div>
+      <div class="gps-panel-acciones">
+        <button tuiButton appearance="outline" size="s" type="button" [loading]="geo.estado() === 'detectando'" (click)="detectarUbicacion()">
+          <tui-icon icon="@tui.locate-fixed" />
+          Detectar
+        </button>
+        @if (enlaceMiUbicacion(); as url) {
+          <a tuiButton appearance="outline" size="s" [href]="url" target="_blank" rel="noopener">
+            <tui-icon icon="@tui.map" />
+            Maps
+          </a>
+          <button tuiButton appearance="flat" size="s" type="button" (click)="compartirMiUbicacion()">
+            <tui-icon icon="@tui.share-2" />
+            Compartir
+          </button>
+        }
+      </div>
+    </div>
+
+    <div class="resumen-kpis">
+      <div class="kpi-mini">
+        <span class="kpi-mini-label">Esperados</span>
+        <strong class="kpi-mini-val">{{ resumen().esperados }}</strong>
+      </div>
+      <div class="kpi-mini kpi-success">
+        <span class="kpi-mini-label">Presentes</span>
+        <strong class="kpi-mini-val text-success">{{ resumen().presentes }}</strong>
+      </div>
+      <div class="kpi-mini kpi-warning">
+        <span class="kpi-mini-label">Tarde</span>
+        <strong class="kpi-mini-val text-warning">{{ resumen().tardes }}</strong>
+      </div>
+      <div class="kpi-mini kpi-error">
+        <span class="kpi-mini-label">Falta</span>
+        <strong class="kpi-mini-val text-error">{{ resumen().faltas }}</strong>
+      </div>
+      <div class="kpi-mini">
+        <span class="kpi-mini-label">Exonerados</span>
+        <strong class="kpi-mini-val">{{ resumen().exonerados }}</strong>
+      </div>
+      <div class="kpi-mini kpi-warning">
+        <span class="kpi-mini-label">Pendientes</span>
+        <strong class="kpi-mini-val text-warning">{{ resumen().pendientes }}</strong>
+      </div>
+    </div>
+
+    <div class="progreso-barra">
+      <div class="progreso-relleno" [style.width.%]="resumen().porcentaje"></div>
+      <span class="progreso-texto">{{ resumen().porcentaje }}% participación</span>
+    </div>
+
+    <div class="form-acciones mt-3">
+      <button
+        tuiButton
+        appearance="primary"
+        size="m"
+        type="button"
+        [loading]="registrandoTodos()"
+        [disabled]="resumen().pendientes === 0 || !gpsListo()"
+        (click)="registrarPendientes()"
+        [title]="!gpsListo() ? 'Activa el GPS para registrar' : ''"
+      >
+        <tui-icon icon="@tui.check-check" />
+        Registrar a todos los pendientes ({{ resumen().pendientes }})
+      </button>
+    </div>
+  </div>
+}
+
+@if (cierre(); as c) {
+  <div class="card cierre-resumen">
+    <div class="seccion-titulo">
+      <span class="tile tile-rounded tile-soft-success seccion-icono">
+        <tui-icon icon="@tui.circle-check" />
+      </span>
+      <div>
+        <h3 class="seccion-nombre">Resumen de cierre de actividad</h3>
+        <p class="seccion-desc">Consolidado general de participación</p>
+      </div>
+    </div>
+
+    <div class="resumen-kpis">
+      <div class="kpi-mini">
+        <span class="kpi-mini-label">Esperados</span>
+        <strong class="kpi-mini-val">{{ c.totalEsperados }}</strong>
+      </div>
+      <div class="kpi-mini kpi-success">
+        <span class="kpi-mini-label">Asistentes</span>
+        <strong class="kpi-mini-val text-success">{{ c.totalAsistentes }}</strong>
+      </div>
+      <div class="kpi-mini kpi-error">
+        <span class="kpi-mini-label">Ausentes</span>
+        <strong class="kpi-mini-val text-error">{{ c.totalAusentes }}</strong>
+      </div>
+      <div class="kpi-mini">
+        <span class="kpi-mini-label">Exonerados</span>
+        <strong class="kpi-mini-val">{{ c.totalExonerados }}</strong>
+      </div>
+      <div class="kpi-mini kpi-warning">
+        <span class="kpi-mini-label">Incompletas</span>
+        <strong class="kpi-mini-val text-warning">{{ c.totalIncompletas }}</strong>
+      </div>
+    </div>
+  </div>
+}
+
+@if (error()) {
+  <div class="card error-caja">
+    <tui-icon icon="@tui.triangle-alert" class="icono-alerta" />
+    <p class="error-msg">{{ error() }}</p>
+  </div>
+}
+
+<!-- ══════════════════════════════════════
+     TABLA DE ASISTENCIAS
+     ══════════════════════════════════════ -->
+<div class="card tabla-card flush">
+  <div class="table-wrapper flush">
+    <table tuiTable>
+      <thead>
+        <tr>
+          <th tuiTh>Persona</th>
+          <th tuiTh>Registro</th>
+          <th tuiTh>Tipo</th>
+          <th tuiTh>Método</th>
+          <th tuiTh>Hora marcado</th>
+          <th tuiTh>Estado</th>
+          <th tuiTh>Distancia geocerca</th>
+          <th tuiTh class="th-acciones"><span class="sr-only">Acciones</span></th>
+        </tr>
+      </thead>
+      <tbody tuiTbody>
+        @for (f of filas(); track f.idPersona) {
+          <tr>
+            <td tuiTd>
+              <div class="fila-persona">
+                <span tuiAvatar size="s" [round]="true">{{ iniciales(f.idPersona) }}</span>
+                <span>
+                  <span class="fw-bold">{{ f.nombre }}</span>
+                  <br />
+                  <span class="text-soft font-mono">Persona #{{ f.idPersona }}</span>
+                </span>
+              </div>
+            </td>
+            <td tuiTd>
+              @if (f.asistencia) {
+                <span class="pill pill-soft-success">Registrado</span>
+              } @else {
+                <span class="pill pill-soft-warning">Pendiente</span>
+              }
+            </td>
+            <td tuiTd>
+              <span class="pill pill-soft-secondary">{{ f.asistencia?.tipoAsistencia ?? '—' }}</span>
+            </td>
+            <td tuiTd class="text-soft">{{ f.asistencia?.metodoRegistro ?? '—' }}</td>
+            <td tuiTd class="text-soft font-mono">{{ f.asistencia?.horaMarcado ?? f.asistencia?.horaCheckIn ?? '—' }}</td>
+            <td tuiTd>
+              @if (f.asistencia; as a) {
+                @if (a.estado === 'ASISTIO') {
+                  <span class="pill pill-soft-success">Presente</span>
+                } @else if (a.estado === 'TARDE') {
+                  <span class="pill pill-soft-warning">Tarde</span>
+                } @else if (a.estado === 'AUSENTE') {
+                  <span class="pill pill-soft-error">Falta</span>
+                } @else if (a.estado === 'EXONERADO') {
+                  <span class="pill pill-soft-primary">Exonerado</span>
+                } @else if (a.estado === 'INCOMPLETA') {
+                  <span class="pill pill-soft-warning">Incompleta</span>
+                } @else {
+                  <span class="pill pill-soft-neutral">{{ a.estado }}</span>
+                }
+              } @else {
+                <span class="pill pill-soft-neutral">Sin marca</span>
+              }
+            </td>
+            <td tuiTd class="text-soft font-mono">
+              @if (f.asistencia; as a2) {
+                {{ a2.distanciaGeocercaM !== null && a2.distanciaGeocercaM !== undefined ? a2.distanciaGeocercaM + ' m' : '—' }}
+              } @else {
+                —
+              }
+            </td>
+            <td tuiTd class="td-acciones">
+              <div class="row-actions">
+                @if (f.asistencia; as a3) {
+                  @if (a3.flagSospechoso) {
+                    <span class="pill pill-soft-error" title="Captura fuera de rango o sospechosa">
+                      <tui-icon icon="@tui.triangle-alert" class="pill-icono" />
+                      Revisar
+                    </span>
+                  }
+                } @else {
+                  <button
+                    tuiButton
+                    appearance="outline"
+                    size="s"
+                    type="button"
+                    [loading]="registrando().includes(f.idPersona)"
+                    [disabled]="!gpsListo()"
+                    [title]="!gpsListo() ? 'Activa el GPS para registrar' : ''"
+                    (click)="registrarManual(f.idPersona)"
+                  >
+                    Registrar
+                  </button>
+                }
+              </div>
+            </td>
+          </tr>
+        } @empty {
+          @if (!loading() && !error()) {
+            <tr>
+              <td tuiTd colspan="8" class="empty">Sin personas esperadas para esta actividad.</td>
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

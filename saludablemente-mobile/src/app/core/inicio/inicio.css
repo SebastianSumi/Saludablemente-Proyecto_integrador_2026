@@ -1,0 +1,257 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+  /* El shell abre la portada a ancho completo (:has(app-inicio)); aquí la
+     acotamos a un tope amplio y centramos. Además dejamos las custom
+     properties que heredan los [appReveal] de la portada: más recorrido +
+     pop-in (Netflix). */
+  max-width: 1680px;
+  margin-inline: auto;
+  --reveal-distance: 42px;
+  --reveal-scale: 0.94;
+}
+
+.card {
+  max-width: none !important;
+  width: 100%;
+}
+
+.detail-card {
+  padding: 1.5rem 1.75rem;
+  border-radius: 20px;
+}
+
+/* ══════════════════════════════════════
+   HERO
+   ══════════════════════════════════════ */
+.inicio-hero {
+  padding: 0;
+  overflow: hidden;
+  border-radius: 20px;
+}
+
+/* Hero ligado al scroll (parallax + zoom + fade).
+   --p (0→1) la escribe appScrollLinked. */
+.inicio-hero {
+  transform: translateY(calc(var(--p, 0) * -40px))
+    scale(calc(1 - var(--p, 0) * 0.05));
+  transform-origin: top center;
+  will-change: transform;
+}
+
+.hero-body {
+  opacity: calc(1 - var(--p, 0) * 1.5);
+}
+
+.hero-banner {
+  transform: scale(calc(1 + var(--p, 0) * 0.08));
+}
+
+.hero-banner {
+  position: relative;
+  height: 96px;
+  overflow: hidden;
+  background: linear-gradient(
+    120deg,
+    var(--sal-primary),
+    var(--sal-secondary)
+  );
+}
+
+.hero-orb {
+  position: absolute;
+  border-radius: 50%;
+  background: color-mix(in srgb, #fff 22%, transparent);
+}
+
+.hero-orb-a {
+  width: 220px;
+  height: 220px;
+  right: 6%;
+  top: -110px;
+}
+
+.hero-orb-b {
+  width: 140px;
+  height: 140px;
+  right: 22%;
+  top: -40px;
+  background: color-mix(in srgb, #fff 14%, transparent);
+}
+
+.hero-body {
+  padding: 0 1.75rem 1.6rem;
+}
+
+.hero-main {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.6rem;
+  margin-top: -1.4rem;
+}
+
+.inicio-hero h2 {
+  margin: 0.6rem 0 0;
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--sal-ink);
+}
+
+.hero-sub {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--sal-ink-soft);
+}
+
+.hero-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.form-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+  flex-wrap: wrap;
+}
+
+/* ══════════════════════════════════════
+   KPI GRID
+   ══════════════════════════════════════ */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+  gap: 1rem;
+  width: 100%;
+}
+
+.kpi-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  padding: 1.35rem 1.5rem;
+  border-radius: 20px;
+  text-decoration: none;
+  transition: transform 120ms ease, box-shadow 120ms ease;
+  min-height: 132px;
+}
+
+a.kpi-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px color-mix(in srgb, var(--sal-ink) 10%, transparent);
+}
+
+.kpi-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+}
+
+.kpi-icon {
+  width: 44px;
+  height: 44px;
+  font-size: 1.3rem;
+}
+
+.kpi-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.kpi-value {
+  font-size: 1.75rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--sal-ink);
+}
+
+.val-sub {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--sal-ink-soft);
+}
+
+.kpi-label {
+  font-size: 0.82rem;
+  color: var(--sal-ink-soft);
+}
+
+/* ══════════════════════════════════════
+   LAYOUT 2 COLUMNAS
+   ══════════════════════════════════════ */
+.inicio-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(300px, 1fr);
+  gap: 1.25rem;
+  align-items: start;
+  width: 100%;
+}
+
+.inicio-main,
+.inicio-side {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  min-width: 0;
+}
+
+/* ══════════════════════════════════════
+   SECCIONES
+   ══════════════════════════════════════ */
+.section-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.875rem;
+  margin: 0 0 1.25rem;
+  padding-bottom: 0.875rem;
+  border-bottom: 1px solid var(--sal-line);
+  flex-wrap: wrap;
+}
+
+.section-title-compact {
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+}
+
+.section-title-left {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+}
+
+.section-title h3 {
+  margin: 0;
+  font-size: 1.02rem;
+  font-weight: 700;
+  color: var(--sal-ink);
+}
+
+.seccion-desc {
+  font-size: 0.8125rem;
+  color: var(--sal-ink-soft);
+  margin: 0.125rem 0 0;
+}
+
+.seccion-icono {
+  width: 42px;
+  height: 42px;
+  font-size: 1.2rem;
+}
+
+.seccion-icono-sm {
+  width: 36px;
+  height: 36px;
+  font-size: 1.05rem;
+}
+
+/* ══════════════════════════════════════
+   TIMELINE (actividades de hoy)
+   ══════════════════════════════════════ */

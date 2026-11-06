@@ -1,0 +1,238 @@
+<!-- ══════════════════════════════════════
+     CABECERA DEL FORMULARIO
+     ══════════════════════════════════════ -->
+<div class="form-cabecera">
+  <div class="tile tile-rounded tile-soft-primary modulo-icono">
+    <tui-icon icon="@tui.target" />
+  </div>
+  <div>
+    <h2 class="card-title">Nueva Meta de Salud</h2>
+    <p class="card-subtitle">Personal, clínica prescrita o derivada de sugerencia preventiva.</p>
+  </div>
+</div>
+
+<div class="tabs-wrapper">
+  <tui-tabs [activeItemIndex]="tabActivo()" (activeItemIndexChange)="tabActivo.set($event)">
+    <button tuiTab>
+      <tui-icon icon="@tui.user" />
+      Personal
+    </button>
+    <button tuiTab>
+      <tui-icon icon="@tui.stethoscope" />
+      Clínica
+    </button>
+    <button tuiTab>
+      <tui-icon icon="@tui.star" />
+      Sugerida
+    </button>
+  </tui-tabs>
+</div>
+
+<form [formGroup]="form" (ngSubmit)="guardar()" class="form-contenedor">
+  @if (loading()) {
+    <div class="card estado-caja">
+      <p class="hint">Cargando catálogos y personas…</p>
+    </div>
+  }
+
+  <section class="card">
+    <div class="seccion-titulo">
+      <span class="tile tile-rounded tile-soft-primary seccion-icono">
+        <tui-icon icon="@tui.target" />
+      </span>
+      <div>
+        <h3 class="seccion-nombre">Información de la Meta</h3>
+        <p class="seccion-desc">Completa los parámetros y valores objetivo para el seguimiento.</p>
+      </div>
+    </div>
+
+    <div class="form-grid">
+      <label tuiLabel class="field campo-full">
+        Persona asignada (escribe para buscar)
+        <tui-textfield tuiChevron>
+          <input tuiComboBox formControlName="persona" [strict]="true" placeholder="— Seleccione una persona —" />
+          <tui-data-list-wrapper *tuiDropdown [items]="personas() | tuiFilterByInput" [itemContent]="per" />
+        </tui-textfield>
+        <tui-error formControlName="persona" />
+      </label>
+
+      <label tuiLabel class="field">
+        Pilar de Salud
+        <tui-textfield tuiChevron>
+          <input tuiComboBox formControlName="pilar" [strict]="true" placeholder="— Seleccione pilar —" />
+          <tui-data-list-wrapper *tuiDropdown [items]="pilares | tuiFilterByInput" />
+        </tui-textfield>
+        <tui-error formControlName="pilar" />
+      </label>
+
+      <label tuiLabel class="field">
+        Descripción del objetivo
+        <tui-textfield>
+          <input tuiInput type="text" formControlName="descripcion" maxlength="200" placeholder="Ej. Reducir niveles de triglicéridos a rango normal" />
+        </tui-textfield>
+        <tui-error formControlName="descripcion" />
+      </label>
+
+      <label tuiLabel class="field">
+        Valor inicial
+        <tui-textfield>
+          <input tuiInput type="number" formControlName="valorInicial" min="0" placeholder="0" />
+        </tui-textfield>
+      </label>
+
+      <label tuiLabel class="field">
+        Valor objetivo
+        <tui-textfield>
+          <input tuiInput type="number" formControlName="valorObjetivo" min="0.01" placeholder="Ej. 150" />
+        </tui-textfield>
+      </label>
+
+      @if (tabActivo() !== 2) {
+        <label tuiLabel class="field">
+          Modalidad de cumplimiento
+          <tui-textfield tuiChevron>
+            <input tuiComboBox formControlName="modalidad" [strict]="true" />
+            <tui-data-list-wrapper *tuiDropdown [items]="modalidades | tuiFilterByInput" />
+          </tui-textfield>
+        </label>
+
+        <label tuiLabel class="field">
+          Tipo de cálculo
+          <tui-textfield tuiChevron>
+            <input tuiComboBox formControlName="tipoCalculo" [strict]="true" />
+            <tui-data-list-wrapper *tuiDropdown [items]="tiposCalculo | tuiFilterByInput" />
+          </tui-textfield>
+        </label>
+
+        <label tuiLabel class="field">
+          Nombre del Indicador
+          <tui-textfield>
+            <input tuiInput type="text" formControlName="indicador" maxlength="60" placeholder="Ej. Triglicéridos en sangre" />
+          </tui-textfield>
+          <tui-error formControlName="indicador" />
+        </label>
+
+        <label tuiLabel class="field">
+          Unidad de medida (opcional)
+          <tui-textfield>
+            <input tuiInput type="text" formControlName="unidad" maxlength="20" placeholder="mg/dL, kg, min, etc." />
+          </tui-textfield>
+        </label>
+
+        <label tuiLabel class="field">
+          Fecha de inicio
+          <tui-textfield>
+            <input tuiInputDate formControlName="fechaInicio" />
+            <ng-template tuiDropdown>
+              <tui-calendar />
+              <div class="cal-acciones">
+                <button tuiButton appearance="secondary" size="s" type="button" (click)="fijarHoy('fechaInicio')">
+                  <tui-icon icon="@tui.calendar-check" />
+                  Hoy
+                </button>
+                <button tuiButton appearance="flat" size="s" type="button" (click)="limpiarCampo('fechaInicio')">
+                  <tui-icon icon="@tui.eraser" />
+                  Limpiar
+                </button>
+              </div>
+            </ng-template>
+          </tui-textfield>
+          <tui-error formControlName="fechaInicio" />
+        </label>
+
+        <label tuiLabel class="field">
+          Fecha objetivo
+          <tui-textfield>
+            <input tuiInputDate formControlName="fechaObjetivo" />
+            <ng-template tuiDropdown>
+              <tui-calendar />
+              <div class="cal-acciones">
+                <button tuiButton appearance="secondary" size="s" type="button" (click)="fijarHoy('fechaObjetivo')">
+                  <tui-icon icon="@tui.calendar-check" />
+                  Hoy
+                </button>
+                <button tuiButton appearance="flat" size="s" type="button" (click)="limpiarCampo('fechaObjetivo')">
+                  <tui-icon icon="@tui.eraser" />
+                  Limpiar
+                </button>
+              </div>
+            </ng-template>
+          </tui-textfield>
+          <tui-error formControlName="fechaObjetivo" />
+        </label>
+      } @else {
+        <label tuiLabel class="field">
+          Tipo de meta
+          <tui-textfield>
+            <input tuiInput type="text" formControlName="tipoMeta" maxlength="60" placeholder="Tipo de meta sugerida" />
+          </tui-textfield>
+        </label>
+
+        <label tuiLabel class="field">
+          Fecha límite
+          <tui-textfield>
+            <input tuiInputDate formControlName="fechaLimite" />
+            <ng-template tuiDropdown>
+              <tui-calendar />
+              <div class="cal-acciones">
+                <button tuiButton appearance="secondary" size="s" type="button" (click)="fijarHoy('fechaLimite')">
+                  <tui-icon icon="@tui.calendar-check" />
+                  Hoy
+                </button>
+                <button tuiButton appearance="flat" size="s" type="button" (click)="limpiarCampo('fechaLimite')">
+                  <tui-icon icon="@tui.eraser" />
+                  Limpiar
+                </button>
+              </div>
+            </ng-template>
+          </tui-textfield>
+        </label>
+      }
+
+      @if (tabActivo() === 1) {
+        <label tuiLabel class="field">
+          ID evaluación origen
+          <tui-textfield>
+            <input tuiInput type="number" formControlName="idEvaluacionOrigen" placeholder="ID de la evaluación" />
+          </tui-textfield>
+        </label>
+
+        <label tuiLabel class="field">
+          ID alerta origen
+          <tui-textfield>
+            <input tuiInput type="number" formControlName="idAlertaOrigen" placeholder="ID de alerta clínica" />
+          </tui-textfield>
+        </label>
+
+        <label tuiLabel class="field campo-full">
+          ID profesional prescriptor
+          <tui-textfield>
+            <input tuiInput type="number" formControlName="idProfesionalPrescriptor" placeholder="ID del médico o especialista" />
+          </tui-textfield>
+        </label>
+      }
+    </div>
+  </section>
+
+  @if (error()) {
+    <div class="card error-caja">
+      <tui-icon icon="@tui.triangle-alert" class="icono-alerta" />
+      <p class="error-msg">{{ error() }}</p>
+    </div>
+  }
+
+  <!-- ══════════════════════════════════════
+       ACCIONES DEL FORMULARIO
+       ══════════════════════════════════════ -->
+  <div class="form-acciones">
+    <button tuiButton appearance="primary" size="m" type="submit" [loading]="guardando()" [disabled]="loading()">
+      <tui-icon icon="@tui.check" />
+      Crear meta
+    </button>
+    <button tuiButton appearance="outline" size="m" type="button" (click)="cancelar()">
+      Cancelar
+    </button>
+  </div>
+</form>
+
+<ng-template #per let-item>{{ nombrePersona(item) }}</ng-template>

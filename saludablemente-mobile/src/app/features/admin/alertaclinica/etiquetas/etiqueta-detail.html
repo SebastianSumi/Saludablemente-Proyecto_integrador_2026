@@ -1,0 +1,10 @@
+<div class="cx-page"><app-clinica-nav /><a tuiButton appearance="flat" size="s" routerLink="/alertaclinica/etiquetas"><tui-icon icon="@tui.arrow-left" />Volver a etiquetas</a>
+  @if (cargando()) { <div class="cx-card cx-loading" role="status">Cargando etiqueta…</div> }
+  @if (error()) { <div class="cx-error" role="alert">{{ error() }} @if (!etiqueta()) { <button tuiButton appearance="flat" size="s" (click)="cargar()">Reintentar</button> }</div> }
+  @if (exito()) { <p class="cx-success" role="status">{{ exito() }}</p> }
+  @if (etiqueta(); as e) {
+    <section class="cx-card"><div class="cx-head"><div class="cx-title"><span class="tile tile-rounded tile-soft-secondary"><tui-icon icon="@tui.tags" /></span><div><h1>{{ e.nombre }}</h1><p class="cx-muted">{{ e.codigo }} · Etiqueta clínica #{{ e.id }}</p></div></div><div class="cx-actions"><a tuiButton appearance="outline" size="m" [routerLink]="['/alertaclinica/etiquetas', e.id, 'editar']" [attr.aria-disabled]="operacionEnCurso()">Editar datos</a><button tuiButton appearance="flat" size="m" type="button" [disabled]="operacionEnCurso() || cambiosPendientes()" (click)="cambiarEstado()">{{ e.estado === 'ACTIVO' ? 'Desactivar' : 'Reactivar' }}</button></div></div><div class="cx-tags" style="margin-top:1rem"><span class="cx-badge"><span class="cx-dot" [style.background]="color(e.colorHex)"></span>{{ e.nombre }}</span><span class="cx-badge" [class.cx-badge-warn]="e.estado === 'INACTIVO'">{{ e.estado === 'ACTIVO' ? 'Activa' : 'Inactiva' }}</span>@if (e.fechaBaja) { <span class="cx-muted">Baja: {{ e.fechaBaja | date:'dd/MM/yyyy HH:mm' }}</span> }</div><p class="cx-description">{{ e.descripcion || 'Sin descripción adicional.' }}</p>@if (e.estado === 'INACTIVO') { <p class="cx-note">Esta etiqueta no está disponible para nuevas asignaciones a alertas. Sus asociaciones históricas se conservan.</p> }</section>
+    <app-asociaciones-card tipo="etiqueta-parametros" [entidadId]="e.id" [bloqueado]="operacionEnCurso()" />
+    <app-asociaciones-card tipo="etiqueta-alertas" [entidadId]="e.id" [permiteAgregar]="e.estado === 'ACTIVO'" [bloqueado]="operacionEnCurso()" />
+  }
+</div>

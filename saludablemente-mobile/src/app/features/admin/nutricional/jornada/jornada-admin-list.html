@@ -1,0 +1,192 @@
+<div class="page-banner card">
+  <div class="page-banner-body">
+    <div class="page-banner-icon tile tile-rounded tile-soft-success">
+      <tui-icon icon="@tui.calendar-heart" />
+    </div>
+    <div>
+      <h2 class="card-title">Administración de Jornadas</h2>
+      <p class="card-subtitle">
+        @if (loading()) {
+          Cargando jornadas…
+        } @else if (page(); as p) {
+          {{ p.totalElements }} jornada(s) registrada(s)
+        } @else {
+          Crea, edita y controla el estado de las jornadas nutricionales
+        }
+      </p>
+    </div>
+  </div>
+  <div class="page-banner-actions">
+    <a tuiButton appearance="outline" size="m" routerLink="/nutricional/jornadas">
+      <tui-icon icon="@tui.calendar-heart" />
+      Catálogo
+    </a>
+    <a tuiButton appearance="primary" size="m" routerLink="/admin/nutricional/jornadas/nueva">
+      <tui-icon icon="@tui.plus" />
+      Nueva jornada
+    </a>
+  </div>
+</div>
+
+<div class="filtros-card">
+  <div class="filtros-linea">
+    <div class="filtro-item">
+      <label class="filtro-etiqueta">Estado</label>
+      <tui-textfield tuiChevron>
+        <input tuiComboBox [formControl]="estadoCtrl" [strict]="true" placeholder="— Todos —" />
+        <tui-data-list-wrapper
+          *tuiDropdown
+          [items]="estadoOpts | tuiFilterByInput"
+          [itemContent]="opt"
+        />
+      </tui-textfield>
+    </div>
+
+    <div class="filtro-item">
+      <label class="filtro-etiqueta">Periodo</label>
+      <tui-textfield tuiChevron>
+        <input tuiComboBox [formControl]="periodoCtrl" [strict]="true" placeholder="— Todos —" />
+        <tui-data-list-wrapper
+          *tuiDropdown
+          [items]="periodos() | tuiFilterByInput"
+          [itemContent]="opt"
+        />
+      </tui-textfield>
+    </div>
+
+    <button
+      tuiButton
+      appearance="outline"
+      size="m"
+      type="button"
+      (click)="limpiarFiltros()"
+      class="btn-limpiar"
+    >
+      <tui-icon icon="@tui.filter-x" />
+      Limpiar
+    </button>
+  </div>
+</div>
+
+<ng-template #opt let-item>{{ item.label }}</ng-template>
+
+@if (error()) {
+  <div class="card error-caja">
+    <tui-icon icon="@tui.triangle-alert" class="icono-alerta" />
+    <p class="error-msg">{{ error() }}</p>
+  </div>
+}
+
+@if (page(); as p) {
+  <div class="card tabla-card flush">
+    <div class="table-wrapper flush">
+      <table tuiTable>
+        <thead>
+          <tr>
+            <th tuiTh scope="col">Jornada</th>
+            <th tuiTh scope="col">Fecha</th>
+            <th tuiTh scope="col">Hora</th>
+            <th tuiTh scope="col">Periodo</th>
+            <th tuiTh scope="col">Cupos</th>
+            <th tuiTh scope="col">Estado</th>
+            <th tuiTh scope="col" class="th-acciones"><span class="sr-only">Acciones</span></th>
+          </tr>
+        </thead>
+        <tbody tuiTbody>
+          @for (j of p.content; track j.idJornada) {
+            <tr>
+              <td tuiTd>
+                <span class="fw-bold">{{ j.nombre }}</span>
+                @if (j.descripcion) {
+                  <span class="text-soft desc-corta">{{ j.descripcion }}</span>
+                }
+              </td>
+              <td tuiTd class="text-soft">{{ formatearFecha(j.fecha) }}</td>
+              <td tuiTd class="text-soft">{{ formatearHora(j.hora) }}</td>
+              <td tuiTd class="text-soft font-mono">{{ j.periodoCodigo ?? '—' }}</td>
+              <td tuiTd class="text-soft">{{ j.inscritos }} / {{ j.capacidad }}</td>
+              <td tuiTd>
+                <span [class]="claseEstado(j.estado)">{{ etiquetaEstado(j.estado) }}</span>
+              </td>
+              <td tuiTd class="td-acciones">
+                <div class="row-actions">
+                  <a
+                    tuiButton
+                    appearance="flat"
+                    size="s"
+                    [routerLink]="['/admin/nutricional/jornadas', j.idJornada, 'inscritos']"
+                  >
+                    <tui-icon icon="@tui.list-ordered" />
+                    Inscritos
+                  </a>
+                  <a
+                    tuiButton
+                    appearance="outline"
+                    size="s"
+                    [routerLink]="['/admin/nutricional/jornadas', j.idJornada, 'editar']"
+                  >
+                    <tui-icon icon="@tui.pencil" />
+                    Editar
+                  </a>
+                  @if (j.estado === 'ABIERTA') {
+                    <button tuiButton appearance="outline" size="s" type="button" (click)="cerrar(j)">
+                      <tui-icon icon="@tui.lock" />
+                      Cerrar
+                    </button>
+                  } @else if (j.estado !== 'CANCELADA') {
+                    <button tuiButton appearance="outline" size="s" type="button" (click)="abrir(j)">
+                      <tui-icon icon="@tui.lock-open" />
+                      Abrir
+                    </button>
+                  }
+                  @if (j.estado !== 'CANCELADA') {
+                    <button tuiButton appearance="destructive" size="s" type="button" (click)="cancelar(j)">
+                      <tui-icon icon="@tui.ban" />
+                      Cancelar
+                    </button>
+                  }
+                </div>
+              </td>
+            </tr>
+          } @empty {
+            @if (!loading() && !error()) {
+              <tr>
+                <td tuiTd colspan="7" class="empty">
+                  No hay jornadas registradas con los filtros seleccionados.
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+
+    @if (p.totalPages > 1) {
+      <div class="paginacion-bar">
+        <button
+          tuiButton
+          appearance="outline"
+          size="s"
+          type="button"
+          (click)="irAPagina(p.number - 1)"
+          [disabled]="p.number === 0"
+        >
+          <tui-icon icon="@tui.chevron-left" />
+          Anterior
+        </button>
+        <span class="paginacion-info">Página {{ p.number + 1 }} de {{ p.totalPages }}</span>
+        <button
+          tuiButton
+          appearance="outline"
+          size="s"
+          type="button"
+          (click)="irAPagina(p.number + 1)"
+          [disabled]="p.number + 1 >= p.totalPages"
+        >
+          Siguiente
+          <tui-icon icon="@tui.chevron-right" />
+        </button>
+      </div>
+    }
+  </div>
+}

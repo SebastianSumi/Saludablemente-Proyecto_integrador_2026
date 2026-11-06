@@ -1,0 +1,50 @@
+<form [formGroup]="form" (ngSubmit)="guardar()">
+  @if (error()) {
+    <p class="error">{{ error() }}</p>
+  }
+
+  <label tuiLabel class="field">
+    Nombre
+    <tui-textfield>
+      <input tuiInput type="text" formControlName="nombre" maxlength="60" />
+    </tui-textfield>
+    <tui-error formControlName="nombre" />
+  </label>
+
+  <label tuiLabel class="field">
+    Descripción (opcional)
+    <tui-textfield>
+      <input tuiInput type="text" formControlName="descripcion" maxlength="200" />
+    </tui-textfield>
+  </label>
+
+  <label tuiLabel class="field">
+    Color (opcional, ej. #2e7d5b)
+    <tui-textfield>
+      <input tuiInput type="text" formControlName="colorHex" maxlength="7" placeholder="#rrggbb" />
+    </tui-textfield>
+  </label>
+
+  <label tuiLabel class="field">
+    Icono (opcional)
+    <tui-textfield>
+      <input tuiInput type="text" formControlName="icono" maxlength="60" placeholder="Nombre de icono" />
+    </tui-textfield>
+  </label>
+
+  <label tuiLabel class="field">
+    Orden (opcional)
+    <tui-textfield>
+      <input tuiInput type="number" formControlName="orden" />
+    </tui-textfield>
+  </label>
+
+  <div class="form-actions">
+    <button tuiButton appearance="primary" size="m" type="submit" [loading]="guardando()">
+      Guardar
+    </button>
+    <button tuiButton appearance="outline" size="m" type="button" (click)="cancelar()">
+      Cancelar
+    </button>
+  </div>
+</form>

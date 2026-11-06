@@ -1,0 +1,58 @@
+:host { display: block; width: 100%; }
+
+.mini-btn {
+  position: relative;
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: #101418;
+  cursor: zoom-in;
+  overflow: hidden;
+}
+
+.mini-btn img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.mini-btn.forma-ancha { border-radius: 0.75rem; }
+.mini-btn.forma-cuadrada { border-radius: 0.75rem; aspect-ratio: 1; }
+.mini-btn.forma-redonda { border-radius: 50%; aspect-ratio: 1; }
+
+.mini-lupa {
+  position: absolute;
+  right: 0.6rem;
+  bottom: 0.6rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.92);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.mini-btn:hover .mini-lupa,
+.mini-btn:focus-visible .mini-lupa { opacity: 1; }
+
+.mini-respaldo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  min-height: 120px;
+  background: var(--sal-hover, #f1f5f9);
+  color: var(--sal-ink-soft, #5a6b7c);
+  font-size: 0.85rem;
+}
+
+.mini-respaldo.forma-ancha { border-radius: 0.75rem; }
+.mini-respaldo.forma-cuadrada { border-radius: 0.75rem; aspect-ratio: 1; }
+.mini-respaldo.forma-redonda { border-radius: 50%; aspect-ratio: 1; }

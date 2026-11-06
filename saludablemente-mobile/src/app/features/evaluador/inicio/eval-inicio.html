@@ -1,0 +1,271 @@
+@let p = perfil();
+
+<!-- ══════════ Hero: tarjeta del evaluador ══════════ -->
+<section class="card perfil-card" [appReveal]="0">
+  <div class="perfil-avatar tile tile-circle tile-primary">
+    {{ p ? iniciales(p.nombreCompleto) : '?' }}
+  </div>
+
+  <div class="perfil-body">
+    <h1 class="perfil-saludo">
+      {{ p ? 'Hola, ' + p.nombreCompleto : 'Panel del evaluador' }}
+    </h1>
+    <p class="card-subtitle">
+      {{ fechaHoy() }} · Registra evaluaciones y atiende alertas clínicas de los colaboradores.
+    </p>
+    <div class="perfil-tags">
+      @for (rol of p?.roles ?? []; track rol) {
+        <span class="pill pill-neutral">{{ rol }}</span>
+      }
+      @if (p?.areaTrabajo) {
+        <span class="pill pill-primary">{{ p?.areaTrabajo }}</span>
+      }
+      @if (periodoCodigo()) {
+        <span class="pill pill-success">Periodo vigente {{ periodoCodigo() }}</span>
+      }
+    </div>
+  </div>
+
+  <div class="perfil-acciones">
+    <a tuiButton appearance="primary" size="s" routerLink="/evaluador/nutricional/nueva">
+      <tui-icon icon="@tui.plus" />
+      Nueva evaluación
+    </a>
+    <a tuiButton appearance="outline" size="s" routerLink="/evaluador/alertas">
+      <tui-icon icon="@tui.bell" />
+      Ver alertas
+    </a>
+  </div>
+</section>
+
+@if (error(); as msg) {
+  <p class="error">{{ msg }}</p>
+}
+
+<!-- ══════════ KPIs ══════════ -->
+<section class="kpis" [appReveal]="1">
+  <a class="card mini tint-blue" routerLink="/evaluador/nutricional">
+    <span class="tile tile-circle tile-primary"><tui-icon icon="@tui.apple" /></span>
+    <span class="mini-body">
+      <strong class="mini-valor">{{ kpis().nutricionales }}</strong>
+      <span class="mini-label">Evaluaciones nutricionales</span>
+    </span>
+  </a>
+
+  <a class="card mini tint-teal" routerLink="/evaluador/aptitud">
+    <span class="tile tile-circle tile-secondary"><tui-icon icon="@tui.activity" /></span>
+    <span class="mini-body">
+      <strong class="mini-valor">{{ kpis().aptitud }}</strong>
+      <span class="mini-label">Evaluaciones de aptitud</span>
+    </span>
+  </a>
+
+  <a class="card mini tint-red" routerLink="/evaluador/alertas">
+    <span class="tile tile-circle tile-error"><tui-icon icon="@tui.bell" /></span>
+    <span class="mini-body">
+      <strong class="mini-valor">{{ kpis().alertasPendientes }}</strong>
+      <span class="mini-label">Alertas pendientes · {{ kpis().alertasCriticas }} críticas</span>
+    </span>
+  </a>
+
+  <a class="card mini tint-violet" routerLink="/evaluador/colaboradores">
+    <span class="tile tile-circle tile-violet"><tui-icon icon="@tui.users" /></span>
+    <span class="mini-body">
+      <strong class="mini-valor">{{ kpis().colaboradores }}</strong>
+      <span class="mini-label">Colaboradores activos</span>
+    </span>
+  </a>
+</section>
+
+<!-- ══════════ Dashboard: principal + lateral ══════════ -->
+<section class="dash-row" [appReveal]="2">
+  <div class="col-main">
+    <!-- Evaluaciones nutricionales sin completar -->
+    <article class="card flush">
+      <div class="card-head dash-head">
+        <div>
+          <h3 class="card-title">Evaluaciones nutricionales pendientes</h3>
+          <p class="card-subtitle">Registros iniciados que aún no tienen antropometría y bioquímica</p>
+        </div>
+        <a tuiButton appearance="flat" size="s" routerLink="/evaluador/nutricional">
+          Ver todas
+        </a>
+      </div>
+
+      @if (loading()) {
+        <p class="hint padded">Cargando evaluaciones…</p>
+      } @else if (nutricionalesPendientes().length === 0) {
+        <p class="empty">No hay evaluaciones nutricionales pendientes.</p>
+      } @else {
+        <div class="table-wrapper flush">
+          <table>
+            <thead>
+              <tr>
+                <th>Colaborador</th>
+                <th>Área</th>
+                <th>Fecha</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (e of nutricionalesPendientes(); track e.idEvaluacion) {
+                <tr>
+                  <td>
+                    <div class="celda-tipo">
+                      <span class="tile tile-circle tile-soft-primary">
+                        <tui-icon icon="@tui.apple" />
+                      </span>
+                      <div class="celda-info">
+                        <strong>{{ e.nombresCompletos }}</strong>
+                        <span class="text-soft">{{ e.documentoIdentidad }}</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="text-soft">{{ e.areaTrabajoAlMomento || '—' }}</td>
+                  <td class="text-soft">{{ e.fechaEvaluacion | date: 'dd/MM/yyyy' }}</td>
+                  <td>
+                    <a
+                      tuiButton
+                      appearance="flat"
+                      size="s"
+                      [routerLink]="['/evaluador/nutricional', e.idEvaluacion]"
+                    >
+                      <tui-icon icon="@tui.eye" />
+                    </a>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </article>
+
+    <!-- Aptitud física pendiente -->
+    <article class="card flush">
+      <div class="card-head dash-head">
+        <div>
+          <h3 class="card-title">Evaluaciones de aptitud pendientes</h3>
+          <p class="card-subtitle">Pruebas de fuerza y cardio por completar</p>
+        </div>
+        <a tuiButton appearance="flat" size="s" routerLink="/evaluador/aptitud">
+          Ver todas
+        </a>
+      </div>
+
+      @if (loading()) {
+        <p class="hint padded">Cargando evaluaciones…</p>
+      } @else if (aptitudPendientes().length === 0) {
+        <p class="empty">No hay evaluaciones de aptitud pendientes.</p>
+      } @else {
+        <div class="table-wrapper flush">
+          <table>
+            <thead>
+              <tr>
+                <th>Colaborador</th>
+                <th>Área</th>
+                <th>Fecha</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (e of aptitudPendientes(); track e.id) {
+                <tr>
+                  <td>
+                    <div class="celda-tipo">
+                      <span class="tile tile-circle tile-soft-secondary">
+                        <tui-icon icon="@tui.activity" />
+                      </span>
+                      <div class="celda-info">
+                        <strong>{{ e.nombresCompletosAlMomento || 'Colaborador' }}</strong>
+                        <span class="text-soft">{{ e.documentoIdentidadAlMomento || '—' }}</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="text-soft">{{ e.areaTrabajoAlMomento || '—' }}</td>
+                  <td class="text-soft">{{ e.fechaEvaluacion | date: 'dd/MM/yyyy' }}</td>
+                  <td>
+                    <a
+                      tuiButton
+                      appearance="flat"
+                      size="s"
+                      [routerLink]="['/evaluador/aptitud', e.id]"
+                    >
+                      <tui-icon icon="@tui.eye" />
+                    </a>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </article>
+  </div>
+
+  <aside class="col-aside">
+    <!-- Alertas pendientes -->
+    <article class="card">
+      <div class="dash-head">
+        <div>
+          <h3 class="card-title">Alertas por atender</h3>
+          <p class="card-subtitle">{{ kpis().alertasPendientes }} pendiente(s)</p>
+        </div>
+        <a tuiButton appearance="flat" size="s" routerLink="/evaluador/alertas">
+          Ver todas
+        </a>
+      </div>
+
+      @if (alertas().length === 0) {
+        <p class="empty">Sin alertas pendientes. Todo bajo control.</p>
+      } @else {
+        <ul class="lista">
+          @for (a of alertas(); track a.idAlerta) {
+            <li>
+              <a class="lista-item" [routerLink]="['/evaluador/alertas', a.idAlerta]">
+                <span [class]="tileSeveridad(a.nivelSeveridad)">
+                  <tui-icon icon="@tui.bell" />
+                </span>
+                <span class="lista-body">
+                  <span class="lista-titulo">{{ a.mensajeResumen }}</span>
+                  <span class="hint">
+                    {{ a.fechaGeneracion | date: 'dd/MM HH:mm' }} · {{ a.tipoEvaluacionOrigen }}
+                  </span>
+                </span>
+                <span [class]="pillSeveridad(a.nivelSeveridad)">{{ a.nivelSeveridad }}</span>
+              </a>
+            </li>
+          }
+        </ul>
+      }
+    </article>
+  </aside>
+</section>
+
+<!-- ══════════ Módulos ══════════ -->
+<section class="modulos-seccion">
+  <header class="seccion-head">
+    <span class="tile tile-rounded tile-soft-primary"><tui-icon icon="@tui.layout-grid" /></span>
+    <div>
+      <h3 class="card-title">Módulos de evaluación</h3>
+      <p class="hint">Accesos rápidos a tus tareas clínicas.</p>
+    </div>
+  </header>
+
+  <div class="modulos-grid">
+    @for (m of modulos; track m.ruta; let i = $index) {
+      <a class="card modulo-card" [routerLink]="m.ruta" [appReveal]="i">
+        <div class="modulo-top">
+          <span class="tile tile-circle tile-{{ m.color }}">
+            <tui-icon [icon]="m.icono" />
+          </span>
+          <span class="tile arrow tile-soft-{{ m.color }}">
+            <tui-icon icon="@tui.arrow-right" />
+          </span>
+        </div>
+        <h4>{{ m.titulo }}</h4>
+        <p class="hint">{{ m.descripcion }}</p>
+      </a>
+    }
+  </div>
+</section>

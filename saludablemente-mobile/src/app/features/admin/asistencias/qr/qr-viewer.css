@@ -1,0 +1,56 @@
+:host {
+  display: block;
+  max-width: 900px;
+}
+
+.form-cabecera {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  margin-bottom: 1.25rem;
+}
+
+.form-cabecera h2 {
+  margin: 0;
+  color: var(--tui-text-primary);
+}
+
+.form-cabecera .hint {
+  margin: 0.15rem 0 0;
+}
+
+.modulo-icono {
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: var(--tui-radius-l);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  color: var(--sal-accent);
+  background: var(--tui-background-neutral-1);
+  border-left: 3px solid var(--sal-accent);
+  flex-shrink: 0;
+}
+
+.qr-card {
+  max-width: none;
+  text-align: center;
+}
+
+.qr-codigo {
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+  border-radius: var(--tui-radius-l);
+  background: var(--tui-background-neutral-1);
+  color: var(--tui-text-primary);
+  border: 2px dashed var(--sal-accent);
+  overflow-wrap: anywhere;
+}
+
+.qr-card .detail-grid {
+  text-align: start;
+}

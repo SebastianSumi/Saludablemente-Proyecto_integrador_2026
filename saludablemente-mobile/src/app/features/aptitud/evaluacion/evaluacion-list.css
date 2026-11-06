@@ -1,0 +1,68 @@
+.cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
+.card {
+  padding: 1rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.card-value {
+  font-size: 1.75rem;
+  font-weight: bold;
+  color: #111827;
+}
+
+.card-label {
+  font-size: 0.85rem;
+  color: #6b7280;
+  margin-top: 0.25rem;
+}
+
+.filtros {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: flex-end;
+  margin: 1rem 0;
+}
+
+.filtros label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.acciones {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: bold;
+}
+
+.badge-pendiente  { background: #fef3c7; color: #92400e; }
+.badge-completa   { background: #d1fae5; color: #065f46; }
+.badge-anulada    { background: #fee2e2; color: #991b1b; }
+
+.badge-apto       { background: #d1fae5; color: #065f46; }
+.badge-restriccion { background: #fed7aa; color: #9a3412; }
+.badge-no-apto    { background: #fee2e2; color: #991b1b; }
+
+.paginacion {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  margin-top: 1rem;
+}

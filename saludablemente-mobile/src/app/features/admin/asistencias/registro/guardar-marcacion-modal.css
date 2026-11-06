@@ -1,0 +1,127 @@
+.guardar-modal {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-width: min(32rem, 80vw);
+}
+
+.guardar-sub {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.guardar-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-height: 16rem;
+  overflow-y: auto;
+  padding-right: 0.25rem;
+}
+
+.guardar-fila {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.625rem;
+  background: var(--sal-alt, #f4f6fb);
+}
+
+.guardar-antes-despues {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.85rem;
+}
+
+.guardar-progreso {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.guardar-errores {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.625rem;
+  border-left: 4px solid var(--sal-danger, #ef4444);
+  background: rgb(229 115 115 / 0.07);
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.3rem 0.8rem;
+  border-radius: 9999px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.pill-soft-success {
+  color: #16a34a;
+  background-color: rgba(22, 163, 74, 0.12);
+}
+
+.pill-soft-warning {
+  color: #d97706;
+  background-color: rgba(217, 119, 6, 0.12);
+}
+
+.pill-soft-error {
+  color: #dc2626;
+  background-color: rgba(220, 38, 38, 0.12);
+}
+
+.pill-soft-neutral {
+  color: #64748b;
+  background-color: rgba(100, 116, 139, 0.1);
+}
+
+.fw-bold {
+  font-weight: 700;
+}
+
+.seccion-desc {
+  font-size: 0.8125rem;
+  color: var(--sal-ink-soft, #5a6b7c);
+  margin: 0;
+}
+
+.error-msg {
+  color: var(--sal-danger, #ef4444);
+  font-weight: 600;
+  margin: 0;
+  font-size: 0.875rem;
+}
+
+.exito-msg {
+  color: var(--sal-success, #00ceb6);
+  font-weight: 700;
+  margin: 0;
+}
+
+.form-acciones {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+.progreso-barra {
+  position: relative;
+  height: 0.75rem;
+  border-radius: 9999px;
+  background: var(--sal-alt, #f4f6fb);
+  overflow: hidden;
+}
+
+.progreso-relleno {
+  height: 100%;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, var(--sal-success, #00ceb6), var(--sal-secondary, #16cdc7));
+  transition: width 0.3s ease;
+}

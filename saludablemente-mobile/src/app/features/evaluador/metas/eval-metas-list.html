@@ -1,0 +1,130 @@
+<div class="page-banner card">
+  <div class="page-banner-body">
+    <div class="page-banner-icon tile tile-rounded tile-soft-violet">
+      <tui-icon icon="@tui.target" />
+    </div>
+    <div>
+      <h2 class="card-title">Metas de bienestar</h2>
+      <p class="card-subtitle">
+        @if (loading()) {
+          Cargando metas…
+        } @else if (items().length > 0) {
+          {{ items().length }} meta(s) encontrada(s)
+        } @else {
+          Prescripción y seguimiento de objetivos clínicos
+        }
+      </p>
+    </div>
+  </div>
+  <div class="page-banner-actions">
+    <a tuiButton appearance="primary" size="m" routerLink="/evaluador/metas/nueva">
+      <tui-icon icon="@tui.plus" />
+      Nueva meta
+    </a>
+  </div>
+</div>
+
+<div class="filtros-card">
+  <div class="filtros-linea">
+    <div class="filtro-item">
+      <label class="filtro-etiqueta">Colaborador (escribe para buscar)</label>
+      <tui-textfield tuiChevron>
+        <input
+          tuiComboBox
+          [formControl]="personaCtrl"
+          [strict]="true"
+          placeholder="— Seleccione un colaborador —"
+        />
+        <tui-data-list-wrapper
+          *tuiDropdown
+          [items]="personas() | tuiFilterByInput"
+          [itemContent]="perTpl"
+        />
+      </tui-textfield>
+    </div>
+
+    <div class="filtro-item">
+      <label class="filtro-etiqueta">Estado</label>
+      <tui-textfield tuiChevron>
+        <input tuiComboBox [formControl]="estadoCtrl" [strict]="true" placeholder="— Todos —" />
+        <tui-data-list-wrapper
+          *tuiDropdown
+          [items]="estadoOpts | tuiFilterByInput"
+          [itemContent]="optTpl"
+        />
+      </tui-textfield>
+    </div>
+
+    <button tuiButton appearance="outline" size="m" type="button" (click)="limpiar()" class="btn-limpiar">
+      <tui-icon icon="@tui.filter-x" />
+      Limpiar
+    </button>
+  </div>
+</div>
+
+<ng-template #perTpl let-item>{{ nombrePersona(item) }}</ng-template>
+<ng-template #optTpl let-item>{{ item.label }}</ng-template>
+
+@if (error()) {
+  <div class="card error-caja">
+    <tui-icon icon="@tui.triangle-alert" class="icono-alerta" />
+    <p class="error-msg">{{ error() }}</p>
+  </div>
+}
+
+<div class="card tabla-card flush">
+  <div class="table-wrapper flush">
+    <table tuiTable>
+      <thead>
+        <tr>
+          <th tuiTh>Indicador</th>
+          <th tuiTh>Pilar</th>
+          <th tuiTh>Modalidad</th>
+          <th tuiTh>Avance / meta</th>
+          <th tuiTh>Origen</th>
+          <th tuiTh>Estado</th>
+          <th tuiTh>Fecha objetivo</th>
+          <th tuiTh class="th-acciones"><span class="sr-only">Acciones</span></th>
+        </tr>
+      </thead>
+      <tbody tuiTbody>
+        @for (m of items(); track m.id) {
+          <tr>
+            <td tuiTd>
+              <a class="fw-bold" [routerLink]="['/evaluador/metas', m.id]">{{ m.indicador }}</a>
+              <div class="text-soft">{{ m.descripcion }}</div>
+            </td>
+            <td tuiTd><span class="pill pill-primary">{{ m.pilar }}</span></td>
+            <td tuiTd class="text-soft">{{ m.modalidad }}</td>
+            <td tuiTd class="font-mono">
+              <strong>{{ m.valorActual }}</strong> / {{ m.valorObjetivo }} {{ m.unidad ?? '' }}
+            </td>
+            <td tuiTd class="text-soft">{{ m.tipoOrigen }}</td>
+            <td tuiTd><span [class]="pillEstado(m.estado)">{{ m.estado }}</span></td>
+            <td tuiTd class="text-soft">{{ m.fechaObjetivo }}</td>
+            <td tuiTd class="td-acciones">
+              <div class="row-actions">
+                <a tuiButton appearance="flat" size="s" [routerLink]="['/evaluador/metas', m.id]">
+                  <tui-icon icon="@tui.eye" />
+                  Ver detalle
+                </a>
+              </div>
+            </td>
+          </tr>
+        } @empty {
+          @if (!loading() && !error()) {
+            <tr>
+              <td tuiTd colspan="8" class="empty">
+                @if (personaCtrl.value) {
+                  No se encontraron metas para el colaborador seleccionado.
+                } @else {
+                  Selecciona un colaborador para consultar sus metas.
+                }
+              </td>
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

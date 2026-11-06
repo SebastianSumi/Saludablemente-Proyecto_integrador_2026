@@ -1,0 +1,38 @@
+.social-modal-body {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  padding-top: 0.25rem;
+}
+tui-dialog[data-appearance~='taiga'][data-appearance~='social-comments-dialog'][data-size] {
+  box-sizing: border-box;
+  margin: 0;
+  inline-size: min(1100px, calc(100vw - 64px));
+  max-inline-size: calc(100vw - 64px);
+  block-size: min(900px, calc(100dvh - 64px));
+  max-block-size: calc(100dvh - 64px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 24px;
+}
+tui-dialog[data-appearance~='social-comments-dialog'] > header {
+  flex: 0 0 auto;
+  margin-block-end: 16px;
+}
+tui-dialog[data-appearance~='social-comments-dialog'] .social-modal-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+@media (max-width: 600px) {
+  tui-dialog[data-appearance~='taiga'][data-appearance~='social-comments-dialog'][data-size] {
+    inline-size: calc(100vw - 32px);
+    max-inline-size: calc(100vw - 32px);
+    block-size: calc(100dvh - 64px);
+    max-block-size: calc(100dvh - 64px);
+    padding: 16px;
+    border-radius: 20px;
+  }
+}

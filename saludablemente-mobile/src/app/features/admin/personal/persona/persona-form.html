@@ -1,0 +1,270 @@
+<!-- ══════════════════════════════════════
+     CABECERA DEL FORMULARIO
+     ══════════════════════════════════════ -->
+<div class="form-cabecera">
+  <div class="tile tile-rounded tile-soft-primary modulo-icono">
+    <tui-icon icon="@tui.user" />
+  </div>
+  <div>
+    <h2 class="card-title">{{ id() ? 'Editar persona' : 'Nueva persona' }}</h2>
+    <p class="card-subtitle">Completa los datos demográficos y laborales de la persona.</p>
+  </div>
+</div>
+
+<form [formGroup]="form" (ngSubmit)="guardar()" class="form-contenedor">
+  @if (loading()) {
+    <div class="card estado-caja">
+      <p class="sal-subtitulo">Cargando datos de la persona...</p>
+    </div>
+  }
+
+  @if (error()) {
+    <div class="card error-caja">
+      <tui-icon icon="@tui.triangle-alert" class="icono-alerta" />
+      <p class="error-msg">{{ error() }}</p>
+    </div>
+  }
+
+  <!-- ══════════════════════════════════════
+       SECCIÓN 1: DATOS PERSONALES
+       ══════════════════════════════════════ -->
+  <section class="card">
+    <div class="seccion-titulo">
+      <span class="tile tile-rounded tile-soft-primary seccion-icono">
+        <tui-icon icon="@tui.user" />
+      </span>
+      <div>
+        <h3 class="seccion-nombre">Datos personales</h3>
+        <p class="seccion-desc">Identificación y fecha de nacimiento de la persona</p>
+      </div>
+    </div>
+
+    <div class="form-grid">
+      <!-- Nombres -->
+      <label tuiLabel class="field">
+        <span class="field-label">Nombres <span class="required">*</span></span>
+        <tui-textfield>
+          <input tuiInput type="text" formControlName="nombres" placeholder="Ej. Ana María" />
+        </tui-textfield>
+        <tui-error formControlName="nombres" />
+      </label>
+
+      <!-- Apellido Paterno -->
+      <label tuiLabel class="field">
+        <span class="field-label">Apellido paterno <span class="required">*</span></span>
+        <tui-textfield>
+          <input tuiInput type="text" formControlName="apellidoPaterno" placeholder="Ej. Lázaro" />
+        </tui-textfield>
+        <tui-error formControlName="apellidoPaterno" />
+      </label>
+
+      <!-- Apellido Materno -->
+      <label tuiLabel class="field">
+        <span class="field-label">Apellido materno <span class="text-soft">(opcional)</span></span>
+        <tui-textfield>
+          <input tuiInput type="text" formControlName="apellidoMaterno" placeholder="Ej. Matallana" />
+        </tui-textfield>
+        <tui-error formControlName="apellidoMaterno" />
+      </label>
+
+      <!-- Documento de Identidad -->
+      <label tuiLabel class="field">
+        <span class="field-label">Documento de identidad (DNI) <span class="required">*</span></span>
+        <tui-textfield>
+          <input tuiInput type="text" formControlName="documentoIdentidad" maxlength="8" placeholder="12345678" />
+        </tui-textfield>
+        <tui-error formControlName="documentoIdentidad" />
+      </label>
+
+      <!-- Fecha de Nacimiento -->
+      <label tuiLabel class="field">
+        <span class="field-label">Fecha de nacimiento <span class="required">*</span></span>
+        <tui-textfield>
+          <input tuiInputDate formControlName="fechaNacimiento" />
+          <ng-template tuiDropdown>
+            <tui-calendar />
+            <div class="cal-acciones">
+              <button tuiButton appearance="secondary" size="s" type="button" (click)="fijarHoy('fechaNacimiento')">
+                <tui-icon icon="@tui.calendar-check" />
+                Hoy
+              </button>
+              <button tuiButton appearance="flat" size="s" type="button" (click)="limpiarCampo('fechaNacimiento')">
+                <tui-icon icon="@tui.eraser" />
+                Limpiar
+              </button>
+            </div>
+          </ng-template>
+        </tui-textfield>
+        <tui-error formControlName="fechaNacimiento" />
+      </label>
+
+      <!-- Sexo Biológico -->
+      <label tuiLabel class="field">
+        <span class="field-label">Sexo Biológico <span class="required">*</span></span>
+        <tui-textfield tuiChevron>
+          <input tuiComboBox formControlName="sexo" placeholder="— Seleccione sexo —" />
+          <tui-data-list-wrapper
+            *tuiDropdown
+            [items]="sexos | tuiFilterByInput"
+            [itemContent]="comboSexo"
+          />
+        </tui-textfield>
+        <tui-error formControlName="sexo" />
+      </label>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════
+       SECCIÓN 2: CONTACTO
+       ══════════════════════════════════════ -->
+  <section class="card">
+    <div class="seccion-titulo">
+      <span class="tile tile-rounded tile-soft-success seccion-icono">
+        <tui-icon icon="@tui.phone" />
+      </span>
+      <div>
+        <h3 class="seccion-nombre">Información de contacto</h3>
+        <p class="seccion-desc">Canales de comunicación directa</p>
+      </div>
+    </div>
+
+    <div class="form-grid">
+      <!-- Celular -->
+      <label tuiLabel class="field">
+        <span class="field-label">Celular <span class="required">*</span></span>
+        <tui-textfield>
+          <input tuiInput type="text" formControlName="celular" placeholder="951357327 o +51951357327" />
+        </tui-textfield>
+        <tui-error formControlName="celular" />
+      </label>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════
+       SECCIÓN 3: DATOS LABORALES
+       ══════════════════════════════════════ -->
+  <section class="card">
+    <div class="seccion-titulo">
+      <span class="tile tile-rounded tile-soft-warning seccion-icono">
+        <tui-icon icon="@tui.briefcase" />
+      </span>
+      <div>
+        <h3 class="seccion-nombre">Datos laborales</h3>
+        <p class="seccion-desc">Asignación organizacional y equipamiento</p>
+      </div>
+    </div>
+
+    <div class="form-grid">
+      <!-- Área -->
+      <label tuiLabel class="field">
+        <span class="field-label">Área de trabajo</span>
+        <tui-textfield tuiChevron>
+          <input tuiComboBox formControlName="area" placeholder="— Sin área asignada —" />
+          <tui-data-list-wrapper
+            *tuiDropdown
+            [items]="areas() | tuiFilterByInput"
+            [itemContent]="nombreTpl"
+          />
+        </tui-textfield>
+      </label>
+
+      <!-- Equipo -->
+      <label tuiLabel class="field">
+        <span class="field-label">Equipo</span>
+        <tui-textfield tuiChevron>
+          <input tuiComboBox formControlName="equipo" placeholder="— Sin equipo asignado —" />
+          <tui-data-list-wrapper
+            *tuiDropdown
+            [items]="equipos() | tuiFilterByInput"
+            [itemContent]="nombreTpl"
+          />
+        </tui-textfield>
+      </label>
+
+      <!-- Talla de polo -->
+      <label tuiLabel class="field">
+        <span class="field-label">Talla de polo</span>
+        <tui-textfield>
+          <input tuiInput type="text" formControlName="tallaPolo" maxlength="5" placeholder="S, M, L, XL, XXL" />
+        </tui-textfield>
+        <tui-error formControlName="tallaPolo" />
+      </label>
+    </div>
+
+    <a routerLink="/catalogos/areas/nueva" target="_blank" class="enlace-ayuda">
+      <tui-icon icon="@tui.plus-circle" />
+      ¿Falta un área de trabajo? Créala aquí
+    </a>
+  </section>
+
+  <!-- ══════════════════════════════════════
+       SECCIÓN 4: DATOS ADICIONALES
+       ══════════════════════════════════════ -->
+  <section class="card">
+    <div class="seccion-titulo">
+      <span class="tile tile-rounded tile-soft-violet seccion-icono">
+        <tui-icon icon="@tui.graduation-cap" />
+      </span>
+      <div>
+        <h3 class="seccion-nombre">Datos adicionales</h3>
+        <p class="seccion-desc">Información sociodemográfica complementaria</p>
+      </div>
+    </div>
+
+    <div class="form-grid">
+      <!-- Estado Civil -->
+      <label tuiLabel class="field">
+        <span class="field-label">Estado civil</span>
+        <tui-textfield tuiChevron>
+          <input tuiComboBox formControlName="estadoCivil" placeholder="— Seleccione estado civil —" />
+          <tui-data-list-wrapper *tuiDropdown [items]="estadosCiviles | tuiFilterByInput" />
+        </tui-textfield>
+      </label>
+
+      <!-- Nivel Educativo -->
+      <label tuiLabel class="field">
+        <span class="field-label">Nivel educativo</span>
+        <tui-textfield tuiChevron>
+          <input tuiComboBox formControlName="nivelEducativo" placeholder="— Seleccione nivel educativo —" />
+          <tui-data-list-wrapper *tuiDropdown [items]="nivelesEducativos | tuiFilterByInput" />
+        </tui-textfield>
+      </label>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════
+       BOTONES DE ACCIÓN
+       ══════════════════════════════════════ -->
+  <div class="form-acciones">
+    <button
+      tuiButton
+      appearance="primary"
+      size="m"
+      type="submit"
+      [loading]="guardando()"
+      [disabled]="loading() || errorCarga()"
+    >
+      <tui-icon icon="@tui.circle-check" />
+      {{ id() ? 'Actualizar persona' : 'Guardar persona' }}
+    </button>
+    <button
+      tuiButton
+      appearance="outline"
+      size="m"
+      type="button"
+      (click)="cancelar()"
+    >
+      Cancelar
+    </button>
+  </div>
+</form>
+
+<!-- Templates para ComboBox -->
+<ng-template #comboSexo let-item>
+  <span class="combo-item-con-icono">
+    <tui-icon [icon]="item.id === 'M' ? '@tui.mars' : '@tui.venus'" class="combo-icono" />
+    <span>{{ item.label }}</span>
+  </span>
+</ng-template>
+
+<ng-template #nombreTpl let-item>{{ item.nombre }}</ng-template>

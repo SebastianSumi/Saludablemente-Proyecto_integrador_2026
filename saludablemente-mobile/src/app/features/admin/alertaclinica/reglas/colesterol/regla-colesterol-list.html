@@ -1,0 +1,233 @@
+<!-- ══════════════════════════════════════
+     CABECERA DE PÁGINA (MaterialM / Pro)
+     ══════════════════════════════════════ -->
+<div class="page-banner card banner-top">
+  <div class="banner-img">
+  <img class="regla-banner" [src]="portada" alt="Ilustración" loading="lazy" />
+  </div>
+  <div class="page-banner-icon tile tile-rounded tile-warning">
+    <tui-icon icon="@tui.flask-conical" [style.view-transition-name]="'regla-icono-colesterol'" />
+  </div>
+  <div class="page-banner-body">
+    <div>
+      <h2 class="card-title">Reglas Clínicas: Colesterol Total</h2>
+      <p class="card-subtitle">
+        @if (loading()) {
+          Cargando registros...
+        } @else {
+          {{ items().length }} regla(s) de evaluación de perfil lipídico configurada(s)
+        }
+      </p>
+    </div>
+  </div>
+  <a tuiButton appearance="primary" size="m" routerLink="/alertaclinica/reglas/colesterol/nueva">
+    <tui-icon icon="@tui.plus" />
+    Nueva regla
+  </a>
+</div>
+
+<!-- ══════════════════════════════════════
+     FILTROS EN UNA SOLA LÍNEA
+     ══════════════════════════════════════ -->
+<section class="card filtros-card">
+  <div class="filtros-linea">
+    <!-- Filtro Estado -->
+    <label tuiLabel class="filtro-item">
+      <span class="filtro-etiqueta">Estado</span>
+      <tui-textfield tuiChevron>
+        <input
+          tuiComboBox
+          [formControl]="estadoCtrl"
+          placeholder="— Seleccione estado —"
+        />
+        <tui-data-list-wrapper
+          *tuiDropdown
+          [items]="estadoOpts | tuiFilterByInput"
+          [itemContent]="filtroOpt"
+        />
+      </tui-textfield>
+    </label>
+
+    <!-- Filtro Sexo -->
+    <label tuiLabel class="filtro-item">
+      <span class="filtro-etiqueta">Sexo Biológico</span>
+      <tui-textfield tuiChevron>
+        <input
+          tuiComboBox
+          [formControl]="sexoCtrl"
+          placeholder="— Seleccione sexo —"
+        />
+        <tui-data-list-wrapper
+          *tuiDropdown
+          [items]="sexoOpts | tuiFilterByInput"
+          [itemContent]="filtroOpt"
+        />
+      </tui-textfield>
+    </label>
+
+    <!-- Botón Limpiar -->
+    <button
+      tuiButton
+      appearance="outline"
+      size="m"
+      type="button"
+      (click)="limpiarFiltros()"
+      class="btn-limpiar"
+    >
+      <tui-icon icon="@tui.rotate-ccw" />
+      Limpiar
+    </button>
+  </div>
+</section>
+
+<ng-template #filtroOpt let-item>{{ item.label }}</ng-template>
+
+@if (error()) {
+  <div class="card error-caja">
+    <tui-icon icon="@tui.triangle-alert" class="icono-alerta" />
+    <p class="error-msg">{{ error() }}</p>
+  </div>
+}
+
+<!-- ══════════════════════════════════════
+     TABLA DE REGLAS (MaterialM Flush)
+     ══════════════════════════════════════ -->
+<div class="card flush tabla-card">
+  <div class="table-wrapper flush">
+    <table tuiTable>
+      <thead>
+        <tr>
+          <th tuiTh class="th-sexo">Sexo</th>
+          <th tuiTh>Rango de Edad</th>
+          <th tuiTh>Umbral Colesterol (mg/dL)</th>
+          <th tuiTh>Puntos Riesgo</th>
+          <th tuiTh>Clasificación Clínica</th>
+          <th tuiTh>Estado</th>
+          <th tuiTh class="th-acciones"><span class="sr-only">Acciones</span></th>
+        </tr>
+      </thead>
+      <tbody tuiTbody>
+        @for (item of items(); track item.idReglaColesterol) {
+          <tr>
+            <!-- Sexo con iconos Taiga UI (@tui.mars / @tui.venus) -->
+            <td tuiTd class="td-sexo">
+              @if (item.sexo === 'M') {
+                <span class="pill pill-soft-primary">
+                  <tui-icon icon="@tui.mars" class="pill-icono" />
+                  Masculino
+                </span>
+              } @else {
+                <span class="pill pill-soft-secondary">
+                  <tui-icon icon="@tui.venus" class="pill-icono" />
+                  Femenino
+                </span>
+              }
+            </td>
+
+            <!-- Rango de Edad -->
+            <td tuiTd>
+              <span class="edad-texto">{{ item.edadMin }} a {{ item.edadMax }} años</span>
+            </td>
+
+            <!-- Umbral Colesterol -->
+            <td tuiTd>
+              <span class="font-mono rango-destacado">{{ item.colesterolMgDlMin }} - {{ item.colesterolMgDlMax }} mg/dL</span>
+            </td>
+
+            <!-- Puntos de Riesgo -->
+            <td tuiTd>
+              @if (item.puntosRiesgo > 0) {
+                <span class="pill pill-soft-error">
+                  +{{ item.puntosRiesgo }} pts
+                </span>
+              } @else {
+                <span class="pill pill-soft-neutral">
+                  0 pts
+                </span>
+              }
+            </td>
+
+            <!-- Clasificación Clínica en Tonos Suaves MaterialM -->
+            <td tuiTd>
+              @if (item.clasificacion === 'DESEABLE') {
+                <span class="pill pill-soft-success">
+                  Deseable
+                </span>
+              } @else if (item.clasificacion === 'LIMITE') {
+                <span class="pill pill-soft-warning">
+                  Límite
+                </span>
+              } @else {
+                <span class="pill pill-soft-error">
+                  Alto
+                </span>
+              }
+            </td>
+
+            <!-- Estado con TuiBadge -->
+            <td tuiTd>
+              <span
+                tuiBadge
+                [appearance]="item.estado === 'ACTIVO' ? 'positive' : 'neutral'"
+                size="m"
+              >
+                {{ item.estado }}
+              </span>
+            </td>
+
+            <!-- Acciones estrictamente en una sola línea -->
+            <td tuiTd class="td-acciones">
+              <div class="row-actions">
+                <a
+                  tuiButton
+                  appearance="flat"
+                  size="s"
+                  title="Editar regla"
+                  [routerLink]="['/alertaclinica/reglas/colesterol', item.idReglaColesterol, 'editar']"
+                >
+                  <tui-icon icon="@tui.pencil" />
+                  Editar
+                </a>
+                @if (item.estado === 'ACTIVO') {
+                  <button
+                    tuiButton
+                    appearance="outline"
+                    size="s"
+                    type="button"
+                    title="Desactivar regla"
+                    (click)="desactivar(item.idReglaColesterol)"
+                  >
+                    Desactivar
+                  </button>
+                } @else {
+                  <button
+                    tuiButton
+                    appearance="outline"
+                    size="s"
+                    type="button"
+                    title="Reactivar regla"
+                    (click)="reactivar(item.idReglaColesterol)"
+                  >
+                    Reactivar
+                  </button>
+                }
+              </div>
+            </td>
+          </tr>
+        } @empty {
+          @if (!loading() && !error()) {
+            <tr>
+              <td tuiTd colspan="7" class="empty">
+                @if (filtroEstado() || filtroSexo()) {
+                  No se encontraron reglas de colesterol con los filtros seleccionados.
+                } @else {
+                  No hay reglas de colesterol registradas.
+                }
+              </td>
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

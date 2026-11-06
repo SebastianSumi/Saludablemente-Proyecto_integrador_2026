@@ -1,0 +1,41 @@
+<section class="stack">
+  <h1>Mis reportes</h1>
+  <p>Genera y descarga tus reportes personales en PDF.</p>
+
+  @if (error()) {
+    <p class="error" role="alert">{{ error() }}</p>
+  }
+
+  <label>
+    Periodo
+    <input tuiTextfield type="text" [(ngModel)]="periodo" placeholder="2026-1" />
+  </label>
+
+  <button tuiButton [disabled]="loading()" (click)="descargarAsistencias()">
+    Descargar reporte de asistencias
+  </button>
+
+  <button tuiButton [disabled]="loading()" (click)="descargarDatosPersonales()">
+    Descargar datos personales
+  </button>
+
+  <label>
+    Desde
+    <input tuiTextfield type="text" [(ngModel)]="desde" placeholder="2026-01-01" />
+  </label>
+  <label>
+    Hasta
+    <input tuiTextfield type="text" [(ngModel)]="hasta" placeholder="2026-12-31" />
+  </label>
+  <button tuiButton [disabled]="loading()" (click)="descargarActividades()">
+    Descargar reporte de actividades
+  </button>
+
+  <button tuiButton [disabled]="loading()" (click)="descargarEvaluaciones()">
+    Descargar reporte de evaluaciones
+  </button>
+
+  <button tuiButton [disabled]="loading()" (click)="descargarAlertas()">
+    Descargar reporte de alertas
+  </button>
+</section>

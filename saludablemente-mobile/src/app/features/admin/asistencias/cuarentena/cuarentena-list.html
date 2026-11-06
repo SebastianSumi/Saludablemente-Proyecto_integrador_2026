@@ -1,0 +1,147 @@
+<!-- ══════════════════════════════════════
+     CABECERA DE PÁGINA
+     ══════════════════════════════════════ -->
+<div class="page-banner card">
+  <div class="page-banner-body">
+    <div class="page-banner-icon tile tile-rounded tile-soft-warning">
+      <tui-icon icon="@tui.shield-alert" />
+    </div>
+    <div>
+      <h2 class="card-title">Bandeja de Cuarentena de Asistencias</h2>
+      <p class="card-subtitle">
+        @if (loading()) {
+          Cargando registros en revisión...
+        } @else {
+          {{ total() }} registro(s) observados ·
+          <span class="pill pill-soft-warning">{{ pendientes() }} pendientes de resolución</span>
+        }
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     FILTROS EN LÍNEA
+     ══════════════════════════════════════ -->
+<div class="filtros-card">
+  <div class="filtros-linea">
+    <div class="filtro-item">
+      <label class="filtro-etiqueta">Estado de resolución</label>
+      <tui-textfield tuiChevron>
+        <input tuiComboBox [formControl]="estadoCtrl" placeholder="— Todos —" />
+        <tui-data-list-wrapper *tuiDropdown [items]="estadoOpts | tuiFilterByInput" [itemContent]="filtro" />
+      </tui-textfield>
+    </div>
+
+    <div class="filtro-item">
+      <label class="filtro-etiqueta">Motivo de observación</label>
+      <tui-textfield tuiChevron>
+        <input tuiComboBox [formControl]="motivoCtrl" placeholder="— Todos los motivos —" />
+        <tui-data-list-wrapper *tuiDropdown [items]="motivoOpts | tuiFilterByInput" [itemContent]="filtro" />
+      </tui-textfield>
+    </div>
+  </div>
+</div>
+
+<ng-template #filtro let-item>{{ item.label }}</ng-template>
+
+@if (error()) {
+  <div class="card error-caja">
+    <tui-icon icon="@tui.triangle-alert" class="icono-alerta" />
+    <p class="error-msg">{{ error() }}</p>
+  </div>
+}
+
+<!-- ══════════════════════════════════════
+     TABLA DE CUARENTENA
+     ══════════════════════════════════════ -->
+<div class="card tabla-card flush">
+  <div class="table-wrapper flush">
+    <table tuiTable>
+      <thead>
+        <tr>
+          <th tuiTh>ID</th>
+          <th tuiTh>Actividad</th>
+          <th tuiTh>Persona</th>
+          <th tuiTh>Motivo</th>
+          <th tuiTh>Hora marcado</th>
+          <th tuiTh>Estado</th>
+          <th tuiTh class="th-acciones"><span class="sr-only">Acciones</span></th>
+        </tr>
+      </thead>
+      <tbody tuiTbody>
+        @for (c of items(); track c.idCuarentena) {
+          <tr>
+            <td tuiTd class="id-cell font-mono">#{{ c.idCuarentena }}</td>
+            <td tuiTd class="text-soft font-mono">Actividad #{{ c.idActividad }}</td>
+            <td tuiTd>
+              <div class="fila-persona">
+                <span tuiAvatar size="s" [round]="true">P{{ c.idPersona }}</span>
+                <span class="fw-bold font-mono">Persona #{{ c.idPersona }}</span>
+              </div>
+            </td>
+            <td tuiTd>
+              <span class="pill pill-soft-warning">{{ c.motivo }}</span>
+            </td>
+            <td tuiTd class="text-soft font-mono">{{ c.horaMarcado ?? '—' }}</td>
+            <td tuiTd>
+              @if (c.estado === 'PENDIENTE') {
+                <span class="pill pill-soft-warning">Pendiente</span>
+              } @else if (c.estado === 'APROBADO') {
+                <span class="pill pill-soft-success">Aprobado</span>
+              } @else {
+                <span class="pill pill-soft-error">Rechazado</span>
+              }
+            </td>
+            <td tuiTd class="td-acciones">
+              <div class="row-actions">
+                @if (c.estado === 'PENDIENTE') {
+                  <button tuiButton appearance="outline" size="s" type="button" (click)="resolver(c)">
+                    <tui-icon icon="@tui.check" />
+                    Resolver
+                  </button>
+                } @else {
+                  <span class="text-soft">Resuelto</span>
+                }
+              </div>
+            </td>
+          </tr>
+        } @empty {
+          @if (!loading() && !error()) {
+            <tr>
+              <td tuiTd colspan="7" class="empty">Bandeja de cuarentena vacía con los filtros seleccionados.</td>
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+  </div>
+
+  @if (totalPages() > 1) {
+    <div class="paginacion-bar">
+      <button
+        tuiButton
+        appearance="outline"
+        size="s"
+        type="button"
+        [disabled]="page() === 0"
+        (click)="paginaAnterior()"
+      >
+        <tui-icon icon="@tui.chevron-left" />
+        Anterior
+      </button>
+      <span class="paginacion-info">Página {{ page() + 1 }} de {{ totalPages() }}</span>
+      <button
+        tuiButton
+        appearance="outline"
+        size="s"
+        type="button"
+        [disabled]="page() + 1 >= totalPages()"
+        (click)="paginaSiguiente()"
+      >
+        Siguiente
+        <tui-icon icon="@tui.chevron-right" />
+      </button>
+    </div>
+  }
+</div>

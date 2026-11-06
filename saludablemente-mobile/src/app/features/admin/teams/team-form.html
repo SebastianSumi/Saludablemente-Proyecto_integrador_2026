@@ -1,0 +1,113 @@
+<!-- ══════════════════════════════════════
+     CABECERA DEL FORMULARIO
+     ══════════════════════════════════════ -->
+<div class="form-cabecera">
+  <div class="tile tile-rounded tile-soft-secondary modulo-icono">
+    <tui-icon icon="@tui.user-check" />
+  </div>
+  <div>
+    <h2 class="card-title">{{ id() ? 'Editar equipo' : 'Nuevo equipo' }}</h2>
+    <p class="card-subtitle">Define los datos del equipo de trabajo.</p>
+  </div>
+</div>
+
+<form [formGroup]="form" (ngSubmit)="guardar()" class="form-contenedor">
+  @if (esAdministrador && id()) {
+    <section class="card">
+      <h3>Líder del equipo</h3>
+      <p>Solo personas activas del equipo con cuenta activa. Para equipos nuevos, guarda primero y asigna sus integrantes.</p>
+      <select #lider aria-label="Líder del equipo" [disabled]="guardandoLider()">
+        <option value="" [selected]="!liderActual()">Sin líder</option>
+        @for (candidato of candidatos(); track candidato.idUsuario) {
+          <option [value]="candidato.idUsuario" [selected]="candidato.idUsuario === liderActual()">{{ candidato.nombre }}</option>
+        }
+      </select>
+      <button type="button" tuiButton size="s" [disabled]="loading() || errorCarga() || guardandoLider()" (click)="asignarLider(lider.value)">Asignar líder</button>
+      @if (mensajeLider()) { <p role="status">{{ mensajeLider() }}</p> }
+    </section>
+  }
+  @if (loading()) {
+    <div class="card estado-caja">
+      <p class="sal-subtitulo">Cargando datos del equipo...</p>
+    </div>
+  }
+
+  @if (error()) {
+    <div class="card error-caja">
+      <tui-icon icon="@tui.triangle-alert" class="icono-alerta" />
+      <p class="error-msg">{{ error() }}</p>
+    </div>
+  }
+
+  <section class="card">
+    <div class="seccion-titulo">
+      <span class="tile tile-rounded tile-soft-primary seccion-icono">
+        <tui-icon icon="@tui.briefcase" />
+      </span>
+      <div>
+        <h3 class="seccion-nombre">Datos del equipo</h3>
+        <p class="seccion-desc">Nombre y descripción para agrupamiento del personal</p>
+      </div>
+    </div>
+
+    <div class="form-grid">
+      <label class="field campo-full">Imagen del equipo (JPEG, PNG o WebP, hasta 5 MB)
+        <input type="file" accept="image/jpeg,image/png,image/webp" (change)="seleccionarImagen($event)" />
+        @if (imagenUrl()) { <img [src]="imagenUrl()" alt="Imagen del equipo" width="120" height="120" style="object-fit:contain" /> }
+      </label>
+      <label class="field">Color del equipo <input type="color" formControlName="color" /></label>
+      <label tuiLabel class="field campo-full">Slogan
+        <tui-textfield><input tuiInput formControlName="slogan" maxlength="150" /></tui-textfield>
+      </label>
+      <label tuiLabel class="field campo-full">Referencia bíblica
+        <tui-textfield><input tuiInput formControlName="referenciaBiblica" maxlength="100" placeholder="Filipenses 4:13" /></tui-textfield>
+      </label>
+      <label tuiLabel class="field campo-full">Texto del versículo
+        <tui-textfield><textarea tuiTextarea formControlName="textoVersiculo" maxlength="1000"></textarea></tui-textfield>
+      </label>
+      <!-- Nombre -->
+      <label tuiLabel class="field campo-full">
+        <span class="field-label">Nombre del equipo <span class="required">*</span></span>
+        <tui-textfield>
+          <input tuiInput type="text" formControlName="nombre" placeholder="Ej. Brigada de Emergencias" />
+        </tui-textfield>
+        <tui-error formControlName="nombre" />
+      </label>
+
+      <!-- Descripción -->
+      <label tuiLabel class="field campo-full">
+        <span class="field-label">Descripción</span>
+        <tui-textfield>
+          <textarea tuiTextarea formControlName="descripcion" rows="3" placeholder="Detalles de las funciones o alcance del equipo"></textarea>
+        </tui-textfield>
+        <tui-error formControlName="descripcion" />
+      </label>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════
+       BOTONES DE ACCIÓN
+       ══════════════════════════════════════ -->
+  <div class="form-acciones">
+    <button
+      tuiButton
+      appearance="primary"
+      size="m"
+      type="submit"
+      [loading]="guardando()"
+      [disabled]="loading() || errorCarga() || !puedeEditar()"
+    >
+      <tui-icon icon="@tui.circle-check" />
+      {{ id() ? 'Actualizar equipo' : 'Guardar equipo' }}
+    </button>
+    <button
+      tuiButton
+      appearance="outline"
+      size="m"
+      type="button"
+      (click)="cancelar()"
+    >
+      Cancelar
+    </button>
+  </div>
+</form>

@@ -1,0 +1,148 @@
+<!-- ══════════════════════════════════════
+     CABECERA DE PÁGINA
+     ══════════════════════════════════════ -->
+<div class="page-banner card">
+  <div class="page-banner-body">
+    <div class="page-banner-icon tile tile-rounded tile-soft-primary">
+      <tui-icon icon="@tui.calendar" />
+    </div>
+    <div>
+      <h2 class="card-title">Agenda de Actividades</h2>
+      <p class="card-subtitle">
+        @if (loading()) {
+          Cargando agenda institucional...
+        } @else {
+          {{ items().length }} actividad(es) programada(s)
+        }
+      </p>
+    </div>
+  </div>
+  <div class="page-banner-actions">
+    <a tuiButton appearance="outline" size="m" routerLink="/actividades/reportes">
+      <tui-icon icon="@tui.chart-column" />
+      Reporte por periodo
+    </a>
+    <a tuiButton appearance="primary" size="m" routerLink="/actividades/nueva">
+      <tui-icon icon="@tui.plus" />
+      Nueva actividad
+    </a>
+  </div>
+</div>
+
+@if (error()) {
+  <div class="card error-caja">
+    <tui-icon icon="@tui.triangle-alert" class="icono-alerta" />
+    <p class="error-msg">{{ error() }}</p>
+  </div>
+}
+
+<!-- ══════════════════════════════════════
+     CONMUTADOR DE VISTA + LEYENDA
+     ══════════════════════════════════════ -->
+<div class="vista-barra card">
+  <div class="vista-switch" role="tablist" aria-label="Modo de vista">
+    <button
+      type="button"
+      role="tab"
+      class="vista-btn"
+      [class.vista-btn-activo]="vista() === 'calendario'"
+      (click)="vista.set('calendario')"
+    >
+      <tui-icon icon="@tui.calendar" />
+      Calendario
+    </button>
+    <button
+      type="button"
+      role="tab"
+      class="vista-btn"
+      [class.vista-btn-activo]="vista() === 'agenda'"
+      (click)="vista.set('agenda')"
+    >
+      <tui-icon icon="@tui.list" />
+      Agenda
+    </button>
+  </div>
+  @if (vista() === 'calendario') {
+    <div class="leyenda">
+      <span class="leyenda-item"><span class="leyenda-dot dot-planificada"></span>Planificada</span>
+      <span class="leyenda-item"><span class="leyenda-dot dot-programada"></span>Programada</span>
+      <span class="leyenda-item"><span class="leyenda-dot dot-curso"></span>En curso</span>
+      <span class="leyenda-item"><span class="leyenda-dot dot-finalizada"></span>Finalizada</span>
+      <span class="leyenda-item"><span class="leyenda-dot dot-cancelada"></span>Cancelada</span>
+    </div>
+  }
+</div>
+
+@if (vista() === 'calendario') {
+  @if (!loading() && !error()) {
+    <app-actividad-calendario [actividades]="items()" />
+  }
+} @else {
+<!-- ══════════════════════════════════════
+     TABLA DE ACTIVIDADES
+     ══════════════════════════════════════ -->
+<div class="card tabla-card flush">
+  <div class="table-wrapper flush">
+    <table tuiTable>
+      <thead>
+        <tr>
+          <th tuiTh>Nombre de la actividad</th>
+          <th tuiTh>Fecha</th>
+          <th tuiTh>Horario</th>
+          <th tuiTh>Lugar / Espacio</th>
+          <th tuiTh>Coordinador</th>
+          <th tuiTh>Estado</th>
+          <th tuiTh class="th-acciones"><span class="sr-only">Acciones</span></th>
+        </tr>
+      </thead>
+      <tbody tuiTbody>
+        @for (a of items(); track a.idActividad) {
+          <tr>
+            <td tuiTd>
+              <div class="col-actividad-nombre">
+                @if (a.logoUrl) {
+                  <img [src]="resolverUrl(a.logoUrl)" alt="" class="actividad-miniatura-logo" />
+                } @else {
+                  <span class="actividad-miniatura-placeholder">
+                    <tui-icon icon="@tui.calendar" />
+                  </span>
+                }
+                <a class="fila-nombre" [routerLink]="['/actividades', a.idActividad]">{{ a.nombre }}</a>
+              </div>
+            </td>
+            <td tuiTd class="text-soft font-mono">{{ a.fechaActividad }}</td>
+            <td tuiTd class="text-soft font-mono">{{ a.horaInicio }} – {{ a.horaFin }}</td>
+            <td tuiTd class="text-soft">{{ a.lugar }}</td>
+            <td tuiTd class="text-ink">{{ a.nombreCoordinador ?? '—' }}</td>
+            <td tuiTd>
+              @if (a.estado === 'PROGRAMADA') {
+                <span class="pill pill-soft-primary">Programada</span>
+              } @else if (a.estado === 'EN_CURSO') {
+                <span class="pill pill-soft-warning">En curso</span>
+              } @else if (a.estado === 'FINALIZADA' || a.estado === 'CERRADA') {
+                <span class="pill pill-soft-success">Finalizada</span>
+              } @else {
+                <span class="pill pill-soft-neutral">{{ a.estado }}</span>
+              }
+            </td>
+            <td tuiTd class="td-acciones">
+              <div class="row-actions">
+                <a tuiButton appearance="flat" size="s" [routerLink]="['/actividades', a.idActividad]">
+                  <tui-icon icon="@tui.eye" />
+                  Ver detalle
+                </a>
+              </div>
+            </td>
+          </tr>
+        } @empty {
+          @if (!loading() && !error()) {
+            <tr>
+              <td tuiTd colspan="7" class="empty">No hay actividades registradas en la agenda.</td>
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+  </div>
+</div>
+}

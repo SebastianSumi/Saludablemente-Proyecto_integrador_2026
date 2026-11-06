@@ -1,0 +1,57 @@
+<div class="form-cabecera">
+  <div class="modulo-icono">
+    <tui-icon icon="@tui.qr-code" />
+  </div>
+  <div>
+    <h2>QR de la actividad</h2>
+    <p class="hint">Proyecta este código. Rota para invalidar el anterior.</p>
+  </div>
+</div>
+
+@if (loading()) {
+  <p class="hint">Cargando QR...</p>
+}
+
+@if (error()) {
+  <p class="error">{{ error() }}</p>
+}
+
+@if (finalizado()) {
+  <p class="hint">La actividad finalizó. Stream cerrado.</p>
+}
+
+@if (actual(); as q) {
+  <section class="card qr-card">
+    <div class="qr-codigo">{{ q.codigoQr }}</div>
+    <dl class="detail-grid">
+      <dt>Versión</dt>
+      <dd>
+        <span tuiBadge appearance="primary" size="s">v{{ q.version }}</span>
+        @if (enVivo()) {
+          <span tuiBadge appearance="positive" size="s">En vivo</span>
+        }
+      </dd>
+      <dt>Ventana</dt>
+      <dd>{{ q.ventanaInicio ?? '—' }} → {{ q.ventanaFin ?? '—' }}</dd>
+      <dt>Expira en</dt>
+      <dd>{{ q.expiraEnSegundos ?? '—' }} s ({{ formatoRestante() }})</dd>
+      <dt>Estado</dt>
+      <dd>
+        <span tuiBadge [appearance]="q.activo === false ? 'neutral' : 'positive'" size="s">
+          {{ q.activo === false ? 'Inactivo' : 'Activo' }}
+        </span>
+      </dd>
+    </dl>
+  </section>
+}
+
+<div class="form-actions">
+  <button tuiButton appearance="primary" size="m" type="button" [loading]="rotando()" (click)="rotar()">
+    <tui-icon icon="@tui.refresh-cw" />
+    Rotar QR
+  </button>
+  <button tuiButton appearance="outline" size="m" type="button" (click)="cargar()">
+    Recargar
+  </button>
+  <a tuiButton appearance="flat" size="m" routerLink="/asistencias/registro">Volver al registro</a>
+</div>

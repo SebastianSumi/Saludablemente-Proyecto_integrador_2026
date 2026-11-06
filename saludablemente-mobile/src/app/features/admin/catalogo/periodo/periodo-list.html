@@ -1,0 +1,120 @@
+<!-- ══════════════════════════════════════
+     CABECERA DE PÁGINA
+     ══════════════════════════════════════ -->
+<div class="page-banner card">
+  <div class="page-banner-body">
+    <div class="page-banner-icon tile tile-rounded tile-soft-primary">
+      <tui-icon icon="@tui.calendar" />
+    </div>
+    <div>
+      <h2 class="card-title">Periodos Académicos / Laborales</h2>
+      <p class="card-subtitle">
+        @if (loading()) {
+          Cargando periodos…
+        } @else {
+          {{ periodos().length }} periodo(s) registrado(s)
+        }
+      </p>
+    </div>
+  </div>
+  <a tuiButton appearance="primary" size="m" routerLink="/catalogo/periodos/nuevo">
+    <tui-icon icon="@tui.plus" />
+    Nuevo periodo
+  </a>
+</div>
+
+<!-- ══════════════════════════════════════
+     FILTROS EN LÍNEA
+     ══════════════════════════════════════ -->
+<div class="filtros-card">
+  <div class="filtros-linea">
+    <div class="filtro-item">
+      <label class="filtro-etiqueta">Filtrar por Estado</label>
+      <tui-textfield tuiChevron>
+        <input tuiComboBox [formControl]="estadoCtrl" [strict]="true" placeholder="— Todos los estados —" />
+        <tui-data-list-wrapper *tuiDropdown [items]="estadoOpts | tuiFilterByInput" [itemContent]="opt" />
+      </tui-textfield>
+    </div>
+  </div>
+</div>
+
+<ng-template #opt let-item>{{ item.label }}</ng-template>
+
+@if (error()) {
+  <div class="card error-caja">
+    <tui-icon icon="@tui.triangle-alert" class="icono-alerta" />
+    <p class="error-msg">{{ error() }}</p>
+  </div>
+}
+
+<!-- ══════════════════════════════════════
+     TABLA DE PERIODOS
+     ══════════════════════════════════════ -->
+<div class="card tabla-card flush">
+  <div class="table-wrapper flush">
+    <table tuiTable [columns]="columnas">
+      <thead>
+        <tr>
+          <th tuiTh>Código de Periodo</th>
+          <th tuiTh>Descripción</th>
+          <th tuiTh>Fecha Inicio</th>
+          <th tuiTh>Fecha Fin</th>
+          <th tuiTh>Estado</th>
+          <th tuiTh class="th-acciones"><span class="sr-only">Acciones</span></th>
+        </tr>
+      </thead>
+      <tbody tuiTbody [data]="periodos()">
+        @for (periodo of periodos(); track periodo.id) {
+          <tr>
+            <td tuiTd>
+              <span class="fila-nombre font-mono">{{ periodo.codigo }}</span>
+            </td>
+            <td tuiTd class="text-soft">{{ periodo.descripcion }}</td>
+            <td tuiTd class="text-soft font-mono">{{ periodo.fechaInicio }}</td>
+            <td tuiTd class="text-soft font-mono">{{ periodo.fechaFin }}</td>
+            <td tuiTd>
+              @if (periodo.estado === 'VIGENTE') {
+                <span class="pill pill-soft-success">Vigente</span>
+              } @else if (periodo.estado === 'CERRADO') {
+                <span class="pill pill-soft-neutral">Cerrado</span>
+              } @else if (periodo.estado === 'PLANIFICADO') {
+                <span class="pill pill-soft-primary">Planificado</span>
+              } @else {
+                <span class="pill pill-soft-warning">{{ periodo.estado }}</span>
+              }
+            </td>
+            <td tuiTd class="td-acciones">
+              <div class="row-actions">
+                <a tuiButton appearance="flat" size="s" [routerLink]="['/catalogo/periodos', periodo.id, 'editar']" title="Editar periodo">
+                  <tui-icon icon="@tui.pencil" />
+                  Editar
+                </a>
+                @if (periodo.estado !== 'VIGENTE' && periodo.estado !== 'CERRADO') {
+                  <button tuiButton appearance="outline" size="s" type="button" (click)="marcarVigente(periodo)">
+                    Vigente
+                  </button>
+                }
+                @if (periodo.estado !== 'CERRADO') {
+                  <button tuiButton appearance="outline" size="s" type="button" (click)="cerrar(periodo)">
+                    Cerrar
+                  </button>
+                }
+                @if (periodo.estado !== 'VIGENTE') {
+                  <button tuiButton appearance="outline" size="s" type="button" (click)="eliminar(periodo)" title="Eliminar periodo">
+                    <tui-icon icon="@tui.trash" />
+                  </button>
+                }
+              </div>
+            </td>
+          </tr>
+        } @empty {
+          @if (!loading() && !error()) {
+            <tr>
+              <td tuiTd colspan="6" class="empty">No hay periodos registrados en el sistema.</td>
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

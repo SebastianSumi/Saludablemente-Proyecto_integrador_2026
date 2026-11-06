@@ -1,0 +1,171 @@
+<div class="page-banner card">
+  <div class="page-banner-body">
+    <div class="page-banner-icon tile tile-rounded tile-soft-success">
+      <tui-icon icon="@tui.calendar-heart" />
+    </div>
+    <div>
+      <h2 class="card-title">Jornadas de Evaluación Nutricional</h2>
+      <p class="card-subtitle">
+        @if (loading()) {
+          Cargando jornadas…
+        } @else if (page(); as p) {
+          {{ p.totalElements }} jornada(s) disponibles
+        } @else {
+          Consulta fechas, cupos y turnos de evaluación
+        }
+      </p>
+    </div>
+  </div>
+
+  <div class="page-banner-actions">
+    <a tuiButton appearance="outline" size="m" routerLink="/nutricional/mis-inscripciones">
+      <tui-icon icon="@tui.ticket" />
+      Mis inscripciones
+    </a>
+    @if (esAdmin()) {
+      <a tuiButton appearance="outline" size="m" routerLink="/admin/nutricional/jornadas">
+        <tui-icon icon="@tui.settings" />
+        Administrar
+      </a>
+      <a tuiButton appearance="primary" size="m" routerLink="/admin/nutricional/jornadas/nueva">
+        <tui-icon icon="@tui.plus" />
+        Nueva jornada
+      </a>
+    }
+  </div>
+</div>
+
+<div class="filtros-card">
+  <div class="filtros-linea">
+    <div class="filtro-item">
+      <label class="filtro-etiqueta">Estado</label>
+      <tui-textfield tuiChevron>
+        <input
+          tuiComboBox
+          [formControl]="estadoCtrl"
+          [strict]="true"
+          placeholder="— Todas —"
+        />
+        <tui-data-list-wrapper
+          *tuiDropdown
+          [items]="estadoOpts | tuiFilterByInput"
+          [itemContent]="opt"
+        />
+      </tui-textfield>
+    </div>
+  </div>
+</div>
+
+<ng-template #opt let-item>{{ item.label }}</ng-template>
+
+@if (error()) {
+  <div class="card error-caja">
+    <tui-icon icon="@tui.triangle-alert" class="icono-alerta" />
+    <p class="error-msg">{{ error() }}</p>
+  </div>
+}
+
+@if (page(); as p) {
+  <div class="jornadas-grid">
+    @for (j of p.content; track j.idJornada) {
+      <article class="card jornada-card">
+        <div class="jornada-card-top">
+          <div class="jornada-fecha">
+            <span class="jornada-dia">{{ formatearFecha(j.fecha) }}</span>
+            <span class="jornada-hora">
+              <tui-icon icon="@tui.clock" />
+              {{ formatearHora(j.hora) }}
+            </span>
+          </div>
+          <span [class]="claseEstado(j.estado)">{{ etiquetaEstado(j.estado) }}</span>
+        </div>
+
+        <h3 class="jornada-nombre">{{ j.nombre }}</h3>
+
+        @if (j.descripcion) {
+          <p class="jornada-desc">{{ j.descripcion }}</p>
+        }
+
+        <div class="jornada-meta">
+          <span class="pill pill-soft-primary">
+            <tui-icon icon="@tui.calendar" />
+            {{ j.periodoCodigo ?? 'Sin periodo' }}
+          </span>
+          <span class="pill pill-soft-neutral">
+            <tui-icon icon="@tui.users" />
+            {{ j.inscritos }} / {{ j.capacidad }}
+          </span>
+        </div>
+
+        <div class="cupos-bar">
+          <div
+            class="cupos-fill"
+            [style.width.%]="j.capacidad > 0 ? (j.inscritos * 100) / j.capacidad : 0"
+          ></div>
+        </div>
+        <p class="cupos-texto">
+          @if (j.cuposDisponibles > 0) {
+            {{ j.cuposDisponibles }} cupo(s) disponible(s)
+          } @else {
+            Sin cupos disponibles
+          }
+        </p>
+
+        <div class="jornada-acciones">
+          <a
+            tuiButton
+            appearance="primary"
+            size="s"
+            [routerLink]="['/nutricional/jornadas', j.idJornada]"
+          >
+            <tui-icon icon="@tui.eye" />
+            Ver detalle
+          </a>
+          @if (esAdmin()) {
+            <a
+              tuiButton
+              appearance="outline"
+              size="s"
+              [routerLink]="['/admin/nutricional/jornadas', j.idJornada, 'inscritos']"
+            >
+              <tui-icon icon="@tui.list-ordered" />
+              Inscritos
+            </a>
+          }
+        </div>
+      </article>
+    } @empty {
+      @if (!loading() && !error()) {
+        <div class="card empty">No hay jornadas registradas con el filtro seleccionado.</div>
+      }
+    }
+  </div>
+
+  @if (p.totalPages > 1) {
+    <div class="paginacion-bar card">
+      <button
+        tuiButton
+        appearance="outline"
+        size="s"
+        type="button"
+        (click)="irAPagina(p.number - 1)"
+        [disabled]="p.number === 0"
+      >
+        <tui-icon icon="@tui.chevron-left" />
+        Anterior
+      </button>
+      <span class="paginacion-info">Página {{ p.number + 1 }} de {{ p.totalPages }}</span>
+      <button
+        tuiButton
+        appearance="outline"
+        size="s"
+        type="button"
+        (click)="irAPagina(p.number + 1)"
+        [disabled]="p.number + 1 >= p.totalPages"
+      >
+        Siguiente
+        <tui-icon icon="@tui.chevron-right" />
+      </button>
+    </div>
+  }
+}

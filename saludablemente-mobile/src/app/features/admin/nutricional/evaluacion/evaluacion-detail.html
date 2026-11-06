@@ -1,0 +1,286 @@
+<div class="detail-shell">
+  <div class="detail-nav">
+    <a tuiButton appearance="flat" size="s" routerLink="/nutricional/evaluaciones">
+      <tui-icon icon="@tui.arrow-left" />
+      Volver al listado
+    </a>
+  </div>
+
+  @if (loading()) {
+    <div class="card estado-caja">
+      <p class="sal-subtitulo">Cargando evaluación nutricional...</p>
+    </div>
+  }
+
+  @if (error()) {
+    <div class="card error-caja">
+      <tui-icon icon="@tui.triangle-alert" class="icono-alerta" />
+      <p class="error-msg">{{ error() }}</p>
+    </div>
+  }
+
+  @if (evaluacion(); as e) {
+    <!-- ══════════════════════════════════════
+         HERO — DETALLE DE EVALUACIÓN
+         ══════════════════════════════════════ -->
+    <div class="card hero-card">
+      <div class="hero-body">
+        <div class="hero-info">
+          <div class="tile tile-circle tile-soft-success hero-icono">
+            <tui-icon icon="@tui.apple" />
+          </div>
+          <div>
+            <div class="badges-row">
+              @if (e.estadoEvaluacion === 'COMPLETA') {
+                <span class="pill pill-soft-success">Evaluación Completa</span>
+              } @else if (e.estadoEvaluacion === 'ANULADA') {
+                <span class="pill pill-soft-neutral">Anulada</span>
+              } @else {
+                <span class="pill pill-soft-warning">Pendiente</span>
+              }
+              <span class="pill pill-soft-primary font-mono">Periodo {{ e.idPeriodo }}</span>
+            </div>
+            <h2 class="hero-nombre">Evaluación #{{ e.idEvaluacion }} — {{ e.nombresCompletos }}</h2>
+            <p class="hero-meta">
+              <span>DNI {{ e.documentoIdentidad }}</span>
+              <span class="hero-sep">·</span>
+              <span>{{ e.edadAlMomento }} años</span>
+              <span class="hero-sep">·</span>
+              <span>Área: {{ e.areaTrabajoAlMomento }}</span>
+              <span class="hero-sep">·</span>
+              <span>Fecha: {{ e.fechaEvaluacion }}</span>
+            </p>
+          </div>
+        </div>
+        <div class="hero-actions">
+          <button tuiButton appearance="primary" size="s" type="button" (click)="descargarPdf()">
+            <tui-icon icon="@tui.download" />
+            Descargar ficha PDF
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="secciones-grid">
+      <!-- ══════════════════════════════════════
+           SECCIÓN: ANTROPOMETRÍA
+           ══════════════════════════════════════ -->
+      <section class="card">
+        <div class="section-title">
+          <div class="section-title-left">
+            <span class="tile tile-rounded tile-soft-warning seccion-icono">
+              <tui-icon icon="@tui.scale" />
+            </span>
+            <div>
+              <h3>Antropometría</h3>
+              <p class="seccion-desc">Medidas corporales y composición</p>
+            </div>
+          </div>
+          @if (e.estadoEvaluacion !== 'ANULADA' && e.detalleAntropometrico) {
+            <div class="section-actions">
+              <a tuiButton appearance="outline" size="s" [routerLink]="['/nutricional/evaluaciones', e.idEvaluacion, 'antropometrico']">
+                <tui-icon icon="@tui.pencil" />
+                Editar
+              </a>
+              <button tuiButton appearance="outline" size="s" type="button" (click)="recalcularAntropometria()">
+                <tui-icon icon="@tui.refresh-cw" />
+                Recalcular
+              </button>
+            </div>
+          }
+        </div>
+
+        @if (e.detalleAntropometrico; as antro) {
+          <div class="metricas-grid">
+            <div class="metrica-item">
+              <span class="metrica-label">Estatura</span>
+              <strong class="metrica-val">{{ antro.estaturaCm }} <span class="unit">cm</span></strong>
+            </div>
+            <div class="metrica-item">
+              <span class="metrica-label">Peso</span>
+              <strong class="metrica-val">{{ antro.pesoKg }} <span class="unit">kg</span></strong>
+            </div>
+            <div class="metrica-item">
+              <span class="metrica-label">IMC</span>
+              <div class="metrica-val-con-pill">
+                <strong class="metrica-val">{{ antro.imc }}</strong>
+                <span class="pill pill-soft-primary">{{ antro.dxImc }}</span>
+              </div>
+            </div>
+            <div class="metrica-item">
+              <span class="metrica-label">Perímetro Abdominal</span>
+              <div class="metrica-val-con-pill">
+                <strong class="metrica-val">{{ antro.perimetroAbdominalCm }} <span class="unit">cm</span></strong>
+                <span class="pill pill-soft-secondary">{{ antro.dxPerimetroAbdominal }}</span>
+              </div>
+            </div>
+            <div class="metrica-item">
+              <span class="metrica-label">% Grasa Corporal</span>
+              <div class="metrica-val-con-pill">
+                <strong class="metrica-val">{{ antro.porcentajeGrasa }}%</strong>
+                <span class="pill pill-soft-warning">{{ antro.dxGrasa }}</span>
+              </div>
+            </div>
+            <div class="metrica-item">
+              <span class="metrica-label">% Masa Muscular</span>
+              <div class="metrica-val-con-pill">
+                <strong class="metrica-val">{{ antro.porcentajeMasaMuscular }}%</strong>
+                <span class="pill pill-soft-success">{{ antro.dxMasaMuscular }}</span>
+              </div>
+            </div>
+            <div class="metrica-item">
+              <span class="metrica-label">Grasa Visceral</span>
+              <div class="metrica-val-con-pill">
+                <strong class="metrica-val">{{ antro.porcentajeGrasaVisceral }}</strong>
+                <span class="pill pill-soft-error">{{ antro.dxGrasaVisceral }}</span>
+              </div>
+            </div>
+          </div>
+        } @else {
+          <div class="empty-state">
+            <p class="text-soft">Sin antropometría registrada en esta evaluación.</p>
+            @if (e.estadoEvaluacion === 'PENDIENTE') {
+              <a tuiButton appearance="primary" size="s" [routerLink]="['/nutricional/evaluaciones', e.idEvaluacion, 'antropometrico']">
+                <tui-icon icon="@tui.plus" />
+                Registrar antropometría
+              </a>
+            }
+          </div>
+        }
+      </section>
+
+      <!-- ══════════════════════════════════════
+           SECCIÓN: BIOQUÍMICA
+           ══════════════════════════════════════ -->
+      <section class="card">
+        <div class="section-title">
+          <div class="section-title-left">
+            <span class="tile tile-rounded tile-soft-error seccion-icono">
+              <tui-icon icon="@tui.flask-conical" />
+            </span>
+            <div>
+              <h3>Bioquímica y Laboratorio</h3>
+              <p class="seccion-desc">Parámetros sanguíneos y presión arterial</p>
+            </div>
+          </div>
+          @if (e.estadoEvaluacion !== 'ANULADA' && e.detalleBioquimico) {
+            <div class="section-actions">
+              <a tuiButton appearance="outline" size="s" [routerLink]="['/nutricional/evaluaciones', e.idEvaluacion, 'bioquimico']">
+                <tui-icon icon="@tui.pencil" />
+                Editar
+              </a>
+            </div>
+          }
+        </div>
+
+        @if (e.detalleBioquimico; as bio) {
+          <div class="metricas-grid">
+            <div class="metrica-item">
+              <span class="metrica-label">Glucosa en ayunas</span>
+              <div class="metrica-val-con-pill">
+                <strong class="metrica-val">{{ bio.glucosa ?? '—' }} <span class="unit">mg/dL</span></strong>
+                <span class="pill {{ bioClaseEstado(bioEstado('GLUCOSA', bio.glucosa)) }}">{{ bioEtiquetaEstado(bioEstado('GLUCOSA', bio.glucosa)) }}</span>
+              </div>
+            </div>
+            <div class="metrica-item">
+              <span class="metrica-label">Colesterol Total</span>
+              <div class="metrica-val-con-pill">
+                <strong class="metrica-val">{{ bio.colesterol ?? '—' }} <span class="unit">mg/dL</span></strong>
+                <span class="pill {{ bioClaseEstado(bioEstado('COLESTEROL', bio.colesterol)) }}">{{ bioEtiquetaEstado(bioEstado('COLESTEROL', bio.colesterol)) }}</span>
+              </div>
+            </div>
+            <div class="metrica-item">
+              <span class="metrica-label">Triglicéridos</span>
+              <div class="metrica-val-con-pill">
+                <strong class="metrica-val">{{ bio.trigliceridos ?? '—' }} <span class="unit">mg/dL</span></strong>
+                <span class="pill {{ bioClaseEstado(bioEstado('TRIGLICERIDOS', bio.trigliceridos)) }}">{{ bioEtiquetaEstado(bioEstado('TRIGLICERIDOS', bio.trigliceridos)) }}</span>
+              </div>
+            </div>
+            <div class="metrica-item">
+              <span class="metrica-label">Presión Arterial</span>
+              <div class="metrica-val-con-pill">
+                <strong class="metrica-val">{{ bio.presionSistolica ?? '—' }}/{{ bio.presionDiastolica ?? '—' }} <span class="unit">mmHg</span></strong>
+                <span class="pill {{ bioClaseEstado(bioEstadoPresion(bio)) }}">{{ bioEtiquetaEstado(bioEstadoPresion(bio)) }}</span>
+              </div>
+            </div>
+            <div class="metrica-item full-width">
+              <span class="metrica-label">Diagnóstico Bioquímico</span>
+              <div class="metrica-val-con-pill">
+                <div class="dx-bio-info">
+                  <span class="pill {{ bioClaseGlobal() }}">{{ bioEtiquetaGlobal() }}</span>
+                  @if (bioAlterado() && bioNombresAlterados()) {
+                    <span class="text-soft">Marcadores alterados: {{ bioNombresAlterados() }}</span>
+                  }
+                </div>
+                @if (bio.archivoOrigen) {
+                  <span class="text-soft font-mono">Archivo: {{ bio.archivoOrigen }}</span>
+                }
+              </div>
+            </div>
+          </div>
+        } @else {
+          <div class="empty-state">
+            <p class="text-soft">Sin resultados bioquímicos registrados.</p>
+            @if (e.estadoEvaluacion === 'PENDIENTE') {
+              <div class="empty-actions">
+                <a tuiButton appearance="primary" size="s" [routerLink]="['/nutricional/evaluaciones', e.idEvaluacion, 'bioquimico']">
+                  <tui-icon icon="@tui.plus" />
+                  Registrar manual
+                </a>
+                <a tuiButton appearance="outline" size="s" routerLink="/nutricional/importar-bioquimico">
+                  <tui-icon icon="@tui.file-spreadsheet" />
+                  Importar Excel
+                </a>
+              </div>
+            }
+          </div>
+        }
+      </section>
+    </div>
+
+    <!-- ══════════════════════════════════════
+         SECCIÓN: OBSERVACIONES CLÍNICAS
+         ══════════════════════════════════════ -->
+    <section class="card">
+      <div class="section-title">
+        <div class="section-title-left">
+          <span class="tile tile-rounded tile-soft-primary seccion-icono">
+            <tui-icon icon="@tui.clipboard-pen" />
+          </span>
+          <div>
+            <h3>Observaciones y Plan de Acción Nutricional</h3>
+            <p class="seccion-desc">Recomendaciones dietéticas y seguimiento personalizado</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="field">
+        <tui-textfield>
+          <textarea
+            tuiTextarea
+            rows="4"
+            [(ngModel)]="observaciones"
+            [disabled]="e.estadoEvaluacion === 'ANULADA' || guardandoObs()"
+            placeholder="Ingrese anotaciones y recomendaciones nutricionales para el colaborador...">
+          </textarea>
+        </tui-textfield>
+      </div>
+
+      @if (e.estadoEvaluacion !== 'ANULADA') {
+        <div class="form-acciones-end">
+          <button
+            tuiButton
+            appearance="primary"
+            size="m"
+            type="button"
+            (click)="guardarObservaciones()"
+            [loading]="guardandoObs()"
+            [disabled]="guardandoObs()">
+            <tui-icon icon="@tui.circle-check" />
+            Guardar observaciones
+          </button>
+        </div>
+      }
+    </section>
+  }
+</div>

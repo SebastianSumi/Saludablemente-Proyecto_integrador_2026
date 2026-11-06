@@ -1,0 +1,114 @@
+<div class="detail-shell">
+  <nav class="detail-nav">
+    <a tuiButton appearance="flat" size="s" [routerLink]="esAdmin() ? '/noticias/admin' : '/noticias'">
+      <tui-icon icon="@tui.arrow-left" />
+      Volver
+    </a>
+  </nav>
+
+  @if (loading()) {
+    <div class="card estado-caja">
+      <p class="hint">Cargando noticia...</p>
+    </div>
+  }
+
+  @if (error()) {
+    <div class="card error-caja">
+      <tui-icon icon="@tui.triangle-alert" class="icono-alerta" />
+      <p class="error-msg">{{ error() }}</p>
+    </div>
+  }
+
+  @if (noticia(); as n) {
+    <article class="card noticia-articulo">
+      <div class="noticia-top-bar">
+        <div class="noticia-badge-estado">
+          @if (n.estado === 'PUBLICADO') {
+            <span class="pill pill-soft-success">Publicado</span>
+          } @else if (n.estado === 'BORRADOR') {
+            <span class="pill pill-soft-warning">Borrador</span>
+          } @else if (n.estado === 'ARCHIVADO') {
+            <span class="pill pill-soft-neutral">Archivado</span>
+          } @else {
+            <span class="pill pill-soft-neutral">{{ n.estado }}</span>
+          }
+        </div>
+
+        @if (esAdmin()) {
+          <div class="acciones-noticia">
+            <a tuiButton appearance="outline" size="s" [routerLink]="['/noticias/admin', n.id, 'editar']">
+              <tui-icon icon="@tui.pencil" />
+              Editar
+            </a>
+            @if (n.estado === 'BORRADOR') {
+              <button tuiButton appearance="primary" size="s" type="button" [loading]="procesando()" (click)="transicion('publicar')">
+                <tui-icon icon="@tui.send" />
+                Publicar ahora
+              </button>
+            }
+            @if (n.estado === 'PUBLICADO') {
+              <button tuiButton appearance="outline" size="s" type="button" [loading]="procesando()" (click)="transicion('despublicar')">
+                Devolver a borrador
+              </button>
+              <button tuiButton appearance="outline" size="s" type="button" [loading]="procesando()" (click)="transicion('archivar')">
+                Archivar
+              </button>
+            }
+          </div>
+        }
+      </div>
+
+      <header class="noticia-header">
+        <h1 class="noticia-titulo">{{ n.titulo }}</h1>
+        @if (n.subtitulo) {
+          <p class="noticia-subtitulo">{{ n.subtitulo }}</p>
+        }
+        <div class="noticia-metadatos">
+          @if (n.categoria?.nombre) {
+            <span class="pill pill-soft-primary">{{ n.categoria?.nombre }}</span>
+          }
+          @if (n.nombreAutor) {
+            <span class="meta-item">Por <strong>{{ n.nombreAutor }}</strong></span>
+          }
+          @if (n.fechaPublicacion) {
+            <span class="meta-sep" aria-hidden="true">·</span>
+            <span class="meta-item font-mono">{{ n.fechaPublicacion }}</span>
+          }
+        </div>
+      </header>
+
+      @if (imagenDe(n); as img) {
+        <div class="portada-contenedor">
+          <app-imagen-mini
+            [src]="img"
+            [titulo]="n.titulo"
+            [subtitulo]="n.subtitulo"
+            [galeria]="galeriaDe(n)"
+            forma="ancha"
+            [altoPx]="480"
+          />
+        </div>
+      }
+
+      @if (esAdmin()) {
+        <div class="imagen-acciones">
+          <label tuiButton appearance="outline" size="s" class="btn-subir-img">
+            <tui-icon icon="@tui.image" />
+            {{ n.imagenUrl ? 'Cambiar imagen' : 'Subir imagen de portada' }}
+            <input type="file" accept="image/*" class="sr-only" (change)="subirImagen($event)" />
+          </label>
+          @if (n.imagenUrl) {
+            <button tuiButton appearance="destructive" size="s" type="button" [loading]="procesando()" (click)="eliminarImagen()">
+              <tui-icon icon="@tui.trash" />
+              Quitar imagen
+            </button>
+          }
+        </div>
+      }
+
+      <div class="noticia-contenido">
+        {{ n.contenido }}
+      </div>
+    </article>
+  }
+</div>
